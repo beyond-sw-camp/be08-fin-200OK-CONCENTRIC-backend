@@ -20,12 +20,12 @@
 
 <p><strong>⚙ Backend <br></strong>
   <img src="https://img.shields.io/badge/java-007396?style=for-the-badge&logo=java&logoColor=white"> 
-  <img src="https://img.shields.io/badge/apache tomcat-F8DC75?style=for-the-badge&logo=apachetomcat&logoColor=white">
   <img src="https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">
+  <img src="https://img.shields.io/badge/gradle-02303A?style=for-the-badge&logo=gradle&logoColor=white"> 
 </p>
 
 <p><strong>⚙ DB <br></strong>
-  <img src="https://img.shields.io/badge/mariaDB-003545?style=for-the-badge&logo=mariaDB&logoColor=white">  
+  <img src="https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=mysql&logoColor=white">
 </p>
 
 <p><strong>⚙ CI/CD <br></strong>
@@ -48,19 +48,10 @@
 <br><br>
 
 <h2 align="left">🎬 프로젝트 소개</h2>
-<b>:zap: 한화시스템 BEYOND SW캠프 final 프로젝트 :zap:</b></br></div>
+<b>:zap: 한화시스템 BEYOND SW캠프 8기 final 프로젝트 :zap:</b></br></div>
 <br><br>
 
 <h2 align="left">📁 프로젝트 문서 </h2>
-<details>
-    <summary>📑 git convention</summary>
-    <ul>
-      <li>
-        <a href="https://github.com/beyond-sw-camp/be08-fin-2team/blob/main/.github/pull_request_template.md">git convention</a>
-      </li>
-    </ul>
-</details>
-
 <details>
     <summary>📑 프로젝트 기획서</summary>
 </details>
@@ -95,6 +86,15 @@
 
 <details>
     <summary>📑 UI/UX 단위 테스트 결과서</summary>
+</details>
+
+<details>
+    <summary>📑 git convention</summary>
+    <ul>
+      <li>
+        <a href="https://github.com/beyond-sw-camp/be08-fin-2team/blob/main/.github/pull_request_template.md">git convention</a>
+      </li>
+    </ul>
 </details>
 
 <details>
