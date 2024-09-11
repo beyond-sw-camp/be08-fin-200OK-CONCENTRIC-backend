@@ -54,43 +54,58 @@
 
 <h2 align="left">📁 프로젝트 문서 </h2>
 <details>
-    <summary>📑 프로젝트 기획서</summary>
+  <summary>📑 프로젝트 기획서</summary>
+    <ul>
+      <li>
+        <a href="">프로젝트 기획서</a>
+      </li>
+    </ul>
 </details>
 
 <details>
-    <summary>📑 요구사항 정의서</summary>
+  <summary>📑 요구사항 정의서</summary>
+    <ul>
+      <li>
+        <a href="https://docs.google.com/spreadsheets/d/1I9NTIEf78iupBykQbElSe1u6AqR_ePbRZP8Z9JJtxlo/edit?gid=629016324#gid=629016324">요구사항 정의서</a>
+      </li>
+    </ul>
 </details>
 
 <details>
-    <summary>📑 시스템 아키텍처</summary>
+  <summary>📑 시스템 아키텍처</summary>
 </details>
 
 <details>
-    <summary>📑 WBS</summary>
+  <summary>📑 WBS</summary>
+    <ul>
+      <li>
+        <a href="https://docs.google.com/spreadsheets/d/1I9NTIEf78iupBykQbElSe1u6AqR_ePbRZP8Z9JJtxlo/edit?gid=1835326347#gid=1835326347">wbs</a>
+      </li>
+    </ul>
 </details>
 
 <details>
-    <summary>📑 ERD</summary>
+  <summary>📑 ERD</summary>
 </details>
 
 <details>
-    <summary>📑 화면 설계서</summary>
+  <summary>📑 화면 설계서</summary>
 </details>
 
 <details>
-    <summary>📑 프로그램 사양서</summary>
+  <summary>📑 프로그램 사양서</summary>
 </details>
 
 <details>
-    <summary>📑 단위 테스트 결과서</summary>
+  <summary>📑 단위 테스트 결과서</summary>
 </details>
 
 <details>
-    <summary>📑 UI/UX 단위 테스트 결과서</summary>
+  <summary>📑 UI/UX 단위 테스트 결과서</summary>
 </details>
 
 <details>
-    <summary>📑 git convention</summary>
+  <summary>📑 git convention</summary>
     <ul>
       <li>
         <a href="https://github.com/beyond-sw-camp/be08-fin-2team/blob/main/.github/pull_request_template.md">git convention</a>
@@ -99,15 +114,15 @@
 </details>
 
 <details>
-    <summary>📑 통합 테스트 결과서</summary>
+  <summary>📑 통합 테스트 결과서</summary>
 </details>
 
 <details>
-    <summary>📑 CI/CD 계획서</summary>
+  <summary>📑 CI/CD 계획서</summary>
 </details>
 
 <details>
-    <summary>📑 발표 자료</summary>
+  <summary>📑 발표 자료</summary>
 </details>
 
 <br><br>
