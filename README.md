@@ -49,6 +49,7 @@
 
 <h2 align="left">🎬 프로젝트 소개</h2>
 <b>:zap: 한화시스템 BEYOND SW캠프 8기 final 프로젝트 :zap:</b></br></div>
+일정 관리 시스템
 <br><br>
 
 <h2 align="left">📁 프로젝트 문서 </h2>
