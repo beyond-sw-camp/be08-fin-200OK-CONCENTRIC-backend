@@ -57,7 +57,7 @@
   <summary>📑 프로젝트 기획서</summary>
     <ul>
       <li>
-        <a href="">프로젝트 기획서</a>
+        <a href="https://docs.google.com/document/d/1QYzzU392lXxGFpqOtsZZRXI3J4UEJtxRVHURwr0FV6c/edit">프로젝트 기획서</a>
       </li>
     </ul>
 </details>
