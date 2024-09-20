@@ -75,7 +75,7 @@
   <summary>📑 시스템 아키텍처</summary>
   
   ![fin_architecture_1st](https://github.com/user-attachments/assets/fa939cdd-d118-4b72-a3c1-1d11a31f58c6)
-
+  
 </details>
 
 <details>
@@ -93,6 +93,9 @@
       <li>
         <a href="https://www.erdcloud.com/d/t6RHN2FqhoTrg8FQM">ERD</a>
       </li>
+      <li>
+        <a href="https://docs.google.com/spreadsheets/d/1I9NTIEf78iupBykQbElSe1u6AqR_ePbRZP8Z9JJtxlo/edit?gid=692233280#gid=692233280">테이블 명세서</a>
+      </li>
     </ul>
 </details>
 
@@ -100,7 +103,7 @@
   <summary>📑 화면 설계서</summary>
     <ul>
       <li>
-        <a href="https://www.figma.com/design/tQDM0kHjSfGFNpiKAIvvnl/beyond_4th_rough?node-id=0-1&node-type=canvas&t=sCjcPOlidZRPCQHC-0">wbs</a>
+        <a href="https://www.figma.com/design/tQDM0kHjSfGFNpiKAIvvnl/beyond_4th_rough?node-id=0-1&node-type=canvas&t=sCjcPOlidZRPCQHC-0">화면 설계서</a>
       </li>
     </ul>
 </details>
