@@ -88,7 +88,7 @@
   <summary>📑 ERD</summary>
     <ul>
       <li>
-        <a href="https://www.erdcloud.com/d/t6RHN2FqhoTrg8FQM">wbs</a>
+        <a href="https://www.erdcloud.com/d/t6RHN2FqhoTrg8FQM">ERD</a>
       </li>
     </ul>
 </details>
