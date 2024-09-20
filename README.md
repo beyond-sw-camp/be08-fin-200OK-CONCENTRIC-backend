@@ -79,17 +79,27 @@
   <summary>📑 WBS</summary>
     <ul>
       <li>
-        <a href="https://docs.google.com/spreadsheets/d/1I9NTIEf78iupBykQbElSe1u6AqR_ePbRZP8Z9JJtxlo/edit?gid=1835326347#gid=1835326347">wbs</a>
+        <a href="https://docs.google.com/spreadsheets/d/1I9NTIEf78iupBykQbElSe1u6AqR_ePbRZP8Z9JJtxlo/edit?gid=1683566461#gid=1683566461">wbs</a>
       </li>
     </ul>
 </details>
 
 <details>
   <summary>📑 ERD</summary>
+    <ul>
+      <li>
+        <a href="https://www.erdcloud.com/d/t6RHN2FqhoTrg8FQM">wbs</a>
+      </li>
+    </ul>
 </details>
 
 <details>
   <summary>📑 화면 설계서</summary>
+    <ul>
+      <li>
+        <a href="https://www.figma.com/design/tQDM0kHjSfGFNpiKAIvvnl/beyond_4th_rough?node-id=0-1&node-type=canvas&t=sCjcPOlidZRPCQHC-0">wbs</a>
+      </li>
+    </ul>
 </details>
 
 <details>
