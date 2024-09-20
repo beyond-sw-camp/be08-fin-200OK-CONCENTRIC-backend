@@ -73,6 +73,9 @@
 
 <details>
   <summary>📑 시스템 아키텍처</summary>
+  
+  ![fin_architecture_1st](https://github.com/user-attachments/assets/fa939cdd-d118-4b72-a3c1-1d11a31f58c6)
+
 </details>
 
 <details>
