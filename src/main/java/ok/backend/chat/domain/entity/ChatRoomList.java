@@ -2,6 +2,7 @@ package ok.backend.chat.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import ok.backend.member.domain.Member;
 
 @Entity
 @NoArgsConstructor
@@ -13,7 +14,6 @@ import lombok.*;
 public class ChatRoomList {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "chat_room_list_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

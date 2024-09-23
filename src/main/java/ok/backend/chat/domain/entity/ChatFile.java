@@ -13,19 +13,18 @@ import lombok.*;
 public class ChatFile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "chat_file_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_messages_id")
-    private ChatMessages chatMessages;
+    private ChatMessage chatMessage;
 
     @Column(nullable = false)
     private String fileUrl;
 
-    public static ChatFile createChatFile(ChatMessages chatMessages, String fileUrl) {
+    public static ChatFile createChatFile(ChatMessage chatMessage, String fileUrl) {
         return ChatFile.builder()
-                .chatMessages(chatMessages)
+                .chatMessage(chatMessage)
                 .fileUrl(fileUrl)
                 .build();
     }

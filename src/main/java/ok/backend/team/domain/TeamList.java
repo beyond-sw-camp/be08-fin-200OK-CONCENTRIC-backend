@@ -1,10 +1,11 @@
-package ok.backend.Teams.domain;
+package ok.backend.team.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import ok.backend.member.domain.Member;
 
 @Entity
 @NoArgsConstructor
@@ -15,12 +16,11 @@ import lombok.NoArgsConstructor;
 public class TeamList {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "team_list_id")
     private Long id;
 
     @ManyToOne
     @JoinColumn(name = "team_id")
-    private Teams teams;
+    private Team team;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
