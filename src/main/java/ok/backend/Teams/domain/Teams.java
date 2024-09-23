@@ -1,6 +1,10 @@
 package ok.backend.Teams.domain;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -8,6 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Getter
 @Table(name = "teams")
 public class Teams {
     @Id
@@ -22,14 +30,17 @@ public class Teams {
     @Column(nullable = false, length = 10)
     private String name;
 
-    @Column(nullable = false)
+    @Column(name = "creator_id", nullable = false)
     private Long creator_id;
 
     @CreationTimestamp
     @Column(name = "create_at", nullable = false)
     private LocalDateTime createAt;
 
-    @OneToMany(mappedBy = "users")
+    @OneToMany(mappedBy = "teams")
     private List<TeamList> teamList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "teams")
+    private List<TeamSchedule> teamSchedule = new ArrayList<>();
 
 }
