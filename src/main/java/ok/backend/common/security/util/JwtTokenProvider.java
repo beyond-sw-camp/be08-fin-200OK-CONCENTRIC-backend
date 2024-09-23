@@ -7,6 +7,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import ok.backend.member.domain.entity.RefreshToken;
 import ok.backend.member.service.RefreshTokenService;
@@ -18,12 +19,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.io.IOException;
 import java.util.Date;
 import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
+@Getter
 public class JwtTokenProvider {
 
     @Value("${jwt.secret}")
@@ -41,7 +42,7 @@ public class JwtTokenProvider {
     @Value("${jwt.refresh.expiration}")
     private long refreshTokenValidTime;
 
-    private final SecurityUserDetailService securityUserDetailService;;;
+    private final SecurityUserDetailService securityUserDetailService;
 
     private final RefreshTokenService refreshTokenService;
 
@@ -70,11 +71,11 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String createAccessToken(String sub, String userPk){
+    public String createAccessToken(String userPk){
         return createToken(accessHeader, userPk, accessTokenValidTime);
     }
 
-    public String createRefreshToken(String sub, String userPk){
+    public String createRefreshToken(String userPk){
         return createToken(refreshHeader, userPk, refreshTokenValidTime);
     }
 
@@ -120,12 +121,12 @@ public class JwtTokenProvider {
         }
     }
 
-    public Cookie reIssueAccessToken(String accessToken) throws IOException {
+    public Cookie reIssueAccessToken(String accessToken) {
         RefreshToken refreshToken = refreshTokenService.findByAccessToken(accessToken);
 
         if(refreshToken != null) {
             String userId = refreshToken.getUsername();
-            String newAccessToken = createToken(accessHeader, userId, accessTokenValidTime);
+            String newAccessToken = createAccessToken(userId);
 
             refreshTokenService.updateAccessToken(refreshToken, newAccessToken);
             Authentication authentication = getAuthentication(newAccessToken);
@@ -143,4 +144,5 @@ public class JwtTokenProvider {
 
         return null;
     }
+
 }

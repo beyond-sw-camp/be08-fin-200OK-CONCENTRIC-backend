@@ -4,8 +4,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import ok.backend.member.domain.entity.Member;
+import ok.backend.member.dto.MemberLoginRequestDto;
 import ok.backend.member.dto.MemberRegisterRequestDto;
+import ok.backend.member.dto.MemberResponseDto;
 import ok.backend.member.service.MemberService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,5 +32,13 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @Operation(summary = "로그인 API")
+    @PostMapping("/login")
+    public ResponseEntity<MemberResponseDto> login(@RequestBody MemberLoginRequestDto memberLoginRequestDto) {
+        Member member = memberService.findMemberByEmailAndPassword(memberLoginRequestDto);
 
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, memberService.createToken(member).toString())
+                .body(new MemberResponseDto(member));
+    }
 }
