@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import ok.backend.member.domain.Member;
+import ok.backend.member.domain.entity.Member;
 
 @Entity
 @NoArgsConstructor

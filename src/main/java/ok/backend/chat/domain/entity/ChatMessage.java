@@ -2,11 +2,10 @@ package ok.backend.chat.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import ok.backend.member.domain.Member;
+import ok.backend.member.domain.entity.Member;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @NoArgsConstructor

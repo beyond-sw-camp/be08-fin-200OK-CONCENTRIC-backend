@@ -1,4 +1,4 @@
-package ok.backend.member.domain;
+package ok.backend.member.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import ok.backend.chat.domain.entity.ChatMessage;
 import ok.backend.chat.domain.entity.ChatRoomList;
+import ok.backend.member.domain.enums.MemberStatus;
 import ok.backend.scedule.domain.entity.Schedule;
 import ok.backend.team.domain.TeamList;
 import org.hibernate.annotations.CreationTimestamp;
