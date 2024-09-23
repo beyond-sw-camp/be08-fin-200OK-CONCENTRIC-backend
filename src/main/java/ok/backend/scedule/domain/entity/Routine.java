@@ -11,6 +11,7 @@ import lombok.*;
 @Builder
 @Table(name = "routine")
 public class Routine {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "routine_id")

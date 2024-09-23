@@ -12,7 +12,6 @@ import ok.backend.Teams.domain.Teams;
 @Setter
 @Table(name = "team_schedule")
 public class TeamSchedule {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "team_schedule_id")

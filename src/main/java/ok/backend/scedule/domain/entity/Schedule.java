@@ -18,7 +18,6 @@ import java.util.List;
 @Setter
 @Table(name = "schedules")
 public class Schedule {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "schedule_id")
