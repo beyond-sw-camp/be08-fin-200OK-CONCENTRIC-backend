@@ -90,7 +90,7 @@
 <details>
   <summary>📑 ERD</summary>
 
-  ![fin_ERD](https://github.com/user-attachments/assets/596c41e9-0c11-48cb-b0b8-fad0a886aa41)
+  ![fin_ERD](https://github.com/user-attachments/assets/1219043a-4b48-4776-a183-e1b638e14032)
     <ul>
       <li>
         <a href="https://docs.google.com/spreadsheets/d/1I9NTIEf78iupBykQbElSe1u6AqR_ePbRZP8Z9JJtxlo/edit?gid=692233280#gid=692233280">테이블 명세서</a>
