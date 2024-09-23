@@ -5,12 +5,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import ok.backend.chat.domain.entity.ChatMessage;
+import ok.backend.chat.domain.entity.ChatRoomList;
+import ok.backend.scedule.domain.entity.Schedule;
+import ok.backend.team.domain.TeamList;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -48,23 +51,23 @@ public class Member {
     @Column(name = "profile_content")
     private String content;
 
-    @OneToMany(mappedBy = "users")
-    private List<Notification> notifications = new ArrayList<>();
+//    @OneToMany(mappedBy = "users")
+//    private List<Notification> notifications = new ArrayList<>();
 
-    @OneToMany(mappedBy = "users")
+    @OneToMany(mappedBy = "member")
     private List<Schedule> schedules = new ArrayList<>();
 
-    @OneToMany(mappedBy = "users")
+    @OneToMany(mappedBy = "member")
 //    @OnDelete(action = OnDeleteAction.CASCADE)
 //      -> CascadeType.REMOVE 를 여기서 적용 or 위 annotation 을 N쪽에 적용
     private List<TeamList> teamList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "users")
+    @OneToMany(mappedBy = "member")
     private List<ChatRoomList> chatRoomList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "users")
+    @OneToMany(mappedBy = "member")
     private List<ChatMessage> chatMessages = new ArrayList<>();
 
-//    @OneToMany(mappedBy = "users")
+//    @OneToMany(mappedBy = "member")
 //    private List<Comment> comments = new ArrayList<>();
 }

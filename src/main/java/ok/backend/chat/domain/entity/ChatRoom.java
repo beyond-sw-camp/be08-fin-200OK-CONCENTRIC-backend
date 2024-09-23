@@ -17,7 +17,6 @@ import java.util.List;
 public class ChatRoom {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "chat_room_id")
     private Long id;
 
     @Column(nullable = false)
@@ -34,10 +33,10 @@ public class ChatRoom {
     @Column(name = "update_at", nullable = false)
     private LocalDateTime updateAt;
 
-    @OneToMany(mappedBy = "chat_room")
-    private List<ChatMessages> chatMessages;
+    @OneToMany(mappedBy = "chatRoom")
+    private List<ChatMessage> chatMessages;
 
-    @OneToMany(mappedBy = "chat_room")
+    @OneToMany(mappedBy = "chatRoom")
     private List<ChatRoomList> chatRoomList;
 
     public static ChatRoom createChatRoom(String name) {

@@ -2,7 +2,7 @@ package ok.backend.scedule.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import ok.backend.Teams.domain.Teams;
+import ok.backend.team.domain.Team;
 
 @Entity
 @NoArgsConstructor
@@ -14,14 +14,13 @@ import ok.backend.Teams.domain.Teams;
 public class TeamSchedule {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "team_schedule_id")
-    private Long teamScheduleId;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id", nullable = false)
-    private Teams team;
+    private Team team;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "schedule_id", nullable = false)
     private Schedule schedule;
 }
