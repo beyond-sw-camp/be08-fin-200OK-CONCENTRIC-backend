@@ -25,10 +25,6 @@ public class Teams {
     @Column(nullable = false)
     private Long creator_id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private Member member;
-
     @CreationTimestamp
     @Column(name = "create_at", nullable = false)
     private LocalDateTime createAt;
