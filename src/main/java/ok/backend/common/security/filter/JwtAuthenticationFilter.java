@@ -20,22 +20,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        Optional<Cookie> cookie = jwtTokenProvider.resolveAccessToken(request);
-        if(cookie.isEmpty()){
-            System.out.println("cookie is empty");
+    public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
+        Optional<Cookie> accessTokenCookie = jwtTokenProvider.resolveAccessToken(request);
+        if(accessTokenCookie.isEmpty()){
+            System.out.println("accessTokenCookie is empty");
         }
-        if(cookie.isPresent()){
-            String token = cookie.get().getValue();
-            boolean isValid = jwtTokenProvider.validateToken(token);
-            Authentication authentication;
+        if(accessTokenCookie.isPresent()){
+            String accessToken = accessTokenCookie.get().getValue();
+            boolean isValid = jwtTokenProvider.validateToken(accessToken);
 
             if(isValid){
-                authentication = jwtTokenProvider.getAuthentication(token);
+                Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }else{
-                response = jwtTokenProvider.reIssueAccessToken(request);
+                Cookie cookie = jwtTokenProvider.reIssueAccessToken(accessToken);
+
+                if(cookie != null){
+                    response.addCookie(cookie);
+                }else{
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                }
             }
         }
+        chain.doFilter(request, response);
     }
 }

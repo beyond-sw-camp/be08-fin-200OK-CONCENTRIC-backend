@@ -7,15 +7,18 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import ok.backend.member.domain.entity.RefreshToken;
+import ok.backend.member.service.RefreshTokenService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.io.IOException;
 import java.util.Date;
 import java.util.Optional;
 
@@ -38,9 +41,9 @@ public class JwtTokenProvider {
     @Value("${jwt.refresh.expiration}")
     private long refreshTokenValidTime;
 
-    private final SecurityUserDetailService securityUserDetailService;
+    private final SecurityUserDetailService securityUserDetailService;;;
 
-    private final SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes());
+    private final RefreshTokenService refreshTokenService;
 
     public String createToken(String sub, String userPK, long tokenValidTime) {
 
@@ -53,7 +56,7 @@ public class JwtTokenProvider {
                 .add("user_id", userPK)
                 .build();
 
-//        SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes());
+        SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes());
 
         Date now = new Date();
 
@@ -68,11 +71,11 @@ public class JwtTokenProvider {
     }
 
     public String createAccessToken(String sub, String userPk){
-        return createToken(sub, userPk, accessTokenValidTime);
+        return createToken(accessHeader, userPk, accessTokenValidTime);
     }
 
     public String createRefreshToken(String sub, String userPk){
-        return createToken(sub, userPk, refreshTokenValidTime);
+        return createToken(refreshHeader, userPk, refreshTokenValidTime);
     }
 
     public Authentication getAuthentication(String token) {
@@ -82,10 +85,14 @@ public class JwtTokenProvider {
     }
 
     public String getUserPK(String token) {
+        SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes());
+
         return Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload().get("user_id").toString();
     }
 
     public String getUserRole(String token) {
+        SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes());
+
         return Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload().get("role").toString();
     }
 
@@ -104,6 +111,8 @@ public class JwtTokenProvider {
 
     public boolean validateToken(String token) {
         try {
+            SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes());
+
             Jws<Claims> claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
             return !claims.getPayload().getExpiration().before(new Date());
         } catch (Exception e) {
@@ -111,7 +120,27 @@ public class JwtTokenProvider {
         }
     }
 
-    public HttpServletResponse reIssueAccessToken(HttpServletRequest request){
+    public Cookie reIssueAccessToken(String accessToken) throws IOException {
+        RefreshToken refreshToken = refreshTokenService.findByAccessToken(accessToken);
 
+        if(refreshToken != null) {
+            String userId = refreshToken.getUsername();
+            String newAccessToken = createToken(accessHeader, userId, accessTokenValidTime);
+
+            refreshTokenService.updateAccessToken(refreshToken, newAccessToken);
+            Authentication authentication = getAuthentication(newAccessToken);
+
+            Cookie cookie = new Cookie(accessHeader, newAccessToken);
+            cookie.setHttpOnly(true);
+            cookie.setSecure(true);
+            cookie.setPath("/");
+            cookie.setMaxAge(3600);
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            return cookie;
+        }
+
+        return null;
     }
 }
