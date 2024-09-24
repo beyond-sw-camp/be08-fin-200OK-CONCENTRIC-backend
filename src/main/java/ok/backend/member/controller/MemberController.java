@@ -23,7 +23,7 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    @Operation(summary = "회원 정보를 등록하는 API")
+    @Operation(summary = "회원가입 API")
     @PostMapping("/register")
     public ResponseEntity<String> registerMember(@RequestBody MemberRegisterRequestDto memberRegisterRequestDto) {
         memberService.registerMember(memberRegisterRequestDto);
