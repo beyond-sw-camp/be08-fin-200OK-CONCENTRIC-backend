@@ -53,8 +53,9 @@ public class MemberController {
     @PutMapping("/update")
     public ResponseEntity<MemberResponseDto> updateMember(@RequestBody MemberUpdateRequestDto memberUpdateRequestDto) {
         Member member = memberService.updateMember(memberUpdateRequestDto);
-
-        return ResponseEntity.ok().body(new MemberResponseDto(member));
+        System.out.println("member.getId() = " + member.getId());
+        System.out.println("member.getNickname() = " + member.getNickname());
+        return ResponseEntity.ok(new MemberResponseDto(member));
     }
 
     @Operation(summary = "회원 탈퇴 API")
@@ -64,4 +65,6 @@ public class MemberController {
 
         return ResponseEntity.ok().build();
     }
+
+
 }
