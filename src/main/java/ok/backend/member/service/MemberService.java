@@ -14,7 +14,6 @@ import ok.backend.member.dto.MemberLoginRequestDto;
 import ok.backend.member.dto.MemberRegisterRequestDto;
 import ok.backend.member.dto.MemberUpdateRequestDto;
 import org.springframework.http.ResponseCookie;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -109,10 +108,8 @@ public class MemberService {
                 new RuntimeException("Member with id " + memberUpdateRequestDto.getId() + " not found"));
 
         member.updateMember(memberUpdateRequestDto);
-        System.out.println(member.getId());
-        memberRepository.save(member);
 
-        return member;
+        return memberRepository.save(member);
     }
 
     @Transactional
