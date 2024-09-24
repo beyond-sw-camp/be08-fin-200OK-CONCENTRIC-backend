@@ -12,6 +12,7 @@ import ok.backend.member.domain.repository.MemberRepository;
 import ok.backend.member.domain.repository.RefreshTokenRepository;
 import ok.backend.member.dto.MemberLoginRequestDto;
 import ok.backend.member.dto.MemberRegisterRequestDto;
+import ok.backend.member.dto.MemberUpdateRequestDto;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -100,5 +101,26 @@ public class MemberService {
         refreshTokenService.delete(refreshToken);
 
         SecurityContextHolder.clearContext();
+    }
+
+    @Transactional
+    public Member updateMember(MemberUpdateRequestDto memberUpdateRequestDto){
+        Member member = memberRepository.findById(memberUpdateRequestDto.getId()).orElseThrow(() ->
+                new RuntimeException("Member with id " + memberUpdateRequestDto.getId() + " not found"));
+
+        member.updateMember(memberUpdateRequestDto);
+        System.out.println(member.getId());
+        memberRepository.save(member);
+
+        return member;
+    }
+
+    @Transactional
+    public void  deleteMember(Long memberId){
+        Member member = memberRepository.findById(memberId).orElseThrow(() ->
+                new RuntimeException("Member with id " + memberId + " not found"));
+
+        member.updateStatus();
+        memberRepository.save(member);
     }
 }

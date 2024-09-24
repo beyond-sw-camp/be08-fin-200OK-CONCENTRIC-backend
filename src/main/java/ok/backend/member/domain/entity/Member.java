@@ -44,6 +44,7 @@ public class Member {
     @Column(name = "created_at", nullable = false)
     private LocalDate createDate;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private MemberStatus status;
 

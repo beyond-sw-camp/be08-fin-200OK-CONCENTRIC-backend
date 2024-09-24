@@ -8,14 +8,12 @@ import ok.backend.member.domain.entity.Member;
 import ok.backend.member.dto.MemberLoginRequestDto;
 import ok.backend.member.dto.MemberRegisterRequestDto;
 import ok.backend.member.dto.MemberResponseDto;
+import ok.backend.member.dto.MemberUpdateRequestDto;
 import ok.backend.member.service.MemberService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "User", description = "회원 관리")
 @RequiredArgsConstructor
@@ -47,6 +45,22 @@ public class MemberController {
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request){
         memberService.logout(request);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "회원 정보 수정 API")
+    @PutMapping("/update")
+    public ResponseEntity<MemberResponseDto> updateMember(@RequestBody MemberUpdateRequestDto memberUpdateRequestDto) {
+        Member member = memberService.updateMember(memberUpdateRequestDto);
+
+        return ResponseEntity.ok().body(new MemberResponseDto(member));
+    }
+
+    @Operation(summary = "회원 탈퇴 API")
+    @PutMapping("/delete/{memberId}")
+    public ResponseEntity<String> deleteMember(@PathVariable Long memberId){
+        memberService.deleteMember(memberId);
 
         return ResponseEntity.ok().build();
     }
