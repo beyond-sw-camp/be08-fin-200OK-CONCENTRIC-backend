@@ -9,7 +9,6 @@ import ok.backend.member.domain.entity.Member;
 import ok.backend.member.domain.entity.RefreshToken;
 import ok.backend.member.domain.enums.MemberStatus;
 import ok.backend.member.domain.repository.MemberRepository;
-import ok.backend.member.domain.repository.RefreshTokenRepository;
 import ok.backend.member.dto.MemberLoginRequestDto;
 import ok.backend.member.dto.MemberRegisterRequestDto;
 import ok.backend.member.dto.MemberUpdateRequestDto;
@@ -31,7 +30,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final RefreshTokenRepository refreshTokenRepository;
+
     private final RefreshTokenService refreshTokenService;
 
     @Transactional
@@ -49,6 +48,11 @@ public class MemberService {
                 .build();
 
         return Optional.of(memberRepository.save(member));
+    }
+
+    public Member findMemberByEmail(String email) {
+        return memberRepository.findByEmail(email).orElseThrow(() ->
+                new RuntimeException("Member with email " + email + " not found"));
     }
 
     public Member findMemberByEmailAndPassword(MemberLoginRequestDto memberLoginRequestDto) {
@@ -78,7 +82,7 @@ public class MemberService {
                 .expiration(new Date(new Date().getTime() + jwtTokenProvider.getRefreshTokenValidTime()).getTime())
                 .build();
 
-        refreshTokenRepository.save(newRefreshToken);
+        refreshTokenService.save(newRefreshToken);
 
         ResponseCookie cookie = ResponseCookie.from(jwtTokenProvider.getAccessHeader(), accessToken)
                 .httpOnly(true)
@@ -90,6 +94,7 @@ public class MemberService {
         return cookie;
     }
 
+    @Transactional
     public void logout(HttpServletRequest request){
         Cookie accessTokenCookie = jwtTokenProvider.resolveAccessToken(request).orElseThrow(() ->
                 new RuntimeException("accessToken not found"));
@@ -113,11 +118,22 @@ public class MemberService {
     }
 
     @Transactional
-    public void  deleteMember(Long memberId){
+    public void deleteMember(Long memberId){
         Member member = memberRepository.findById(memberId).orElseThrow(() ->
                 new RuntimeException("Member with id " + memberId + " not found"));
 
         member.updateStatus();
+        memberRepository.save(member);
+    }
+
+    @Transactional
+    public void updatePassword(String email, String code){
+        Member member = memberRepository.findByEmail(email).orElseThrow(() ->
+                new RuntimeException("Member with email " + email + " not found"));
+
+        String newPassword = passwordEncoder.encode(code);
+
+        member.updatePassword(newPassword);
         memberRepository.save(member);
     }
 }
