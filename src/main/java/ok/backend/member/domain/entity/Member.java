@@ -40,7 +40,7 @@ public class Member {
     private String nickname;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at")
     private LocalDate createDate;
 
     @Enumerated(EnumType.STRING)

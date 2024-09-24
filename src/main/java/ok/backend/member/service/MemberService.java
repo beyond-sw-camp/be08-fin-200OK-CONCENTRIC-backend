@@ -43,7 +43,6 @@ public class MemberService {
                 .password(hashPassword)
                 .name(memberRegisterRequestDto.getName())
                 .nickname(memberRegisterRequestDto.getNickname())
-                .createDate(LocalDate.now())
                 .status(MemberStatus.Y)
                 .build();
 
