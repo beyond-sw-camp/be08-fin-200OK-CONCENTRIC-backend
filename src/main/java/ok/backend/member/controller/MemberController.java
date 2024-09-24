@@ -2,6 +2,7 @@ package ok.backend.member.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import ok.backend.member.domain.entity.Member;
 import ok.backend.member.dto.MemberLoginRequestDto;
@@ -40,5 +41,13 @@ public class MemberController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, memberService.createToken(member).toString())
                 .body(new MemberResponseDto(member));
+    }
+
+    @Operation(summary = "로그아웃 API")
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request){
+        memberService.logout(request);
+
+        return ResponseEntity.ok().build();
     }
 }

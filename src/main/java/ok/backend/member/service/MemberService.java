@@ -1,5 +1,7 @@
 package ok.backend.member.service;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import ok.backend.common.security.util.JwtTokenProvider;
@@ -11,6 +13,8 @@ import ok.backend.member.domain.repository.RefreshTokenRepository;
 import ok.backend.member.dto.MemberLoginRequestDto;
 import ok.backend.member.dto.MemberRegisterRequestDto;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +32,7 @@ public class MemberService {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenService refreshTokenService;
 
     @Transactional
     public Optional<Member> registerMember(MemberRegisterRequestDto memberRegisterRequestDto) {
@@ -83,5 +88,17 @@ public class MemberService {
                 .build();
 
         return cookie;
+    }
+
+    public void logout(HttpServletRequest request){
+        Cookie accessTokenCookie = jwtTokenProvider.resolveAccessToken(request).orElseThrow(() ->
+                new RuntimeException("accessToken not found"));
+        String accessToken = accessTokenCookie.getValue();
+
+        RefreshToken refreshToken = refreshTokenService.findByAccessToken(accessToken).orElseThrow(() ->
+                new RuntimeException("refreshToken not found"));
+        refreshTokenService.delete(refreshToken);
+
+        SecurityContextHolder.clearContext();
     }
 }

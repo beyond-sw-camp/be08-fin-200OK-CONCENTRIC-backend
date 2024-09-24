@@ -122,7 +122,7 @@ public class JwtTokenProvider {
     }
 
     public Cookie reIssueAccessToken(String accessToken) {
-        RefreshToken refreshToken = refreshTokenService.findByAccessToken(accessToken);
+        RefreshToken refreshToken = refreshTokenService.findByAccessToken(accessToken).orElse(null);
 
         if(refreshToken != null) {
             String userId = refreshToken.getUsername();
@@ -144,5 +144,6 @@ public class JwtTokenProvider {
 
         return null;
     }
+
 
 }
