@@ -2,47 +2,55 @@ package ok.backend.chat.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import ok.backend.member.domain.entity.Member;
-import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.FieldType;
 
 import java.time.LocalDateTime;
 
-@Entity
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
-@Setter
-@Builder
-@Table(name = "chat_messages")
+@Document(collection = "chat_messages")
+@NoArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class ChatMessage {
-    // TODO: 읽음 처리에 대한 칼럼 일단 제외함 찾아보고 추가하겠음
+    /**
+     * TODO: 파일 관련된 설정도 여기에서 처리하길래 한번 넣어봤는데 고민해봐야 할 듯..
+     * 안읽음 처리 관련한 건 추후에 생각해보겠음
+     */
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Field(value = "chat_messages_id", targetType = FieldType.OBJECT_ID)
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Field("chat_room_id")
+    private Long chatRoomId;
+
+    @Field("user_id")
+    private Long memberId;
+
+    @Field("message")
     private String message;
 
-    @CreationTimestamp
-    @Column(name = "create_at", nullable = false)
+    @Field("file_url")
+    private String fileUrl;
+
+    @CreatedDate
+    @Field("create_at")
     private LocalDateTime createAt;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private Member member;
+    // 생성자 처리
+    public ChatMessage(Long chatRoomId, Long memberId, String message, String fileUrl) {
+        this.chatRoomId = chatRoomId;
+        this.memberId = memberId;
+        this.message = message;
+        this.fileUrl = fileUrl;
+    }
 
-    @ManyToOne
-    @JoinColumn(name = "chat_room_id")
-    private ChatRoom chatRoom;
-
-    @OneToOne(mappedBy = "chatMessage")
-    private ChatFile chatFile;
-
-    public static ChatMessage createMessage(String message, Member member, ChatRoom chatRoom) {
-        return ChatMessage.builder()
-                .message(message)
-                .member(member)
-                .chatRoom(chatRoom)
-                .build();
+    // 정적 팩토리 메소드
+    public static ChatMessage of(Long chatRoomId, Long memberId, String message, String fileUrl) {
+        return new ChatMessage(chatRoomId, memberId, message, fileUrl);
     }
 }

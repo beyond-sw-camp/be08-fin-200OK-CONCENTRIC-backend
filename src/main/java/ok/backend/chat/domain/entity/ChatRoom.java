@@ -33,8 +33,8 @@ public class ChatRoom {
     @Column(name = "update_at", nullable = false)
     private LocalDateTime updateAt;
 
-    @OneToMany(mappedBy = "chatRoom")
-    private List<ChatMessage> chatMessages;
+//    @OneToMany(mappedBy = "chatRoom")
+//    private List<ChatMessage> chatMessages;
 
     @OneToMany(mappedBy = "chatRoom")
     private List<ChatRoomList> chatRoomList;
