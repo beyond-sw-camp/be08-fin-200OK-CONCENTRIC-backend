@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import ok.backend.chat.domain.entity.ChatMessage;
 import ok.backend.chat.domain.entity.ChatRoomList;
 import ok.backend.member.domain.enums.MemberStatus;
+import ok.backend.member.dto.MemberUpdateRequestDto;
 import ok.backend.scedule.domain.entity.Schedule;
 import ok.backend.team.domain.TeamList;
 import org.hibernate.annotations.CreationTimestamp;
@@ -43,6 +44,7 @@ public class Member {
     @Column(name = "created_at", nullable = false)
     private LocalDate createDate;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private MemberStatus status;
 
@@ -71,4 +73,18 @@ public class Member {
 
 //    @OneToMany(mappedBy = "member")
 //    private List<Comment> comments = new ArrayList<>();
+
+    public void updateMember(MemberUpdateRequestDto memberUpdateRequestDto) {
+        this.nickname = memberUpdateRequestDto.getNickname();
+        this.imageUrl = memberUpdateRequestDto.getImageUrl();
+        this.content = memberUpdateRequestDto.getContent();
+    }
+
+    public void updateStatus(){
+        this.status = MemberStatus.N;
+    }
+
+    public void updatePassword(String password){
+        this.password = password;
+    }
 }
