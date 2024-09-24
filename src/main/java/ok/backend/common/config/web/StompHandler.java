@@ -2,6 +2,8 @@ package ok.backend.common.config.web;
 
 import lombok.RequiredArgsConstructor;
 import ok.backend.common.security.util.JwtTokenProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.messaging.Message;
@@ -18,7 +20,7 @@ public class StompHandler implements ChannelInterceptor {
 
     // WebSocket 연결 시 헤더에서 JWT token 유효성 검증
     private final JwtTokenProvider jwtTokenProvider;
-//    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private static final Logger logger = LoggerFactory.getLogger(StompHandler.class);
 
     // presend: STOMP 메세지가 전송되기 전에 호출되어 웹소켓 연결 시 토큰 검증
     @Override
@@ -26,7 +28,7 @@ public class StompHandler implements ChannelInterceptor {
         /**
          * 1. StompHeaderAccessor: Stomp 메세지의 헤더에 접근하는 클래스
          * 2. 전송된 Stomp 메세지의 Command가 CONNECT인지 검사
-         * 3. StompHeaderAccessor로부터 Authorization 헤더의 JWT 토큰 추출
+         * 3. StompHeaderAccessor로부터 Authorization 헤더의 JWT 토큰 추출(BEARER <- 이거 제거)
          * 4. jwtAuthenticationFilter로부터 유효한 토큰인지 확인
          */
         final StompHeaderAccessor stompHeaderAccessor = StompHeaderAccessor.wrap(message);
@@ -34,9 +36,12 @@ public class StompHandler implements ChannelInterceptor {
         if (StompCommand.CONNECT.equals(stompHeaderAccessor.getCommand())) {
             final String authorization = extractJwt(stompHeaderAccessor);
 
-            boolean isValid = jwtTokenProvider.validateToken(authorization);
+            String token = authorization.substring(7);
+            boolean isValid = jwtTokenProvider.validateToken(token);
             if (!isValid) {
-                throw new IllegalStateException("Invalid JWT token");
+                logger.error("Invalid JWT token: {}", token);
+//                throw new IllegalStateException("Invalid JWT token");
+                return message;
             }
         }
         return message;
