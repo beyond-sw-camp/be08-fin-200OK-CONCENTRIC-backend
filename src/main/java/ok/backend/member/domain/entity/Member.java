@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import ok.backend.chat.domain.entity.ChatMessage;
 import ok.backend.chat.domain.entity.ChatRoomList;
 import ok.backend.member.domain.enums.MemberStatus;
 import ok.backend.member.dto.MemberUpdateRequestDto;
@@ -68,8 +67,8 @@ public class Member {
     @OneToMany(mappedBy = "member")
     private List<ChatRoomList> chatRoomList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member")
-    private List<ChatMessage> chatMessages = new ArrayList<>();
+//    @OneToMany(mappedBy = "member")
+//    private List<ChatMessage> chatMessages = new ArrayList<>();
 
 //    @OneToMany(mappedBy = "member")
 //    private List<Comment> comments = new ArrayList<>();

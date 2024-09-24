@@ -24,4 +24,8 @@ public class RefreshTokenService {
     public void delete(RefreshToken refreshToken) {
         refreshTokenRepository.delete(refreshToken);
     }
+
+    public void save(RefreshToken refreshToken) {
+        refreshTokenRepository.save(refreshToken);
+    }
 }
