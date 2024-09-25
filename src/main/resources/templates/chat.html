@@ -35,7 +35,7 @@
             return;
         }
 
-        const socket = new SockJS('http://localhost:8080/ws/chat');
+        const socket = new SockJS('http://localhost:8080/ws');
         stompClient = Stomp.over(socket);
 
         const accessToken = '';

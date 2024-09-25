@@ -30,7 +30,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         // 엔드포인트 추가 등록
         registry
                 .setErrorHandler(stompExceptionHandler)
-                .addEndpoint("/ws/chat")
+                .addEndpoint("/ws")
                 .addInterceptors()
                 .setAllowedOriginPatterns("*")
                 .withSockJS();
