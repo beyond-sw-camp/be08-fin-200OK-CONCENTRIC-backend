@@ -2,6 +2,7 @@ package ok.backend.chat.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import ok.backend.chat.dto.req.ChatRoomRequestDto;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -22,9 +23,6 @@ public class ChatRoom {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
-    private Boolean bookmark;
-
     @CreationTimestamp
     @Column(name = "create_at", nullable = false)
     private LocalDateTime createAt;
@@ -33,16 +31,17 @@ public class ChatRoom {
     @Column(name = "update_at", nullable = false)
     private LocalDateTime updateAt;
 
-//    @OneToMany(mappedBy = "chatRoom")
-//    private List<ChatMessage> chatMessages;
-
-    @OneToMany(mappedBy = "chatRoom")
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatRoomList> chatRoomList;
 
-    public static ChatRoom createChatRoom(String name) {
-        return ChatRoom.builder()
-                .name(name)
-                .bookmark(false)
-                .build();
+//    public static ChatRoom createChatRoom(String name) {
+//        return ChatRoom.builder()
+//                .name(name)
+//                .build();
+//    }
+
+    public void updateChatRoom(ChatRoomRequestDto chatRoomRequestDto) {
+        this.name = chatRoomRequestDto.getName();
+        this.updateAt = LocalDateTime.now();
     }
 }
