@@ -16,4 +16,5 @@ public class ScheduleRequestDto {
     private String status;
     private String startDate;
     private String endDate;
+    private Integer importance;
 }

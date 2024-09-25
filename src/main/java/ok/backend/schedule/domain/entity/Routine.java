@@ -1,7 +1,10 @@
 package ok.backend.schedule.domain.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import ok.backend.schedule.domain.enums.DayOfWeek;
 import ok.backend.schedule.domain.enums.RepeatType;
 
