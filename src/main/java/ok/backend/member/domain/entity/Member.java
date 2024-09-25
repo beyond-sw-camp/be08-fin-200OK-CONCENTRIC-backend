@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import ok.backend.chat.domain.entity.ChatRoomList;
+import ok.backend.friendship.domain.entity.Friendship;
+import ok.backend.friendship.domain.entity.FriendshipRequest;
 import ok.backend.member.domain.enums.MemberStatus;
 import ok.backend.member.dto.MemberUpdateRequestDto;
 import ok.backend.schedule.domain.entity.Schedule;
@@ -36,7 +38,7 @@ public class Member {
     @Column(nullable = false, length = 10)
     private String name;
 
-    @Column(nullable = false, length = 20)
+    @Column(unique = true, nullable = false, length = 20)
     private String nickname;
 
     @CreationTimestamp
@@ -72,6 +74,12 @@ public class Member {
 
 //    @OneToMany(mappedBy = "member")
 //    private List<Comment> comments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member")
+    private List<Friendship> friendships = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member")
+    private List<FriendshipRequest> friendshipRequests = new ArrayList<>();
 
     public void updateMember(MemberUpdateRequestDto memberUpdateRequestDto) {
         this.nickname = memberUpdateRequestDto.getNickname();

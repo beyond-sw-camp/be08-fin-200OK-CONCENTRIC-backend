@@ -4,6 +4,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import ok.backend.common.security.util.JwtTokenProvider;
 import ok.backend.member.domain.entity.Member;
 import ok.backend.member.domain.entity.RefreshToken;
@@ -21,6 +22,7 @@ import java.time.LocalDate;
 import java.util.Date;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberService {
@@ -89,6 +91,10 @@ public class MemberService {
                 .path("/")
                 .maxAge(3600)
                 .build();
+
+        log.info(accessToken);
+        log.info(refreshToken);
+        System.out.println("token created");
 
         return cookie;
     }

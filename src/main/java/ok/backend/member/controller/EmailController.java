@@ -10,7 +10,7 @@ import ok.backend.member.service.EmailService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "Email")
+@Tag(name = "Email", description = "이메일 전송 관리")
 @Slf4j
 @RestController
 @RequiredArgsConstructor
