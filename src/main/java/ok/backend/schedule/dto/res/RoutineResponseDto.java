@@ -9,12 +9,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RoutineResponseDto {
-    private Long routineId;
+    private Long id;
     private String repeatType;
     private Integer repeatInterval;
 
     public RoutineResponseDto(Routine routine) {
-        this.routineId = routine.getRoutineId();
+        this.id = routine.getId();
         this.repeatType = routine.getRepeatType().toString();
         this.repeatInterval = routine.getRepeatInterval();
     }
