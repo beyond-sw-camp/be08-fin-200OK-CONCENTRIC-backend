@@ -13,7 +13,9 @@ public class ChatMessageResponseDto {
     private String fileUrl;
 
     public static ChatMessageResponseDto of(ChatMessage chatMessage) {
-        return new ChatMessageResponseDto(chatMessage.getChatRoomId(), chatMessage.getMemberId(),
-                chatMessage.getMessage(), chatMessage.getFileUrl());
+        return new ChatMessageResponseDto(chatMessage.getChatRoomId(),
+                chatMessage.getMemberId(),
+                chatMessage.getMessage(),
+                chatMessage.getFileUrl());
     }
 }
