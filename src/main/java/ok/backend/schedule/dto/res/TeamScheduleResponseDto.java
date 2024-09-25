@@ -1,9 +1,9 @@
 package ok.backend.schedule.dto.res;
 
-import ok.backend.schedule.domain.entity.TeamSchedule;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import ok.backend.schedule.domain.entity.TeamSchedule;
 
 @Getter
 @NoArgsConstructor
