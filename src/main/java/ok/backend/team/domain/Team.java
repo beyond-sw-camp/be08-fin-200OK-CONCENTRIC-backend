@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import ok.backend.chat.domain.entity.ChatRoom;
-import ok.backend.scedule.domain.entity.TeamSchedule;
+import ok.backend.schedule.domain.entity.TeamSchedule;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
