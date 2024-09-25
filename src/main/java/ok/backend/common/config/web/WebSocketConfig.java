@@ -21,26 +21,24 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        // 해당 파라미터의 접두사가 붙은 구독자에게 메세지를 보냄
         registry.enableSimpleBroker("/sub");
-        registry.setApplicationDestinationPrefixes("/pub"); // e.g. /pub/chat/ChatRoomId
+        registry.setApplicationDestinationPrefixes("/pub");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // 엔드포인트 추가 등록
         registry
-                .setErrorHandler(stompExceptionHandler) // exception handler
-                // 클라이언트는 /ws/chat 엔드포인트를 통해 연결하고, /pub 및 /sub 접두사를 사용하여 메시지를 송수신
+                .setErrorHandler(stompExceptionHandler)
                 .addEndpoint("/ws/chat")
                 .addInterceptors()
-                .setAllowedOriginPatterns("*"); // CORS 설정을 모두 허용
+                .setAllowedOriginPatterns("*")
+                .withSockJS();
     }
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
         // Client로부터 들어오는 메세지를 처리하는 MessageChannel 구성 메소드
-        // TCP handshake 시 JWT 인증
         registration.interceptors(stompHandler);
     }
 }

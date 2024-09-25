@@ -8,6 +8,7 @@ import ok.backend.chat.service.ChatMessageService;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 @Slf4j
@@ -15,14 +16,14 @@ import org.springframework.stereotype.Controller;
 @RequiredArgsConstructor
 public class ChatMessageController {
 
-    // ChatMessageService: MongoDB에서 채팅 메세지를 저장하는 기능
     private final ChatMessageService chatMessageService;
 
-    @MessageMapping("/pub/chat/{chatRoomId}")
+    @MessageMapping("/chat/{chatRoomId}")
     @SendTo("/sub/chat/{chatRoomId}")
-    public ChatMessageResponseDto broadcasting(final ChatMessageRequestDto chatMessageRequestDto, // SendMessage ReqDto
+    public ChatMessageResponseDto broadcasting(final ChatMessageRequestDto chatMessageRequestDto,
                                                @DestinationVariable(value = "chatRoomId") final Long chatRoomId) {
         log.info("{chatRoomId: {}, request: {}}", chatRoomId, chatMessageRequestDto);
+        // return: MongoDB에 채팅 메세지를 저장
         return chatMessageService.saveChatMessage(chatRoomId, chatMessageRequestDto);
     }
 }
