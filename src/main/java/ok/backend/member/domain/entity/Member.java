@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import ok.backend.chat.domain.entity.ChatRoomList;
 import ok.backend.member.domain.enums.MemberStatus;
 import ok.backend.member.dto.MemberUpdateRequestDto;
-import ok.backend.scedule.domain.entity.Schedule;
+import ok.backend.schedule.domain.entity.Schedule;
 import ok.backend.team.domain.TeamList;
 import org.hibernate.annotations.CreationTimestamp;
 

@@ -1,4 +1,4 @@
-package ok.backend.scedule.domain.entity;
+package ok.backend.schedule.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -7,9 +7,8 @@ import ok.backend.team.domain.Team;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Getter
-@Setter
+@Builder
 @Table(name = "team_schedule")
 public class TeamSchedule {
     @Id
