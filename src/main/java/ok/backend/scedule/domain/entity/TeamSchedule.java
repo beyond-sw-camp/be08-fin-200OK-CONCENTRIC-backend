@@ -2,7 +2,7 @@ package ok.backend.scedule.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import ok.backend.team.domain.Team;
+import ok.backend.team.domain.entity.Team;
 
 @Entity
 @NoArgsConstructor

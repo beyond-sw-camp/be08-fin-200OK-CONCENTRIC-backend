@@ -1,10 +1,7 @@
-package ok.backend.team.domain;
+package ok.backend.team.domain.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import ok.backend.chat.domain.entity.ChatRoom;
 import ok.backend.scedule.domain.entity.TeamSchedule;
 import org.hibernate.annotations.CreationTimestamp;
@@ -16,7 +13,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Setter
 @Getter
 @Table(name = "teams")
 public class Team {
@@ -43,5 +40,6 @@ public class Team {
 
     @OneToMany(mappedBy = "team")
     private List<TeamSchedule> teamSchedules = new ArrayList<>();
+
 
 }

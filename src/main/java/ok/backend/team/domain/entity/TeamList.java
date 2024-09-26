@@ -1,4 +1,4 @@
-package ok.backend.team.domain;
+package ok.backend.team.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,7 +25,6 @@ public class TeamList {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private Member member;
-
 
 
 

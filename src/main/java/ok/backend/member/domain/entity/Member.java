@@ -9,7 +9,7 @@ import ok.backend.chat.domain.entity.ChatMessage;
 import ok.backend.chat.domain.entity.ChatRoomList;
 import ok.backend.member.domain.enums.MemberStatus;
 import ok.backend.scedule.domain.entity.Schedule;
-import ok.backend.team.domain.TeamList;
+import ok.backend.team.domain.entity.TeamList;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
