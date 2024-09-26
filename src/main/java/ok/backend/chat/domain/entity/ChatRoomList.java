@@ -29,11 +29,15 @@ public class ChatRoomList {
     @ColumnDefault("false")
     private Boolean bookmark;
 
+    @Column(nullable = false)
+    private String nickname;
+
     public static ChatRoomList createChatRoomList(Member member, ChatRoom chatRoom) {
         return ChatRoomList.builder()
                 .member(member)
                 .chatRoom(chatRoom)
                 .bookmark(false)
+                .nickname(chatRoom.getName())
                 .build();
     }
 }

@@ -3,25 +3,26 @@ package ok.backend.chat.dto.res;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import ok.backend.chat.domain.entity.ChatRoom;
 import ok.backend.chat.domain.entity.ChatRoomList;
-
-import java.time.LocalDateTime;
 
 @Getter
 @RequiredArgsConstructor
 @AllArgsConstructor
-public class ChatRoomListResponseDto {
+public class ChatRoomMemberResponseDto {
 
     private Long chatRoomId;
 
+    private Long memberId;
+
     private String nickname;
 
-    private Boolean bookmark;
+    private String imageUrl;
 
-    public ChatRoomListResponseDto(ChatRoomList chatRoomList) {
+    public ChatRoomMemberResponseDto(ChatRoomList chatRoomList) {
         this.chatRoomId = chatRoomList.getChatRoom().getId();
-        this.nickname = chatRoomList.getNickname();
-        this.bookmark = chatRoomList.getBookmark();
+        this.memberId = chatRoomList.getMember().getId();
+        this.nickname = chatRoomList.getMember().getNickname();
+        this.imageUrl = chatRoomList.getMember().getImageUrl();
     }
+
 }
