@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+    <style>
+        #messages {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 10px;
+            height: 200px;
+            overflow-y: scroll;
+        }
+    </style>
+</head>
+<body>
+<input type="text" id="chatRoomIdInput" placeholder="채팅방 ID를 입력하세요" />
+<input type="text" id="messageInput" placeholder="메시지를 입력하세요" />
+<button id="sendButton">전송</button>
+
+<div id="messages"></div>
+
+<script>
+    let stompClient = null;
+    let chatRoomId = null;
+
+    // 서버와 WebSocket 연결 설정
+    function connectToChatRoom() {
+        chatRoomId = document.getElementById('chatRoomIdInput').value;
+
+        if (!chatRoomId) {
+            alert('채팅방 ID를 입력하세요.');
+            return;
+        }
+
+        const socket = new SockJS('http://localhost:8080/ws');
+        stompClient = Stomp.over(socket);
+
+        const accessToken = '';
+
+        stompClient.connect({ Authorization: `Bearer ${accessToken}` }, function (frame) {
+            console.log('Connected: ' + frame);
+
+            // 채팅방 구독 설정
+            stompClient.subscribe(`/sub/chat/${chatRoomId}`, function (message) {
+                const receivedMessage = JSON.parse(message.body); // 메시지 파싱
+                displayMessage(receivedMessage.message);
+            });
+        });
+    }
+
+    // 메시지 전송
+    document.getElementById('sendButton').addEventListener('click', function () {
+        const contents = document.getElementById('messageInput').value;
+
+        if (!chatRoomId) {
+            alert('채팅방 ID를 입력한 후 연결하세요.');
+            return;
+        }
+
+        const message = {
+            memberId: 1, // 예시로 멤버 ID를 고정
+            message: contents,
+            fileUrl: null // 파일 URL은 비워둠
+        };
+
+        // 메시지 전송
+        stompClient.send(`/pub/chat/${chatRoomId}`, {}, JSON.stringify(message));
+        document.getElementById('messageInput').value = ''; // 입력 필드 초기화
+    });
+
+    // 화면에 메시지 추가하는 함수
+    function displayMessage(message) {
+        const messagesDiv = document.getElementById('messages');
+        const messageElement = document.createElement('div');
+        messageElement.textContent = message; // 메시지 내용 설정
+        messagesDiv.appendChild(messageElement); // 메시지 추가
+        messagesDiv.scrollTop = messagesDiv.scrollHeight; // 스크롤을 맨 아래로
+    }
+
+    // 채팅방에 연결
+    document.getElementById('chatRoomIdInput').addEventListener('change', function () {
+        if (stompClient !== null) {
+            stompClient.disconnect();
+        }
+        connectToChatRoom();
+    });
+</script>
+</body>
+</html>

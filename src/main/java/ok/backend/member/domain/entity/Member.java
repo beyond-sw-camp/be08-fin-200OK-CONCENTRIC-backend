@@ -7,8 +7,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import ok.backend.chat.domain.entity.ChatMessage;
 import ok.backend.chat.domain.entity.ChatRoomList;
+import ok.backend.friendship.domain.entity.Friendship;
+import ok.backend.friendship.domain.entity.FriendshipRequest;
 import ok.backend.member.domain.enums.MemberStatus;
-import ok.backend.scedule.domain.entity.Schedule;
+import ok.backend.member.dto.MemberUpdateRequestDto;
+import ok.backend.schedule.domain.entity.Schedule;
 import ok.backend.team.domain.entity.TeamList;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -36,13 +39,14 @@ public class Member {
     @Column(nullable = false, length = 10)
     private String name;
 
-    @Column(nullable = false, length = 20)
+    @Column(unique = true, nullable = false, length = 20)
     private String nickname;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at")
     private LocalDate createDate;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private MemberStatus status;
 
@@ -66,9 +70,29 @@ public class Member {
     @OneToMany(mappedBy = "member")
     private List<ChatRoomList> chatRoomList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member")
-    private List<ChatMessage> chatMessages = new ArrayList<>();
+//    @OneToMany(mappedBy = "member")
+//    private List<ChatMessage> chatMessages = new ArrayList<>();
 
 //    @OneToMany(mappedBy = "member")
 //    private List<Comment> comments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member")
+    private List<Friendship> friendships = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member")
+    private List<FriendshipRequest> friendshipRequests = new ArrayList<>();
+
+    public void updateMember(MemberUpdateRequestDto memberUpdateRequestDto) {
+        this.nickname = memberUpdateRequestDto.getNickname();
+        this.imageUrl = memberUpdateRequestDto.getImageUrl();
+        this.content = memberUpdateRequestDto.getContent();
+    }
+
+    public void updateStatus(){
+        this.status = MemberStatus.N;
+    }
+
+    public void updatePassword(String password){
+        this.password = password;
+    }
 }

@@ -1,19 +1,19 @@
-package ok.backend.scedule.domain.entity;
+package ok.backend.schedule.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import ok.backend.member.domain.entity.Member;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import ok.backend.member.domain.entity.Member;
 
 import java.time.LocalDateTime;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Getter
 @Setter
+@Builder
 @Table(name = "schedules")
 public class Schedule {
     @Id

@@ -1,7 +1,6 @@
-package ok.backend.scedule.domain.entity;
+package ok.backend.schedule.domain.enums;
 
 public enum RepeatType {
-
     DAILY,
     WEEKLY,
     MONTHLY,
