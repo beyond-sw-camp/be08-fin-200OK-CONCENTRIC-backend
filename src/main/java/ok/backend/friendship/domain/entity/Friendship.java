@@ -25,4 +25,5 @@ public class Friendship {
     @Column(name = "other_id", nullable = false)
     private Long otherId;
 
+
 }

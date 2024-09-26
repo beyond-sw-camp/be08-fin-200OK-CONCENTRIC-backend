@@ -1,6 +1,6 @@
 package ok.backend.friendship.domain.enums;
 
-public enum FriendshipStatus {
+public enum FriendshipRequestStatus {
     WAITING,
     ACCEPTED,
     REJECTED
