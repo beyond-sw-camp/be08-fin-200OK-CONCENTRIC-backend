@@ -2,15 +2,16 @@ package ok.backend.friendship.dto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@Data
-public class FriendshipRequestDeleteRequestDto {
+public class FriendshipRequestUpdateDto {
+
+    @NotNull
+    private Long id;
 
     @NotNull
     private Long receiverId;
@@ -19,6 +20,6 @@ public class FriendshipRequestDeleteRequestDto {
     private Long senderId;
 
     @NotNull
-    private boolean isAccept;
+    private Boolean isAccept;
 
 }
