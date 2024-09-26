@@ -4,7 +4,9 @@ import ok.backend.chat.domain.entity.ChatRoom;
 import ok.backend.chat.domain.entity.ChatRoomList;
 import ok.backend.chat.domain.repository.ChatRoomListRepository;
 import ok.backend.chat.domain.repository.ChatRoomRepository;
+import ok.backend.chat.dto.req.ChatRoomListRequestDto;
 import ok.backend.chat.dto.req.ChatRoomRequestDto;
+import ok.backend.chat.dto.res.ChatRoomMemberResponseDto;
 import ok.backend.chat.dto.res.ChatRoomListResponseDto;
 import ok.backend.chat.dto.res.ChatRoomResponseDto;
 import ok.backend.member.domain.entity.Member;
@@ -46,18 +48,11 @@ public class ChatService {
                 .member(member)
                 .chatRoom(chatRoom)
                 .bookmark(false)
+                .nickname(chatRoom.getName())
                 .build();
         chatRoomListRepository.save(chatRoomList);
 
         return new ChatRoomResponseDto(savedChatRoom);
-    }
-
-    // 채팅방 이름 수정
-    public void updateChat(Long chatRoomId, ChatRoomRequestDto chatRoomRequestDto) {
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(()
-                -> new IllegalArgumentException("Chat room not found"));
-        chatRoom.setName(chatRoomRequestDto.getName());
-        chatRoomRepository.save(chatRoom);
     }
 
     // 채팅방 삭제
@@ -67,9 +62,17 @@ public class ChatService {
         chatRoomRepository.delete(chatRoom);
     }
 
+    // 채팅방 이름 수정
+    public void renameChat(Long memberId, Long chatRoomId, ChatRoomListRequestDto chatRoomListRequestDto) {
+        ChatRoomList chatRoomList = chatRoomListRepository.findByChatRoomIdAndMemberId(memberId, chatRoomId)
+                .orElseThrow(() -> new IllegalArgumentException("Participant not found"));
+        chatRoomList.setNickname(chatRoomListRequestDto.getNickname());
+        chatRoomListRepository.save(chatRoomList);
+    }
+
     // 채팅방 즐겨찾기 설정
     public void bookmarkChat(Long memberId, Long chatRoomId) {
-        ChatRoomList chatRoomList = chatRoomListRepository.findByMemberIdAndChatRoomIdOne(memberId, chatRoomId)
+        ChatRoomList chatRoomList = chatRoomListRepository.findByChatRoomIdAndMemberId(memberId, chatRoomId)
                 .orElseThrow(() -> new IllegalArgumentException("Participant not found"));
         if (chatRoomList.getBookmark().equals(true)) {
             chatRoomList.setBookmark(false);
@@ -91,45 +94,44 @@ public class ChatService {
                 .member(member)
                 .chatRoom(chatRoom)
                 .bookmark(false)
+                .nickname(chatRoom.getName())
                 .build();
         chatRoomListRepository.save(chatRoomList);
     }
 
     // 단체 채팅방 나가기
     public void dropChat(Long memberId, Long chatRoomId) {
-        ChatRoomList chatRoomList = chatRoomListRepository.findByMemberIdAndChatRoomIdOne(memberId, chatRoomId)
+        ChatRoomList chatRoomList = chatRoomListRepository.findByChatRoomIdAndMemberId(memberId, chatRoomId)
                 .orElseThrow(() -> new IllegalArgumentException("Participant not found"));
 
         chatRoomListRepository.delete(chatRoomList);
     }
 
-    // 채팅방 참여자 조회 -> 좀 더 디테일한 정보 추가해야 함
-    public List<ChatRoomListResponseDto> findChatParticipant(Long memberId, Long chatRoomId) {
-        if (chatRoomListRepository.findByMemberIdAndChatRoomIdOne(memberId, chatRoomId).isPresent()) {
+    // 채팅방 참여자 조회
+    public List<ChatRoomMemberResponseDto> findChatParticipant(Long memberId, Long chatRoomId) {
+        if (chatRoomListRepository.findByChatRoomIdAndMemberId(memberId, chatRoomId).isPresent()) {
             List<ChatRoomList> chatRoomLists = chatRoomListRepository.findByChatRoomId(chatRoomId);
             return chatRoomLists.stream()
-                    .map(chatRoomList -> new ChatRoomListResponseDto(
+                    .map(chatRoomList -> new ChatRoomMemberResponseDto(
+                            chatRoomList.getChatRoom().getId(),
                             chatRoomList.getMember().getId(),
-                            chatRoomList.getChatRoom().getId()
+                            chatRoomList.getMember().getNickname(),
+                            chatRoomList.getMember().getImageUrl()
                     ))
                     .collect(Collectors.toList());
         } else return new ArrayList<>();
     }
 
     // 채팅방 목록 조회
-    public List<ChatRoomResponseDto> findChatRooms(Long memberId) {
+    public List<ChatRoomListResponseDto> findChatRooms(Long memberId) {
         List<ChatRoomList> chatRoomLists = chatRoomListRepository.findByMemberId(memberId);
 
         return chatRoomLists.stream()
-                .map(chatRoomList -> {
-                    ChatRoom chatRoom = chatRoomList.getChatRoom();
-                    return new ChatRoomResponseDto(
-                            chatRoom.getId(),
-                            chatRoom.getName(),
-                            chatRoom.getCreateAt(),
-                            chatRoom.getUpdateAt()
-                    );
-                })
+                .map(chatRoomList -> new ChatRoomListResponseDto(
+                        chatRoomList.getChatRoom().getId(),
+                        chatRoomList.getNickname(),
+                        chatRoomList.getBookmark()
+                ))
                 .collect(Collectors.toList());
     }
 

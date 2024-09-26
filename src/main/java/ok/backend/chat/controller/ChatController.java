@@ -4,9 +4,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import ok.backend.chat.dto.req.ChatRoomListRequestDto;
 import ok.backend.chat.dto.req.ChatRoomRequestDto;
+import ok.backend.chat.dto.res.ChatRoomMemberResponseDto;
 import ok.backend.chat.dto.res.ChatRoomListResponseDto;
-import ok.backend.chat.dto.res.ChatRoomResponseDto;
 import ok.backend.chat.service.ChatService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,17 +25,18 @@ public class ChatController {
 
     @PostMapping("/create")
     @Operation(summary = "채팅방 생성")
-    public ResponseEntity<ChatRoomResponseDto> createChat(@RequestParam("member") Long memberId,
-                                                          @RequestBody @Valid ChatRoomRequestDto chatRoomRequestDto) {
+    public ResponseEntity<ChatRoomListResponseDto> createChat(@RequestParam("member") Long memberId,
+                                                              @RequestBody @Valid ChatRoomRequestDto chatRoomRequestDto) {
         chatService.createChat(memberId, chatRoomRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PutMapping("/update")
     @Operation(summary = "채팅방 이름 수정")
-    public ResponseEntity<Void> updateChat(@RequestParam("chatRoomId") Long chatRoomId,
-                                       @RequestBody @Valid ChatRoomRequestDto chatRoomRequestDto) {
-        chatService.updateChat(chatRoomId, chatRoomRequestDto);
+    public ResponseEntity<Void> renameChat(@RequestParam("memberId") Long memberId,
+                                           @RequestParam("chatRoomId") Long chatRoomId,
+                                       @RequestBody @Valid ChatRoomListRequestDto chatRoomListRequestDto) {
+        chatService.renameChat(memberId, chatRoomId, chatRoomListRequestDto);
         return ResponseEntity.noContent().build();
     }
 
@@ -71,17 +73,17 @@ public class ChatController {
     // TODO: 순환참조 방지
     @GetMapping("/participant")
     @Operation(summary = "채팅방 참여자 조회")
-    public ResponseEntity<List<ChatRoomListResponseDto>> findChatParticipant(@RequestParam("memberId") Long memberId,
-                                                                       @RequestParam("chatRoomId") Long chatRoomId) {
-        List<ChatRoomListResponseDto> chatRoomListResponseDto = chatService.findChatParticipant(memberId, chatRoomId);
-        return ResponseEntity.ok(chatRoomListResponseDto);
+    public ResponseEntity<List<ChatRoomMemberResponseDto>> findChatParticipant(@RequestParam("memberId") Long memberId,
+                                                                               @RequestParam("chatRoomId") Long chatRoomId) {
+        List<ChatRoomMemberResponseDto> chatRoomMemberResponseDto = chatService.findChatParticipant(memberId, chatRoomId);
+        return ResponseEntity.ok(chatRoomMemberResponseDto);
     }
 
     @GetMapping("/list")
     @Operation(summary = "채팅방 목록 조회")
-    public ResponseEntity<List<ChatRoomResponseDto>> findChatRooms(@RequestParam("memberId") Long memberId) {
-        List<ChatRoomResponseDto> chatRoomResponseDto = chatService.findChatRooms(memberId);
-        return ResponseEntity.ok(chatRoomResponseDto);
+    public ResponseEntity<List<ChatRoomListResponseDto>> findChatRooms(@RequestParam("memberId") Long memberId) {
+        List<ChatRoomListResponseDto> chatRoomListResponseDto = chatService.findChatRooms(memberId);
+        return ResponseEntity.ok(chatRoomListResponseDto);
     }
 
 }
