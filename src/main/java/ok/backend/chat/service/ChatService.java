@@ -56,6 +56,10 @@ public class ChatService {
         Member friend = memberRepository.findById(friendId).orElseThrow(()
                 -> new CustomException(MEMBER_NOT_FOUND));
 
+        if (member.getId().equals(friendId)) {
+            throw new CustomException(INVALID_CHAT_REQUEST);
+        }
+
         // TODO : DUPLICATE_CHAT 제약
         //  -> if 개인톡 채팅방이 존재하는데, 동일한 인원(2인)의 팀이 존재한다면? ..상태값 관리해야하나?
         ChatRoom chatRoom = ChatRoom.createChatRoom(chatRoomRequestDto.getName());
@@ -135,6 +139,7 @@ public class ChatService {
     }
 
     // 단체 채팅방 나가기
+    // 이거 터짐
     public void dropChat(Long chatRoomId) {
 
         ChatRoomList chatRoomList = chatRoomListRepository.findByMemberIdAndChatRoomId(
@@ -145,6 +150,7 @@ public class ChatService {
     }
 
     // 채팅방 참여자 조회
+    // 이거 터짐
     public List<ChatRoomMemberResponseDto> findChatParticipant(Long chatRoomId) {
         if (chatRoomListRepository.findByMemberIdAndChatRoomId(
                 getLoggedInUser().getMember().getId(), chatRoomId).isPresent()) {
@@ -187,6 +193,7 @@ public class ChatService {
         if (principal instanceof SecurityUser) {
             return (SecurityUser) principal;
         } else {
+            log.info(principal.toString());
             throw new CustomException(UNAUTHORIZED);
         }
     }
