@@ -34,14 +34,9 @@ public class ChatRoom {
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatRoomList> chatRoomList;
 
-//    public static ChatRoom createChatRoom(String name) {
-//        return ChatRoom.builder()
-//                .name(name)
-//                .build();
-//    }
-
-    public void updateChatRoom(ChatRoomRequestDto chatRoomRequestDto) {
-        this.name = chatRoomRequestDto.getName();
-        this.updateAt = LocalDateTime.now();
+    public static ChatRoom createChatRoom(String name) {
+        return ChatRoom.builder()
+                .name(name)
+                .build();
     }
 }
