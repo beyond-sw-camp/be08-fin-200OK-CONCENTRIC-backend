@@ -11,7 +11,7 @@ import ok.backend.team.domain.Team;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@Builder
+@Builder(toBuilder = true)
 @Table(name = "team_schedule")
 public class TeamSchedule {
     @Id

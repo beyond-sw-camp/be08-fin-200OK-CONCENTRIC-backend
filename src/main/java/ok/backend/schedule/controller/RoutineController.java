@@ -21,25 +21,25 @@ public class RoutineController {
     private RoutineService routineService;
 
     @Operation(summary = "반복 일정 조회 API")
-    @GetMapping
+    @GetMapping("/list")
     public List<RoutineResponseDto> getRoutinesForLoggedInUser() {
         return routineService.getRoutinesForLoggedInUser();
     }
 
     @Operation(summary = "반복 일정 생성 API")
-    @PostMapping
+    @PostMapping("/create")
     public RoutineResponseDto createRoutine(@RequestBody RoutineRequestDto routineRequestDto) {
         return routineService.createRoutine(routineRequestDto);
     }
 
     @Operation(summary = "반복 일정 수정 API")
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     public RoutineResponseDto updateRoutine(@PathVariable Long id, @RequestBody RoutineRequestDto routineRequestDto) {
         return routineService.updateRoutine(id, routineRequestDto);
     }
 
     @Operation(summary = "반복 일정 삭제 API")
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public void deleteRoutine(@PathVariable Long id) {
         routineService.deleteRoutine(id);
     }
