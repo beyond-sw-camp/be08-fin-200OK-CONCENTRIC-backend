@@ -14,7 +14,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@Builder
+@Builder(toBuilder = true)
 @Table(name = "routine")
 public class Routine {
     @Id

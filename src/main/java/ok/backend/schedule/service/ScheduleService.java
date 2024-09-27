@@ -57,6 +57,7 @@ public class ScheduleService {
     // 일정 수정
     public ScheduleResponseDto updateSchedule(Long id, ScheduleRequestDto scheduleRequestDto) {
         Long userId = getLoggedInUserId();
+
         Schedule existingSchedule = scheduleRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Schedule not found"));
 
@@ -67,19 +68,19 @@ public class ScheduleService {
         LocalDateTime startDate = LocalDateTime.parse(scheduleRequestDto.getStartDate(), FORMATTER);
         LocalDateTime endDate = LocalDateTime.parse(scheduleRequestDto.getEndDate(), FORMATTER);
 
-        // updateAt 때문에 @Setter 사용
-        existingSchedule.setTitle(scheduleRequestDto.getTitle());
-        existingSchedule.setDescription(scheduleRequestDto.getDescription());
-        existingSchedule.setStatus(scheduleRequestDto.getStatus());
-        existingSchedule.setStartDate(startDate);
-        existingSchedule.setEndDate(endDate);
-        existingSchedule.setImportance(scheduleRequestDto.getImportance());
+        Schedule updatedSchedule = existingSchedule.toBuilder()
+                .title(scheduleRequestDto.getTitle())
+                .description(scheduleRequestDto.getDescription())
+                .status(scheduleRequestDto.getStatus())
+                .startDate(startDate)
+                .endDate(endDate)
+                .importance(scheduleRequestDto.getImportance())
+                .build();
 
+        existingSchedule.updateFields(updatedSchedule);
         scheduleRepository.save(existingSchedule);
-
         return new ScheduleResponseDto(existingSchedule);
     }
-
 
     // 일정 삭제
     public void deleteSchedule(Long id) {
