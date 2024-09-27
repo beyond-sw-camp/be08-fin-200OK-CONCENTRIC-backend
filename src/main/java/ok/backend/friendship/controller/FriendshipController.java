@@ -4,10 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import ok.backend.friendship.dto.FriendshipRequestDto;
-import ok.backend.friendship.dto.FriendshipRequestResponseDto;
-import ok.backend.friendship.dto.FriendshipRequestUpdateDto;
-import ok.backend.friendship.dto.FriendshipResponseDto;
+import ok.backend.friendship.dto.*;
 import ok.backend.friendship.service.FriendshipService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,4 +54,11 @@ public class FriendshipController {
         return ResponseEntity.ok(members);
     }
 
+    @Operation(summary = "친구 삭제 API")
+    @DeleteMapping("/delete")
+    public ResponseEntity<String> deleteFriendship(@RequestBody FriendshipDeleteRequestDto friendshipDeleteRequestDto) {
+        friendshipService.deleteFriendship(friendshipDeleteRequestDto);
+
+        return ResponseEntity.ok().build();
+    }
 }

@@ -8,10 +8,7 @@ import ok.backend.friendship.domain.enums.FriendshipRequestStatus;
 import ok.backend.friendship.domain.repository.FriendshipCustomRepositoryImpl;
 import ok.backend.friendship.domain.repository.FriendshipRepository;
 import ok.backend.friendship.domain.repository.FriendshipRequestRepository;
-import ok.backend.friendship.dto.FriendshipRequestDto;
-import ok.backend.friendship.dto.FriendshipRequestResponseDto;
-import ok.backend.friendship.dto.FriendshipRequestUpdateDto;
-import ok.backend.friendship.dto.FriendshipResponseDto;
+import ok.backend.friendship.dto.*;
 import ok.backend.member.domain.entity.Member;
 import ok.backend.member.domain.repository.MemberRepository;
 import org.springframework.stereotype.Service;
@@ -63,7 +60,7 @@ public class FriendshipService {
                 friendshipRequestUpdateDto.getReceiverId(),
                 FriendshipRequestStatus.WAITING
         ).orElseThrow(() -> new RuntimeException("friendshipRequest not found"));
-//        System.out.println(friendshipRequestUpdateDto.getIsAccept());
+
         if (friendshipRequestUpdateDto.getIsAccept()) {
             Member toMember = memberRepository.findById(friendshipRequestUpdateDto.getReceiverId()).orElseThrow(() ->
                     new RuntimeException("toMember not found"));
@@ -99,4 +96,11 @@ public class FriendshipService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public void deleteFriendship(FriendshipDeleteRequestDto friendshipDeleteRequestDto){
+        Long memberId = friendshipDeleteRequestDto.getMemberId();
+        Long otherId = friendshipDeleteRequestDto.getOtherId();
+
+        friendshipCustomRepositoryImpl.deleteFriendshipByMemberIdAndOtherId(memberId, otherId);
+    }
 }
