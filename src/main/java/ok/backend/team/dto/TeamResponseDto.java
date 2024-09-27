@@ -12,16 +12,16 @@ public class TeamResponseDto {
 
     private String name;
 
-    private Long creator_id;
+    private Long creatorId;
 
     private LocalDateTime createAt;
 
     public TeamResponseDto(Team team) {
 
         this.id = team.getId();
-        this.chatroom_id = team.getChatroom().getId();
+        //this.chatroom_id = team.getChatroom().getId();
         this.name = team.getName();
-        this.creator_id = team.getCreator_id();
+        this.creatorId = team.getCreatorId();
         this.createAt = team.getCreateAt();
 
     }

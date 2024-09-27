@@ -1,18 +1,22 @@
 package ok.backend.team.dto;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.time.LocalDateTime;
 
+
+@Getter
+@Setter
 @Data
 public class TeamRequestDto {
-    private Long id;
+    // private Long id;
 
-    private Long chatroom_id;
+    // private Long chatroom_id;
 
     private String name;
 
-    private Long creator_id;
+    private Long creatorId;
 
-    private LocalDateTime createAt;
+    // private LocalDateTime createAt;
 }

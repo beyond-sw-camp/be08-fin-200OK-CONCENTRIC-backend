@@ -29,7 +29,7 @@ public class Team {
     private String name;
 
     @Column(name = "creator_id", nullable = false)
-    private Long creator_id;
+    private Long creatorId;
 
     @CreationTimestamp
     @Column(name = "create_at", nullable = false)
