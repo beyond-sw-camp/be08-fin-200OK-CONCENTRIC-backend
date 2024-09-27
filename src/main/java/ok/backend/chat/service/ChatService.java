@@ -64,7 +64,7 @@ public class ChatService {
 
     // 채팅방 이름 수정
     public void renameChat(Long memberId, Long chatRoomId, ChatRoomListRequestDto chatRoomListRequestDto) {
-        ChatRoomList chatRoomList = chatRoomListRepository.findByChatRoomIdAndMemberId(memberId, chatRoomId)
+        ChatRoomList chatRoomList = chatRoomListRepository.findByMemberIdAndChatRoomId(memberId, chatRoomId)
                 .orElseThrow(() -> new IllegalArgumentException("Participant not found"));
         chatRoomList.setNickname(chatRoomListRequestDto.getNickname());
         chatRoomListRepository.save(chatRoomList);
@@ -72,7 +72,7 @@ public class ChatService {
 
     // 채팅방 즐겨찾기 설정
     public void bookmarkChat(Long memberId, Long chatRoomId) {
-        ChatRoomList chatRoomList = chatRoomListRepository.findByChatRoomIdAndMemberId(memberId, chatRoomId)
+        ChatRoomList chatRoomList = chatRoomListRepository.findByMemberIdAndChatRoomId(memberId, chatRoomId)
                 .orElseThrow(() -> new IllegalArgumentException("Participant not found"));
         if (chatRoomList.getBookmark().equals(true)) {
             chatRoomList.setBookmark(false);
@@ -101,7 +101,7 @@ public class ChatService {
 
     // 단체 채팅방 나가기
     public void dropChat(Long memberId, Long chatRoomId) {
-        ChatRoomList chatRoomList = chatRoomListRepository.findByChatRoomIdAndMemberId(memberId, chatRoomId)
+        ChatRoomList chatRoomList = chatRoomListRepository.findByMemberIdAndChatRoomId(memberId, chatRoomId)
                 .orElseThrow(() -> new IllegalArgumentException("Participant not found"));
 
         chatRoomListRepository.delete(chatRoomList);
@@ -109,7 +109,7 @@ public class ChatService {
 
     // 채팅방 참여자 조회
     public List<ChatRoomMemberResponseDto> findChatParticipant(Long memberId, Long chatRoomId) {
-        if (chatRoomListRepository.findByChatRoomIdAndMemberId(memberId, chatRoomId).isPresent()) {
+        if (chatRoomListRepository.findByMemberIdAndChatRoomId(memberId, chatRoomId).isPresent()) {
             List<ChatRoomList> chatRoomLists = chatRoomListRepository.findByChatRoomId(chatRoomId);
             return chatRoomLists.stream()
                     .map(chatRoomList -> new ChatRoomMemberResponseDto(
