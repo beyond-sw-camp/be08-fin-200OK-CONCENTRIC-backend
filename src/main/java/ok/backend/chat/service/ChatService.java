@@ -3,6 +3,7 @@ package ok.backend.chat.service;
 import lombok.extern.slf4j.Slf4j;
 import ok.backend.chat.domain.entity.ChatRoom;
 import ok.backend.chat.domain.entity.ChatRoomList;
+import ok.backend.chat.domain.entity.Status;
 import ok.backend.chat.domain.repository.ChatRoomListRepository;
 import ok.backend.chat.domain.repository.ChatRoomRepository;
 import ok.backend.chat.dto.req.ChatRoomListRequestDto;
@@ -11,12 +12,14 @@ import ok.backend.chat.dto.res.ChatRoomMemberResponseDto;
 import ok.backend.chat.dto.res.ChatRoomListResponseDto;
 import ok.backend.chat.dto.res.ChatRoomResponseDto;
 import ok.backend.common.exception.CustomException;
-import ok.backend.common.security.util.SecurityUser;
+import ok.backend.common.security.util.SecurityUserDetailService;
 import ok.backend.member.domain.entity.Member;
 import ok.backend.member.domain.repository.MemberRepository;
+import ok.backend.team.domain.entity.Team;
+import ok.backend.team.domain.entity.TeamList;
+import ok.backend.team.domain.repository.TeamListRepository;
+import ok.backend.team.domain.repository.TeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,18 +42,22 @@ public class ChatService {
     @Autowired
     MemberRepository memberRepository;
 
-//    @Autowired
-//    TeamRepository teamRepository;
-//
-//    @Autowired
-//    TeamListRepository teamListRepository;
+    @Autowired
+    TeamRepository teamRepository;
+
+    @Autowired
+    TeamListRepository teamListRepository;
+
+    private final SecurityUserDetailService securityUserDetailService;
+
+    public ChatService(SecurityUserDetailService securityUserDetailService) {
+        this.securityUserDetailService = securityUserDetailService;
+    }
 
     // 개인 채팅방 생성
     public ChatRoomResponseDto createChat(Long friendId, ChatRoomRequestDto chatRoomRequestDto) {
 
-//        Member member = memberRepository.findById(memberId).orElseThrow(()
-//                -> new CustomException(MEMBER_NOT_FOUND));
-        Member member = memberRepository.findById(getLoggedInUser().getMember().getId()).orElseThrow(()
+        Member member = memberRepository.findById(securityUserDetailService.getLoggedInMember().getId()).orElseThrow(()
                 -> new CustomException(MEMBER_NOT_FOUND));
 
         Member friend = memberRepository.findById(friendId).orElseThrow(()
@@ -60,9 +67,16 @@ public class ChatService {
             throw new CustomException(INVALID_CHAT_REQUEST);
         }
 
-        // TODO : DUPLICATE_CHAT 제약
-        //  -> if 개인톡 채팅방이 존재하는데, 동일한 인원(2인)의 팀이 존재한다면? ..상태값 관리해야하나?
-        ChatRoom chatRoom = ChatRoom.createChatRoom(chatRoomRequestDto.getName());
+        List<ChatRoomList> memberChatRoomLists = chatRoomListRepository.findByMemberId(member.getId());
+
+        for (ChatRoomList chatRoomList : memberChatRoomLists) {
+            if (chatRoomList.getChatRoom().getChatRoomList().stream()
+                    .anyMatch(crList -> crList.getMember().equals(friend) && crList.getChatRoom().getStatus() == Status.P)) {
+                throw new CustomException(DUPLICATE_CHAT);
+            }
+        }
+
+        ChatRoom chatRoom = ChatRoom.createChatRoom(chatRoomRequestDto.getName(), Status.P);
         ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
 
         ChatRoomList chatRoomListMember = ChatRoomList.createChatRoomList(member, savedChatRoom);
@@ -73,28 +87,28 @@ public class ChatService {
         return new ChatRoomResponseDto(savedChatRoom);
     }
 
-//     단체 채팅방 생성
-//    public ChatRoomResponseDto createTeamChat(Long teamId) {
-//        Team team = teamRepository.findById(teamId).orElseThrow(()
-//                -> new CustomException(TEAM_NOT_FOUND));
-//
-//        ChatRoom chatRoom = ChatRoom.createChatRoom(team.getName());
-//        ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
-//
-//        List<TeamList> teamMember = teamListRepository.findByTeamId(teamId);
-//
-//        // 각 멤버를 ChatRoomList에 저장
-//        for (TeamList teamList : teamMember) {
-//            ChatRoomList chatRoomList = ChatRoomList.createChatRoomList(teamList.getMember(), savedChatRoom);
-//            chatRoomListRepository.save(chatRoomList);
-//        }
-//        return new ChatRoomResponseDto(savedChatRoom);
-//    }
+    //     단체 채팅방 생성
+    public ChatRoomResponseDto createTeamChat(Long teamId) {
+        Team team = teamRepository.findById(teamId).orElseThrow(()
+                -> new CustomException(TEAM_NOT_FOUND));
+
+        ChatRoom chatRoom = ChatRoom.createChatRoom(team.getName(), Status.T);
+        ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
+
+        List<TeamList> teamMember = teamListRepository.findByTeamId(teamId);
+
+        // 각 멤버를 ChatRoomList에 저장
+        for (TeamList teamList : teamMember) {
+            ChatRoomList chatRoomList = ChatRoomList.createChatRoomList(teamList.getMember(), savedChatRoom);
+            chatRoomListRepository.save(chatRoomList);
+        }
+        return new ChatRoomResponseDto(savedChatRoom);
+    }
 
     // 채팅방 삭제(그룹 삭제 시)
     public void deleteChat(Long chatRoomId) {
         // TODO: 팀 테이블 가져와서 생성 회원 ID가 memberId와 일치할 경우, 삭제 or NOT_ACCESS_CHAT
-        Member member = memberRepository.findById(getLoggedInUser().getMember().getId()).orElseThrow(()
+        Member member = memberRepository.findById(securityUserDetailService.getLoggedInMember().getId()).orElseThrow(()
                 -> new CustomException(MEMBER_NOT_FOUND));
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(()
                 -> new CustomException(CHAT_NOT_FOUND));
@@ -107,22 +121,22 @@ public class ChatService {
             throw new CustomException(EMPTY_INPUT_CHAT);
         }
         ChatRoomList chatRoomList = chatRoomListRepository.findByMemberIdAndChatRoomId(
-                        getLoggedInUser().getMember().getId(), chatRoomId)
+                        securityUserDetailService.getLoggedInMember().getId(), chatRoomId)
                 .orElseThrow(() -> new CustomException(NOT_ACCESS_CHAT));
-        chatRoomList.setNickname(chatRoomListRequestDto.getNickname());
+        chatRoomList.updateNickname(chatRoomListRequestDto);
         chatRoomListRepository.save(chatRoomList);
     }
 
     // 채팅방 즐겨찾기 설정
     public void bookmarkChat(Long chatRoomId) {
         ChatRoomList chatRoomList = chatRoomListRepository.findByMemberIdAndChatRoomId(
-                        getLoggedInUser().getMember().getId(), chatRoomId)
+                        securityUserDetailService.getLoggedInMember().getId(), chatRoomId)
                 .orElseThrow(() -> new CustomException(NOT_ACCESS_CHAT));
         if (chatRoomList.getBookmark().equals(true)) {
-            chatRoomList.setBookmark(false);
+            chatRoomList.updateBookmark(false);
             chatRoomListRepository.save(chatRoomList);
         } else {
-            chatRoomList.setBookmark(true);
+            chatRoomList.updateBookmark(true);
             chatRoomListRepository.save(chatRoomList);
         }
     }
@@ -131,7 +145,7 @@ public class ChatService {
     public void joinChat(Long chatRoomId) {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(()
                 -> new CustomException(CHAT_NOT_FOUND));
-        Member member = memberRepository.findById(getLoggedInUser().getMember().getId()).orElseThrow(()
+        Member member = memberRepository.findById(securityUserDetailService.getLoggedInMember().getId()).orElseThrow(()
                 -> new CustomException(MEMBER_NOT_FOUND));
         ChatRoomList chatRoomList = ChatRoomList.createChatRoomList(member, chatRoom);
 
@@ -139,21 +153,19 @@ public class ChatService {
     }
 
     // 단체 채팅방 나가기
-    // 이거 터짐
     public void dropChat(Long chatRoomId) {
 
         ChatRoomList chatRoomList = chatRoomListRepository.findByMemberIdAndChatRoomId(
-                        getLoggedInUser().getMember().getId(), chatRoomId)
+                        securityUserDetailService.getLoggedInMember().getId(), chatRoomId)
                 .orElseThrow(() -> new CustomException(NOT_ACCESS_CHAT));
 
         chatRoomListRepository.delete(chatRoomList);
     }
 
     // 채팅방 참여자 조회
-    // 이거 터짐
     public List<ChatRoomMemberResponseDto> findChatParticipant(Long chatRoomId) {
         if (chatRoomListRepository.findByMemberIdAndChatRoomId(
-                getLoggedInUser().getMember().getId(), chatRoomId).isPresent()) {
+                securityUserDetailService.getLoggedInMember().getId(), chatRoomId).isPresent()) {
             List<ChatRoomList> chatRoomLists = chatRoomListRepository.findByChatRoomId(chatRoomId);
             return chatRoomLists.stream()
                     .map(chatRoomList -> new ChatRoomMemberResponseDto(
@@ -168,11 +180,11 @@ public class ChatService {
 
     // 채팅방 목록 조회
     public List<ChatRoomListResponseDto> findChatRooms() {
-        if (chatRoomListRepository.findByMemberId(getLoggedInUser().getMember().getId()).isEmpty()) {
+        if (chatRoomListRepository.findByMemberId(securityUserDetailService.getLoggedInMember().getId()).isEmpty()) {
             throw new CustomException(NOT_ACCESS_CHAT);
         }
         List<ChatRoomList> chatRoomLists = chatRoomListRepository.findByMemberId(
-                getLoggedInUser().getMember().getId());
+                securityUserDetailService.getLoggedInMember().getId());
 
         return chatRoomLists.stream()
                 .map(chatRoomList -> new ChatRoomListResponseDto(
@@ -181,20 +193,5 @@ public class ChatService {
                         chatRoomList.getBookmark()
                 ))
                 .collect(Collectors.toList());
-    }
-
-    private SecurityUser getLoggedInUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) {
-            throw new CustomException(UNAUTHORIZED);
-        }
-        Object principal = authentication.getPrincipal();
-        log.info(principal.toString());
-        if (principal instanceof SecurityUser) {
-            return (SecurityUser) principal;
-        } else {
-            log.info(principal.toString());
-            throw new CustomException(UNAUTHORIZED);
-        }
     }
 }

@@ -2,13 +2,12 @@ package ok.backend.schedule.service;
 
 import ok.backend.common.exception.CustomException;
 import ok.backend.common.exception.ErrorCode;
-import ok.backend.common.security.util.SecurityUser;
+import ok.backend.common.security.util.SecurityUserDetailService;
+import ok.backend.member.domain.entity.Member;
 import ok.backend.schedule.domain.entity.Schedule;
 import ok.backend.schedule.domain.repository.ScheduleRepository;
 import ok.backend.schedule.dto.req.ScheduleRequestDto;
 import ok.backend.schedule.dto.res.ScheduleResponseDto;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -20,17 +19,20 @@ import java.util.stream.Collectors;
 public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
+    private final SecurityUserDetailService securityUserDetailService;
 
-    public ScheduleService(ScheduleRepository scheduleRepository) {
+    public ScheduleService(ScheduleRepository scheduleRepository,
+                           SecurityUserDetailService securityUserDetailService) {
         this.scheduleRepository = scheduleRepository;
+        this.securityUserDetailService = securityUserDetailService;
     }
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
-    // 로그인한 유저의 모든 일정 조회
+    // 모든 일정 조회
     public List<ScheduleResponseDto> getSchedulesForLoggedInUser() {
-        SecurityUser securityUser = getLoggedInUser();
-        Long userId = securityUser.getMember().getId();
+        Member loggedInMember = securityUserDetailService.getLoggedInMember();
+        Long userId = loggedInMember.getId();
 
         List<Schedule> schedules = scheduleRepository.findByMemberId(userId);
         return schedules.stream().map(ScheduleResponseDto::new).collect(Collectors.toList());
@@ -38,7 +40,7 @@ public class ScheduleService {
 
     // 일정 생성
     public ScheduleResponseDto createSchedule(ScheduleRequestDto scheduleRequestDto) {
-        SecurityUser securityUser = getLoggedInUser();
+        Member loggedInMember = securityUserDetailService.getLoggedInMember();
 
         LocalDateTime startDate;
         LocalDateTime endDate;
@@ -50,7 +52,7 @@ public class ScheduleService {
         }
 
         Schedule schedule = Schedule.builder()
-                .member(securityUser.getMember())
+                .member(loggedInMember)
                 .title(scheduleRequestDto.getTitle())
                 .description(scheduleRequestDto.getDescription())
                 .status(scheduleRequestDto.getStatus())
@@ -65,8 +67,8 @@ public class ScheduleService {
 
     // 일정 수정
     public ScheduleResponseDto updateSchedule(Long id, ScheduleRequestDto scheduleRequestDto) {
-        SecurityUser securityUser = getLoggedInUser();
-        Long userId = securityUser.getMember().getId();
+        Member loggedInMember = securityUserDetailService.getLoggedInMember();
+        Long userId = loggedInMember.getId();
 
         Schedule existingSchedule = scheduleRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
@@ -100,8 +102,8 @@ public class ScheduleService {
 
     // 일정 삭제
     public void deleteSchedule(Long id) {
-        SecurityUser securityUser = getLoggedInUser();
-        Long userId = securityUser.getMember().getId();
+        Member loggedInMember = securityUserDetailService.getLoggedInMember();
+        Long userId = loggedInMember.getId();
 
         Schedule existingSchedule = scheduleRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
@@ -111,11 +113,5 @@ public class ScheduleService {
         }
 
         scheduleRepository.deleteById(id);
-    }
-
-    // 전체 SecurityUser 객체를 가져오는 메서드
-    private SecurityUser getLoggedInUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return (SecurityUser) authentication.getPrincipal();
     }
 }

@@ -2,7 +2,8 @@ package ok.backend.schedule.service;
 
 import ok.backend.common.exception.CustomException;
 import ok.backend.common.exception.ErrorCode;
-import ok.backend.common.security.util.SecurityUser;
+import ok.backend.common.security.util.SecurityUserDetailService;
+import ok.backend.member.domain.entity.Member;
 import ok.backend.schedule.domain.entity.Routine;
 import ok.backend.schedule.domain.entity.Schedule;
 import ok.backend.schedule.domain.enums.DayOfWeek;
@@ -11,8 +12,6 @@ import ok.backend.schedule.domain.repository.RoutineRepository;
 import ok.backend.schedule.domain.repository.ScheduleRepository;
 import ok.backend.schedule.dto.req.RoutineRequestDto;
 import ok.backend.schedule.dto.res.RoutineResponseDto;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,16 +25,20 @@ public class RoutineService {
 
     private final RoutineRepository routineRepository;
     private final ScheduleRepository scheduleRepository;
+    private final SecurityUserDetailService securityUserDetailService;
 
-    public RoutineService(RoutineRepository routineRepository, ScheduleRepository scheduleRepository) {
+    public RoutineService(RoutineRepository routineRepository,
+                          ScheduleRepository scheduleRepository,
+                          SecurityUserDetailService securityUserDetailService) {
         this.routineRepository = routineRepository;
         this.scheduleRepository = scheduleRepository;
+        this.securityUserDetailService = securityUserDetailService;
     }
 
     // 반복 일정 조회
     public List<RoutineResponseDto> getRoutinesForLoggedInUser() {
-        SecurityUser securityUser = getLoggedInUser();
-        Long userId = securityUser.getMember().getId();
+        Member loggedInMember = securityUserDetailService.getLoggedInMember();
+        Long userId = loggedInMember.getId();
 
         List<Routine> routines = routineRepository.findBySchedule_MemberId(userId);
         return routines.stream().map(RoutineResponseDto::new).collect(Collectors.toList());
@@ -44,7 +47,7 @@ public class RoutineService {
     // 반복 일정 생성
     @Transactional
     public RoutineResponseDto createRoutine(RoutineRequestDto routineRequestDto) {
-        SecurityUser securityUser = getLoggedInUser();
+        Member loggedInMember = securityUserDetailService.getLoggedInMember();
 
         if (routineRequestDto.getRepeatType() == null) {
             throw new CustomException(ErrorCode.EMPTY_INPUT_SCHEDULE);
@@ -52,7 +55,6 @@ public class RoutineService {
 
         RepeatType repeatType = RepeatType.valueOf(routineRequestDto.getRepeatType().toUpperCase());
 
-        // 요일은 WEEKLY일 때만 필요함
         Set<DayOfWeek> repeatOn = null;
         if (repeatType == RepeatType.WEEKLY) {
             repeatOn = Stream.of(routineRequestDto.getRepeatOn())
@@ -64,15 +66,13 @@ public class RoutineService {
             }
         }
 
-        // 관련 스케줄을 조회
         Schedule schedule = scheduleRepository.findById(routineRequestDto.getScheduleId())
                 .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
 
-        if (!schedule.getMember().getId().equals(securityUser.getMember().getId())) {
+        if (!schedule.getMember().getId().equals(loggedInMember.getId())) {
             throw new CustomException(ErrorCode.NOT_ACCESS_SCHEDULE);
         }
 
-        // 빌더 패턴을 사용하여 Routine 객체 생성
         Routine routine = Routine.builder()
                 .schedule(schedule)
                 .repeatType(repeatType)
@@ -87,8 +87,8 @@ public class RoutineService {
     // 반복 일정 수정
     @Transactional
     public RoutineResponseDto updateRoutine(Long id, RoutineRequestDto routineRequestDto) {
-        SecurityUser securityUser = getLoggedInUser();
-        Long userId = securityUser.getMember().getId();
+        Member loggedInMember = securityUserDetailService.getLoggedInMember();
+        Long userId = loggedInMember.getId();
 
         Routine existingRoutine = routineRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
@@ -99,7 +99,6 @@ public class RoutineService {
 
         RepeatType repeatType = RepeatType.valueOf(routineRequestDto.getRepeatType().toUpperCase());
 
-        // 요일은 WEEKLY일 때만 필요함
         Set<DayOfWeek> repeatOn = null;
         if (repeatType == RepeatType.WEEKLY) {
             repeatOn = Stream.of(routineRequestDto.getRepeatOn())
@@ -114,7 +113,7 @@ public class RoutineService {
         Routine updatedRoutine = existingRoutine.toBuilder()
                 .repeatType(repeatType)
                 .repeatInterval(routineRequestDto.getRepeatInterval())
-                .repeatOn(repeatType == RepeatType.WEEKLY ? repeatOn : null)  // WEEKLY일 때만 repeatOn 설정
+                .repeatOn(repeatType == RepeatType.WEEKLY ? repeatOn : null)
                 .build();
 
         routineRepository.save(updatedRoutine);
@@ -124,8 +123,8 @@ public class RoutineService {
     // 반복 일정 삭제
     @Transactional
     public void deleteRoutine(Long id) {
-        SecurityUser securityUser = getLoggedInUser();
-        Long userId = securityUser.getMember().getId();
+        Member loggedInMember = securityUserDetailService.getLoggedInMember();
+        Long userId = loggedInMember.getId();
 
         Routine existingRoutine = routineRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
@@ -135,11 +134,5 @@ public class RoutineService {
         }
 
         routineRepository.deleteById(id);
-    }
-
-    // 전체 SecurityUser 객체를 가져오는 메서드
-    private SecurityUser getLoggedInUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return (SecurityUser) authentication.getPrincipal();
     }
 }
