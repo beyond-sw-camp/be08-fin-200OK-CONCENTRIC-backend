@@ -35,10 +35,10 @@ public class Team {
     @Column(name = "create_at", nullable = false)
     private LocalDateTime createAt;
 
-    @OneToMany(mappedBy = "team")
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamList> teamList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "team")
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamSchedule> teamSchedules = new ArrayList<>();
 
 

@@ -16,7 +16,7 @@ public class TeamRequestDto {
 
     private String name;
 
-    private Long creatorId;
+    // private Long creatorId;
 
     // private LocalDateTime createAt;
 }

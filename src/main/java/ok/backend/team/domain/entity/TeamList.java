@@ -1,16 +1,13 @@
 package ok.backend.team.domain.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import ok.backend.member.domain.entity.Member;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Setter
 @Getter
 @Table(name = "team_list")
 public class TeamList {
