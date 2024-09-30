@@ -44,4 +44,3 @@ public class ScheduleController {
         scheduleService.deleteSchedule(id);
     }
 }
-
