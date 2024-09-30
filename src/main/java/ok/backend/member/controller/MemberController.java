@@ -59,9 +59,9 @@ public class MemberController {
     }
 
     @Operation(summary = "회원 탈퇴 API")
-    @PutMapping("/delete/{memberId}")
-    public ResponseEntity<String> deleteMember(@PathVariable Long memberId){
-        memberService.deleteMember(memberId);
+    @PutMapping("/delete")
+    public ResponseEntity<String> deleteMember(HttpServletRequest request){
+        memberService.deleteMember(request);
 
         return ResponseEntity.ok().build();
     }

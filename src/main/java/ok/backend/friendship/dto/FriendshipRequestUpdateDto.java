@@ -13,8 +13,8 @@ public class FriendshipRequestUpdateDto {
     @NotNull
     private Long id;
 
-    @NotNull
-    private Long receiverId;
+//    @NotNull
+//    private Long receiverId;
 
     @NotNull
     private Long senderId;

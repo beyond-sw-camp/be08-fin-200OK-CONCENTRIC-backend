@@ -30,9 +30,9 @@ public class FriendshipController {
     }
 
     @Operation(description = "친구 요청 조회 API")
-    @GetMapping("/request/list/{memberId}")
-    public ResponseEntity<List<FriendshipRequestResponseDto>> getFriendshipRequest(@PathVariable Long memberId) {
-       List<FriendshipRequestResponseDto> friendshipRequests = friendshipService.getFriendshipRequest(memberId);
+    @GetMapping("/request/list")
+    public ResponseEntity<List<FriendshipRequestResponseDto>> getFriendshipRequest() {
+       List<FriendshipRequestResponseDto> friendshipRequests = friendshipService.getFriendshipRequest();
 
        return ResponseEntity.ok(friendshipRequests);
     }
@@ -47,9 +47,9 @@ public class FriendshipController {
     }
 
     @Operation(description = "친구 목록 조회 API")
-    @GetMapping("/list/accept/{memberId}")
-    public ResponseEntity<List<FriendshipResponseDto>> getFriendsAcceptedList(@PathVariable Long memberId){
-        List<FriendshipResponseDto> members = friendshipService.getFriendshipMembers(memberId);
+    @GetMapping("/list/accept")
+    public ResponseEntity<List<FriendshipResponseDto>> getFriendsAcceptedList(){
+        List<FriendshipResponseDto> members = friendshipService.getFriendshipMembers();
 
         return ResponseEntity.ok(members);
     }

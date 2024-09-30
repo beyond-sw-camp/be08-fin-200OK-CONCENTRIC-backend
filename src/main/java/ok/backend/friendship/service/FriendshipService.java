@@ -2,6 +2,9 @@ package ok.backend.friendship.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import ok.backend.common.exception.CustomException;
+import ok.backend.common.exception.ErrorCode;
+import ok.backend.common.security.util.SecurityUserDetailService;
 import ok.backend.friendship.domain.entity.Friendship;
 import ok.backend.friendship.domain.entity.FriendshipRequest;
 import ok.backend.friendship.domain.enums.FriendshipRequestStatus;
@@ -28,13 +31,15 @@ public class FriendshipService {
 
     private final FriendshipCustomRepositoryImpl friendshipCustomRepositoryImpl;
 
+    private final SecurityUserDetailService securityUserDetailService;
+
     @Transactional
     public Member createFriendshipRequest(FriendshipRequestDto friendshipRequestDto) {
-        Member member = memberRepository.findById(friendshipRequestDto.getUserId()).orElseThrow(() ->
-                new RuntimeException("Member not found"));
+        Member member = memberRepository.findById(securityUserDetailService.getLoggedInMember().getId()).orElseThrow(() ->
+                new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         Member toMember = memberRepository.findById(friendshipRequestDto.getReceiverId()).orElseThrow(() ->
-                new RuntimeException("toMember not found"));
+                new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         FriendshipRequest friendshipRequest = FriendshipRequest.builder()
                 .member(member)
@@ -47,25 +52,28 @@ public class FriendshipService {
         return toMember;
     }
 
-    public List<FriendshipRequestResponseDto> getFriendshipRequest(Long memberId) {
-        return friendshipCustomRepositoryImpl.findFriendshipRequestsByReceiverId(memberId).stream()
+    public List<FriendshipRequestResponseDto> getFriendshipRequest() {
+        return friendshipCustomRepositoryImpl
+                .findFriendshipRequestsByReceiverId(securityUserDetailService.getLoggedInMember().getId())
+                .stream()
                 .map(FriendshipRequestResponseDto::new)
                 .collect(Collectors.toList());
     }
 
     @Transactional
     public void updateFriendshipRequest(FriendshipRequestUpdateDto friendshipRequestUpdateDto) {
+        Member member = securityUserDetailService.getLoggedInMember();
         FriendshipRequest friendshipRequest = friendshipRequestRepository.findByMemberIdAndReceiverIdAndStatus(
                 friendshipRequestUpdateDto.getSenderId(),
-                friendshipRequestUpdateDto.getReceiverId(),
+                member.getId(),
                 FriendshipRequestStatus.WAITING
-        ).orElseThrow(() -> new RuntimeException("friendshipRequest not found"));
+        ).orElseThrow(() -> new CustomException(ErrorCode.FRIENDSHIP_REQUEST_NOT_FOUND));
 
         if (friendshipRequestUpdateDto.getIsAccept()) {
-            Member toMember = memberRepository.findById(friendshipRequestUpdateDto.getReceiverId()).orElseThrow(() ->
-                    new RuntimeException("toMember not found"));
+            Member toMember = memberRepository.findById(member.getId()).orElseThrow(() ->
+                    new CustomException(ErrorCode.MEMBER_NOT_FOUND));
             Member fromMember = memberRepository.findById(friendshipRequestUpdateDto.getSenderId()).orElseThrow(() ->
-                    new RuntimeException("fromMember not found"));
+                    new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
             Friendship fromFriendship = Friendship.builder()
                     .member(fromMember)
@@ -90,15 +98,16 @@ public class FriendshipService {
 
     }
 
-    public List<FriendshipResponseDto> getFriendshipMembers(Long memberId) {
-        return friendshipCustomRepositoryImpl.findMembersByMemberId(memberId).stream()
+    public List<FriendshipResponseDto> getFriendshipMembers() {
+        return friendshipCustomRepositoryImpl
+                .findMembersByMemberId(securityUserDetailService.getLoggedInMember().getId()).stream()
                 .map(FriendshipResponseDto::new)
                 .collect(Collectors.toList());
     }
 
     @Transactional
     public void deleteFriendship(FriendshipDeleteRequestDto friendshipDeleteRequestDto){
-        Long memberId = friendshipDeleteRequestDto.getMemberId();
+        Long memberId = securityUserDetailService.getLoggedInMember().getId();
         Long otherId = friendshipDeleteRequestDto.getOtherId();
 
         friendshipCustomRepositoryImpl.deleteFriendshipByMemberIdAndOtherId(memberId, otherId);

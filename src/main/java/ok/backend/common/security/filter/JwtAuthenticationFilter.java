@@ -6,6 +6,8 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import ok.backend.common.exception.CustomException;
+import ok.backend.common.exception.ErrorCode;
 import ok.backend.common.security.util.JwtProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -38,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 if(cookie != null){
                     response.addCookie(cookie);
                 }else{
-                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    throw new CustomException(ErrorCode.UNAUTHORIZED);
                 }
             }
         }
