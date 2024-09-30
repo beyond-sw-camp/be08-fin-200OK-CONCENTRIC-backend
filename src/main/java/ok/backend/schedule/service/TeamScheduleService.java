@@ -7,7 +7,7 @@ import ok.backend.schedule.domain.repository.TeamScheduleRepository;
 import ok.backend.schedule.dto.req.TeamScheduleRequestDto;
 import ok.backend.schedule.dto.res.TeamScheduleResponseDto;
 import ok.backend.common.security.util.SecurityUser;
-import ok.backend.team.domain.Team;
+//import ok.backend.team.domain.Team;
 import ok.backend.member.domain.repository.MemberRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -67,20 +67,20 @@ public class TeamScheduleService {
         return teamSchedules.stream().map(TeamScheduleResponseDto::new).collect(Collectors.toList());
     }
 
-    @Transactional
-    public TeamScheduleResponseDto createTeamSchedule(TeamScheduleRequestDto teamScheduleRequestDto) {
-        Long teamId = teamScheduleRequestDto.getTeamId();
-        Schedule schedule = scheduleRepository.findById(teamScheduleRequestDto.getScheduleId())
-                .orElseThrow(() -> new RuntimeException("Schedule not found"));
-
-        TeamSchedule teamSchedule = TeamSchedule.builder()
-                .team(Team.builder().id(teamId).build())
-                .schedule(schedule)
-                .build();
-
-        teamScheduleRepository.save(teamSchedule);
-        return new TeamScheduleResponseDto(teamSchedule);
-    }
+//    @Transactional
+//    public TeamScheduleResponseDto createTeamSchedule(TeamScheduleRequestDto teamScheduleRequestDto) {
+//        Long teamId = teamScheduleRequestDto.getTeamId();
+//        Schedule schedule = scheduleRepository.findById(teamScheduleRequestDto.getScheduleId())
+//                .orElseThrow(() -> new RuntimeException("Schedule not found"));
+//
+//        TeamSchedule teamSchedule = TeamSchedule.builder()
+//                .team(Team.builder().id(teamId).build())
+//                .schedule(schedule)
+//                .build();
+//
+//        teamScheduleRepository.save(teamSchedule);
+//        return new TeamScheduleResponseDto(teamSchedule);
+//    }
 
     @Transactional
     public TeamScheduleResponseDto updateTeamSchedule(Long id, TeamScheduleRequestDto teamScheduleRequestDto) {

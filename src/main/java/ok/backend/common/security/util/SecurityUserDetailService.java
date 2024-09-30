@@ -3,6 +3,8 @@ package ok.backend.common.security.util;
 import lombok.RequiredArgsConstructor;
 import ok.backend.member.domain.entity.Member;
 import ok.backend.member.domain.repository.MemberRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -26,5 +28,11 @@ public class SecurityUserDetailService implements UserDetailsService {
 //            Member member = optional.get();
 //            return new SecurityUser(member);
 //        }
+    }
+
+    public Member getLoggedInMember() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
+        return securityUser.getMember();
     }
 }

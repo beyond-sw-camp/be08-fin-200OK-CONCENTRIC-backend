@@ -39,12 +39,12 @@ public class TeamScheduleController {
         return ResponseEntity.ok(teamSchedules);  // ResponseEntity 사용
     }
 
-    @Operation(summary = "팀 일정 생성 API")
-    @PostMapping("/create")
-    public ResponseEntity<TeamScheduleResponseDto> createTeamSchedule(@RequestBody TeamScheduleRequestDto teamScheduleRequestDto) {
-        TeamScheduleResponseDto teamSchedule = teamScheduleService.createTeamSchedule(teamScheduleRequestDto);
-        return ResponseEntity.ok(teamSchedule);  // ResponseEntity 사용
-    }
+//    @Operation(summary = "팀 일정 생성 API")
+//    @PostMapping("/create")
+//    public ResponseEntity<TeamScheduleResponseDto> createTeamSchedule(@RequestBody TeamScheduleRequestDto teamScheduleRequestDto) {
+//        TeamScheduleResponseDto teamSchedule = teamScheduleService.createTeamSchedule(teamScheduleRequestDto);
+//        return ResponseEntity.ok(teamSchedule);  // ResponseEntity 사용
+//    }
 
     @Operation(summary = "팀 일정 수정 API")
     @PutMapping("/update/{id}")
