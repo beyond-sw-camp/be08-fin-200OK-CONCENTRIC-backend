@@ -25,7 +25,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 @Getter
-public class JwtTokenProvider {
+public class JwtProvider {
 
     @Value("${jwt.secret}")
     private String secretKey;

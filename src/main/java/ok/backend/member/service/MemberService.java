@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import ok.backend.common.security.util.JwtTokenProvider;
+import ok.backend.common.security.util.JwtProvider;
 import ok.backend.member.domain.entity.Member;
 import ok.backend.member.domain.entity.RefreshToken;
 import ok.backend.member.domain.enums.MemberStatus;
@@ -18,7 +18,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.Optional;
 
@@ -31,7 +30,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtProvider jwtProvider;
 
     private final RefreshTokenService refreshTokenService;
 
@@ -73,19 +72,19 @@ public class MemberService {
     @Transactional
     public ResponseCookie createToken(Member member) {
 
-        String accessToken = jwtTokenProvider.createAccessToken(member.getEmail());
-        String refreshToken = jwtTokenProvider.createRefreshToken(member.getEmail());
+        String accessToken = jwtProvider.createAccessToken(member.getEmail());
+        String refreshToken = jwtProvider.createRefreshToken(member.getEmail());
 
         RefreshToken newRefreshToken = RefreshToken.builder()
                 .username(member.getEmail())
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
-                .expiration(new Date(new Date().getTime() + jwtTokenProvider.getRefreshTokenValidTime()).getTime())
+                .expiration(new Date(new Date().getTime() + jwtProvider.getRefreshTokenValidTime()).getTime())
                 .build();
 
         refreshTokenService.save(newRefreshToken);
 
-        ResponseCookie cookie = ResponseCookie.from(jwtTokenProvider.getAccessHeader(), accessToken)
+        ResponseCookie cookie = ResponseCookie.from(jwtProvider.getAccessHeader(), accessToken)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
@@ -101,12 +100,13 @@ public class MemberService {
 
     @Transactional
     public void logout(HttpServletRequest request){
-        Cookie accessTokenCookie = jwtTokenProvider.resolveAccessToken(request).orElseThrow(() ->
+        Cookie accessTokenCookie = jwtProvider.resolveAccessToken(request).orElseThrow(() ->
                 new RuntimeException("accessToken not found"));
         String accessToken = accessTokenCookie.getValue();
 
         RefreshToken refreshToken = refreshTokenService.findByAccessToken(accessToken).orElseThrow(() ->
                 new RuntimeException("refreshToken not found"));
+
         refreshTokenService.delete(refreshToken);
 
         SecurityContextHolder.clearContext();

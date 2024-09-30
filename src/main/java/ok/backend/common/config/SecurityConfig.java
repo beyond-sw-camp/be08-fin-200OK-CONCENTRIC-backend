@@ -3,7 +3,7 @@ package ok.backend.common.config;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import ok.backend.common.security.filter.JwtAuthenticationFilter;
-import ok.backend.common.security.util.JwtTokenProvider;
+import ok.backend.common.security.util.JwtProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,7 +26,7 @@ import java.util.Collections;
 @EnableWebSecurity(debug = true)
 public class SecurityConfig {
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtProvider jwtProvider;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
@@ -53,7 +53,7 @@ public class SecurityConfig {
                         return config;
                     }
                 }))
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(requests -> requests
                         .anyRequest().permitAll())
                 .formLogin(AbstractHttpConfigurer::disable)

@@ -92,6 +92,7 @@ public class TeamScheduleService {
         return new TeamScheduleResponseDto(teamSchedule);
     }
 
+
     // 팀 일정 수정
     @Transactional
     public TeamScheduleResponseDto updateTeamSchedule(Long id, TeamScheduleRequestDto teamScheduleRequestDto) {
