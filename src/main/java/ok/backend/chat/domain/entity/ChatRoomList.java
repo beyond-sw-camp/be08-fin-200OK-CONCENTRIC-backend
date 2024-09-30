@@ -2,6 +2,7 @@ package ok.backend.chat.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import ok.backend.chat.dto.req.ChatRoomListRequestDto;
 import ok.backend.member.domain.entity.Member;
 import org.hibernate.annotations.ColumnDefault;
 
@@ -39,5 +40,13 @@ public class ChatRoomList {
                 .bookmark(false)
                 .nickname(chatRoom.getName())
                 .build();
+    }
+
+    public void updateBookmark(boolean bookmark) {
+        this.bookmark = bookmark;
+    }
+
+    public void updateNickname(ChatRoomListRequestDto chatRoomListRequestDto) {
+        this.nickname = chatRoomListRequestDto.getNickname();
     }
 }
