@@ -10,6 +10,6 @@ public interface TeamScheduleRepository extends JpaRepository<TeamSchedule, Long
     List<TeamSchedule> findByTeamId(Long teamId);
 
     // 여러 팀의 일정을 한 번에 조회
-    List<TeamSchedule> findByTeam_IdIn(List<Long> teamIds);
+    List<TeamSchedule> findByTeamIdIn(List<Long> teamIds);
 }
 

@@ -1,5 +1,7 @@
 package ok.backend.schedule.service;
 
+import ok.backend.common.exception.CustomException;
+import ok.backend.common.exception.ErrorCode;
 import ok.backend.common.security.util.SecurityUser;
 import ok.backend.schedule.domain.entity.Routine;
 import ok.backend.schedule.domain.entity.Schedule;
@@ -30,9 +32,11 @@ public class RoutineService {
         this.scheduleRepository = scheduleRepository;
     }
 
-    // 로그인한 유저의 반복 일정 조회
+    // 반복 일정 조회
     public List<RoutineResponseDto> getRoutinesForLoggedInUser() {
-        Long userId = getLoggedInUserId();
+        SecurityUser securityUser = getLoggedInUser();
+        Long userId = securityUser.getMember().getId();
+
         List<Routine> routines = routineRepository.findBySchedule_MemberId(userId);
         return routines.stream().map(RoutineResponseDto::new).collect(Collectors.toList());
     }
@@ -43,7 +47,7 @@ public class RoutineService {
         SecurityUser securityUser = getLoggedInUser();
 
         if (routineRequestDto.getRepeatType() == null) {
-            throw new IllegalArgumentException("Repeat type cannot be null.");
+            throw new CustomException(ErrorCode.EMPTY_INPUT_SCHEDULE);
         }
 
         RepeatType repeatType = RepeatType.valueOf(routineRequestDto.getRepeatType().toUpperCase());
@@ -56,16 +60,16 @@ public class RoutineService {
                     .collect(Collectors.toSet());
 
             if (repeatOn.isEmpty()) {
-                throw new IllegalArgumentException("Repeat on must be specified for weekly repeat type.");
+                throw new CustomException(ErrorCode.INVALID_SCHEDULE_REQUEST);
             }
         }
 
         // 관련 스케줄을 조회
         Schedule schedule = scheduleRepository.findById(routineRequestDto.getScheduleId())
-                .orElseThrow(() -> new RuntimeException("Schedule not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
 
-        if (!schedule.getMember().getId().equals(getLoggedInUserId())) {
-            throw new RuntimeException("You can only create routines for your own schedules.");
+        if (!schedule.getMember().getId().equals(securityUser.getMember().getId())) {
+            throw new CustomException(ErrorCode.NOT_ACCESS_SCHEDULE);
         }
 
         // 빌더 패턴을 사용하여 Routine 객체 생성
@@ -83,12 +87,14 @@ public class RoutineService {
     // 반복 일정 수정
     @Transactional
     public RoutineResponseDto updateRoutine(Long id, RoutineRequestDto routineRequestDto) {
-        Long userId = getLoggedInUserId();
+        SecurityUser securityUser = getLoggedInUser();
+        Long userId = securityUser.getMember().getId();
+
         Routine existingRoutine = routineRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Routine not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
 
         if (!existingRoutine.getSchedule().getMember().getId().equals(userId)) {
-            throw new RuntimeException("You can only modify your own routines.");
+            throw new CustomException(ErrorCode.NOT_ACCESS_SCHEDULE);
         }
 
         RepeatType repeatType = RepeatType.valueOf(routineRequestDto.getRepeatType().toUpperCase());
@@ -101,7 +107,7 @@ public class RoutineService {
                     .collect(Collectors.toSet());
 
             if (repeatOn.isEmpty()) {
-                throw new IllegalArgumentException("Repeat on must be specified for weekly repeat type.");
+                throw new CustomException(ErrorCode.INVALID_SCHEDULE_REQUEST);
             }
         }
 
@@ -118,24 +124,20 @@ public class RoutineService {
     // 반복 일정 삭제
     @Transactional
     public void deleteRoutine(Long id) {
-        Long userId = getLoggedInUserId();
+        SecurityUser securityUser = getLoggedInUser();
+        Long userId = securityUser.getMember().getId();
+
         Routine existingRoutine = routineRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Routine not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
 
         if (!existingRoutine.getSchedule().getMember().getId().equals(userId)) {
-            throw new RuntimeException("You can only delete your own routines.");
+            throw new CustomException(ErrorCode.NOT_ACCESS_SCHEDULE);
         }
 
         routineRepository.deleteById(id);
     }
 
-    // 공통 로그인 유저 확인 메서드
-    private Long getLoggedInUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
-        return securityUser.getMember().getId();
-    }
-
+    // 전체 SecurityUser 객체를 가져오는 메서드
     private SecurityUser getLoggedInUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return (SecurityUser) authentication.getPrincipal();

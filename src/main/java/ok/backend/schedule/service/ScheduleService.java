@@ -1,5 +1,7 @@
 package ok.backend.schedule.service;
 
+import ok.backend.common.exception.CustomException;
+import ok.backend.common.exception.ErrorCode;
 import ok.backend.common.security.util.SecurityUser;
 import ok.backend.schedule.domain.entity.Schedule;
 import ok.backend.schedule.domain.repository.ScheduleRepository;
@@ -23,10 +25,12 @@ public class ScheduleService {
         this.scheduleRepository = scheduleRepository;
     }
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
+    // 로그인한 유저의 모든 일정 조회
     public List<ScheduleResponseDto> getSchedulesForLoggedInUser() {
-        Long userId = getLoggedInUserId();
+        SecurityUser securityUser = getLoggedInUser();
+        Long userId = securityUser.getMember().getId();
 
         List<Schedule> schedules = scheduleRepository.findByMemberId(userId);
         return schedules.stream().map(ScheduleResponseDto::new).collect(Collectors.toList());
@@ -34,11 +38,16 @@ public class ScheduleService {
 
     // 일정 생성
     public ScheduleResponseDto createSchedule(ScheduleRequestDto scheduleRequestDto) {
-        Long userId = getLoggedInUserId();
         SecurityUser securityUser = getLoggedInUser();
 
-        LocalDateTime startDate = LocalDateTime.parse(scheduleRequestDto.getStartDate(), FORMATTER);
-        LocalDateTime endDate = LocalDateTime.parse(scheduleRequestDto.getEndDate(), FORMATTER);
+        LocalDateTime startDate;
+        LocalDateTime endDate;
+        try {
+            startDate = LocalDateTime.parse(scheduleRequestDto.getStartDate(), FORMATTER);
+            endDate = LocalDateTime.parse(scheduleRequestDto.getEndDate(), FORMATTER);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.INVALID_SCHEDULE_REQUEST);
+        }
 
         Schedule schedule = Schedule.builder()
                 .member(securityUser.getMember())
@@ -56,17 +65,24 @@ public class ScheduleService {
 
     // 일정 수정
     public ScheduleResponseDto updateSchedule(Long id, ScheduleRequestDto scheduleRequestDto) {
-        Long userId = getLoggedInUserId();
+        SecurityUser securityUser = getLoggedInUser();
+        Long userId = securityUser.getMember().getId();
 
         Schedule existingSchedule = scheduleRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Schedule not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
 
         if (!existingSchedule.getMember().getId().equals(userId)) {
-            throw new RuntimeException("You can only modify your own schedules.");
+            throw new CustomException(ErrorCode.NOT_ACCESS_SCHEDULE);
         }
 
-        LocalDateTime startDate = LocalDateTime.parse(scheduleRequestDto.getStartDate(), FORMATTER);
-        LocalDateTime endDate = LocalDateTime.parse(scheduleRequestDto.getEndDate(), FORMATTER);
+        LocalDateTime startDate;
+        LocalDateTime endDate;
+        try {
+            startDate = LocalDateTime.parse(scheduleRequestDto.getStartDate(), FORMATTER);
+            endDate = LocalDateTime.parse(scheduleRequestDto.getEndDate(), FORMATTER);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.INVALID_SCHEDULE_REQUEST);
+        }
 
         Schedule updatedSchedule = existingSchedule.toBuilder()
                 .title(scheduleRequestDto.getTitle())
@@ -84,23 +100,20 @@ public class ScheduleService {
 
     // 일정 삭제
     public void deleteSchedule(Long id) {
-        Long userId = getLoggedInUserId();
+        SecurityUser securityUser = getLoggedInUser();
+        Long userId = securityUser.getMember().getId();
+
         Schedule existingSchedule = scheduleRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Schedule not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
 
         if (!existingSchedule.getMember().getId().equals(userId)) {
-            throw new RuntimeException("You can only delete your own schedules.");
+            throw new CustomException(ErrorCode.NOT_ACCESS_SCHEDULE);
         }
 
         scheduleRepository.deleteById(id);
     }
 
-    private Long getLoggedInUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
-        return securityUser.getMember().getId();
-    }
-
+    // 전체 SecurityUser 객체를 가져오는 메서드
     private SecurityUser getLoggedInUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return (SecurityUser) authentication.getPrincipal();
