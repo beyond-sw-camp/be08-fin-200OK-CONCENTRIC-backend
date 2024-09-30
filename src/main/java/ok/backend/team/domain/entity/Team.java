@@ -1,10 +1,7 @@
-package ok.backend.team.domain;
+package ok.backend.team.domain.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import ok.backend.chat.domain.entity.ChatRoom;
 import ok.backend.schedule.domain.entity.TeamSchedule;
 import org.hibernate.annotations.CreationTimestamp;
@@ -16,7 +13,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Setter
 @Getter
 @Table(name = "teams")
 public class Team {
@@ -32,16 +29,17 @@ public class Team {
     private String name;
 
     @Column(name = "creator_id", nullable = false)
-    private Long creator_id;
+    private Long creatorId;
 
     @CreationTimestamp
     @Column(name = "create_at", nullable = false)
     private LocalDateTime createAt;
 
-    @OneToMany(mappedBy = "team")
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamList> teamList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "team")
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamSchedule> teamSchedules = new ArrayList<>();
+
 
 }

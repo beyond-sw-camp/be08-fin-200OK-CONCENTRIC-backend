@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import ok.backend.team.domain.Team;
+import ok.backend.team.domain.entity.Team;
 
 @Entity
 @NoArgsConstructor
