@@ -1,7 +1,10 @@
 package ok.backend.schedule.domain.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import ok.backend.member.domain.entity.Member;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -55,7 +58,6 @@ public class Schedule {
     @OneToOne(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
     private TeamSchedule teamSchedule;
 
-    // 필드 업데이트 메서드
     public void updateFields(Schedule updatedSchedule) {
         this.title = updatedSchedule.getTitle();
         this.description = updatedSchedule.getDescription();
