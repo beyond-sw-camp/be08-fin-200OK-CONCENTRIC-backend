@@ -11,9 +11,6 @@ import lombok.NoArgsConstructor;
 public class MemberUpdateRequestDto {
 
     @NotNull
-    private Long id;
-
-    @NotNull
     private String nickname;
 
     private String imageUrl;

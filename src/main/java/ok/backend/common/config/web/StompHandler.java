@@ -1,7 +1,7 @@
 package ok.backend.common.config.web;
 
 import lombok.RequiredArgsConstructor;
-import ok.backend.common.security.util.JwtTokenProvider;
+import ok.backend.common.security.util.JwtProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 public class StompHandler implements ChannelInterceptor {
 
     // WebSocket 연결 시 헤더에서 JWT token 유효성 검증
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtProvider jwtProvider;
     private static final Logger logger = LoggerFactory.getLogger(StompHandler.class);
 
     // presend: STOMP 메세지가 전송되기 전에 호출되어 웹소켓 연결 시 토큰 검증
@@ -37,7 +37,7 @@ public class StompHandler implements ChannelInterceptor {
             final String authorization = extractJwt(stompHeaderAccessor);
 
             String token = authorization.substring(7);
-            boolean isValid = jwtTokenProvider.validateToken(token);
+            boolean isValid = jwtProvider.validateToken(token);
             if (!isValid) {
                 logger.error("Invalid JWT token: {}", token);
 //                throw new IllegalStateException("Invalid JWT token");

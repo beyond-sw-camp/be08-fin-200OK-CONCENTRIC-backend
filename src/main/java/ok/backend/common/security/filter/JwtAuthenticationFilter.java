@@ -6,7 +6,9 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import ok.backend.common.security.util.JwtTokenProvider;
+import ok.backend.common.exception.CustomException;
+import ok.backend.common.exception.ErrorCode;
+import ok.backend.common.security.util.JwtProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -17,28 +19,28 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtProvider jwtProvider;
 
     @Override
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
-        Optional<Cookie> accessTokenCookie = jwtTokenProvider.resolveAccessToken(request);
+        Optional<Cookie> accessTokenCookie = jwtProvider.resolveAccessToken(request);
         if(accessTokenCookie.isEmpty()){
             System.out.println("accessTokenCookie is empty");
         }
         if(accessTokenCookie.isPresent()){
             String accessToken = accessTokenCookie.get().getValue();
-            boolean isValid = jwtTokenProvider.validateToken(accessToken);
+            boolean isValid = jwtProvider.validateToken(accessToken);
 
             if(isValid){
-                Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
+                Authentication authentication = jwtProvider.getAuthentication(accessToken);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }else{
-                Cookie cookie = jwtTokenProvider.reIssueAccessToken(accessToken);
+                Cookie cookie = jwtProvider.reIssueAccessToken(accessToken);
 
                 if(cookie != null){
                     response.addCookie(cookie);
                 }else{
-                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    throw new CustomException(ErrorCode.UNAUTHORIZED);
                 }
             }
         }

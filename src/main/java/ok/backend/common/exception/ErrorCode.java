@@ -19,16 +19,19 @@ public enum ErrorCode {
     TOKEN_NOT_EXIST(HttpStatus.UNAUTHORIZED, "USER_002", "토큰이 존재하지 않습니다."),
     INVALID_VERIFICATION_TOKEN(HttpStatus.UNAUTHORIZED, "USER_003", "토큰이 유효하지 않습니다."),
     EXPIRED_VERIFICATION_TOKEN(HttpStatus.UNAUTHORIZED, "USER_004", "토큰의 유효기간이 만료 되었습니다."),
+    REFRESH_TOKEN_NOT_EXIST(HttpStatus.UNAUTHORIZED, "USER_010", "리프레시 토큰이 존재하지 않습니다."),
 
     // 회원
     DUPLICATE_SIGNUP_ID(HttpStatus.BAD_REQUEST, "USER_005", "사용자 이메일이 중복 되었습니다."),
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_006", "사용자를 찾을 수 없습니다."),
     INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "USER_007", "사용자의 패스워드가 일치하지 않습니다."),
     EMPTY_INPUT_MEMBER(HttpStatus.BAD_REQUEST, "USER_008", "공백을 사용할 수 없습니다."),
+    MEMBER_DELETED(HttpStatus.FORBIDDEN, "USER_009", "탈퇴한 사용자입니다."),
 
     DUPLICATE_SOCIAL(HttpStatus.CONFLICT, "SOCIAL_001", "이미 등록된 사용자입니다."),
     DUPLICATE_SOCIAL_REQUEST(HttpStatus.BAD_REQUEST, "SOCIAL_002", "이미 요청한 내역입니다."),
     INVALID_SOCIAL_REQUEST(HttpStatus.BAD_REQUEST, "SOCIAL_003", "자기 자신은 친구로 등록할 수 없습니다."),
+    FRIENDSHIP_REQUEST_NOT_FOUND(HttpStatus.NOT_FOUND, "SOCIAL_004", "존재하지 않는 요청입니다."),
 
     // 팀
     DUPLICATE_TEAM_REQUEST(HttpStatus.CONFLICT, "TEAM_001", "이미 존재하는 그룹입니다."),

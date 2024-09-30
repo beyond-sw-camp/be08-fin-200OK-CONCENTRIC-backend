@@ -5,7 +5,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import ok.backend.common.security.util.JwtTokenProvider;
+import ok.backend.common.exception.CustomException;
+import ok.backend.common.exception.ErrorCode;
+import ok.backend.common.security.util.JwtProvider;
+import ok.backend.common.security.util.SecurityUserDetailService;
 import ok.backend.member.domain.entity.Member;
 import ok.backend.member.domain.entity.RefreshToken;
 import ok.backend.member.domain.enums.MemberStatus;
@@ -18,7 +21,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.Optional;
 
@@ -31,12 +33,18 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtProvider jwtProvider;
 
     private final RefreshTokenService refreshTokenService;
 
+    private final SecurityUserDetailService securityUserDetailService;
+
     @Transactional
     public Optional<Member> registerMember(MemberRegisterRequestDto memberRegisterRequestDto) {
+        Optional<Member> exist = memberRepository.findByEmail(memberRegisterRequestDto.getEmail());
+        if (exist.isPresent()) {
+            throw  new CustomException(ErrorCode.DUPLICATE_SIGNUP_ID);
+        }
 
         String hashPassword = passwordEncoder.encode(memberRegisterRequestDto.getPassword());
 
@@ -53,18 +61,18 @@ public class MemberService {
 
     public Member findMemberByEmail(String email) {
         return memberRepository.findByEmail(email).orElseThrow(() ->
-                new RuntimeException("Member with email " + email + " not found"));
+                new CustomException(ErrorCode.MEMBER_NOT_FOUND));
     }
 
     public Member findMemberByEmailAndPassword(MemberLoginRequestDto memberLoginRequestDto) {
         Member member = memberRepository.findByEmail(memberLoginRequestDto.getEmail()).orElseThrow(() ->
-                new RuntimeException("Member with email " + memberLoginRequestDto.getEmail() + " not found"));
+                new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         if(!passwordEncoder.matches(memberLoginRequestDto.getPassword(), member.getPassword())) {
-            throw new RuntimeException("Wrong email or password");
+            throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
         if(member.getStatus() == MemberStatus.N) {
-            throw new RuntimeException("탈퇴한 회원입니다.");
+            throw new CustomException(ErrorCode.MEMBER_DELETED);
         }
 
         return member;
@@ -73,19 +81,19 @@ public class MemberService {
     @Transactional
     public ResponseCookie createToken(Member member) {
 
-        String accessToken = jwtTokenProvider.createAccessToken(member.getEmail());
-        String refreshToken = jwtTokenProvider.createRefreshToken(member.getEmail());
+        String accessToken = jwtProvider.createAccessToken(member.getEmail());
+        String refreshToken = jwtProvider.createRefreshToken(member.getEmail());
 
         RefreshToken newRefreshToken = RefreshToken.builder()
                 .username(member.getEmail())
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
-                .expiration(new Date(new Date().getTime() + jwtTokenProvider.getRefreshTokenValidTime()).getTime())
+                .expiration(new Date(new Date().getTime() + jwtProvider.getRefreshTokenValidTime()).getTime())
                 .build();
 
         refreshTokenService.save(newRefreshToken);
 
-        ResponseCookie cookie = ResponseCookie.from(jwtTokenProvider.getAccessHeader(), accessToken)
+        ResponseCookie cookie = ResponseCookie.from(jwtProvider.getAccessHeader(), accessToken)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
@@ -94,19 +102,24 @@ public class MemberService {
 
         log.info(accessToken);
         log.info(refreshToken);
-        System.out.println("token created");
+        log.info("token created");
 
         return cookie;
     }
 
     @Transactional
     public void logout(HttpServletRequest request){
-        Cookie accessTokenCookie = jwtTokenProvider.resolveAccessToken(request).orElseThrow(() ->
-                new RuntimeException("accessToken not found"));
+        Cookie accessTokenCookie = jwtProvider.resolveAccessToken(request).orElseThrow(() ->
+                new CustomException(ErrorCode.TOKEN_NOT_EXIST));
         String accessToken = accessTokenCookie.getValue();
 
+        if(!jwtProvider.getUserPK(accessToken).equals(securityUserDetailService.getLoggedInMember().getEmail())){
+            throw new CustomException(ErrorCode.BAD_REQUEST);
+        }
+
         RefreshToken refreshToken = refreshTokenService.findByAccessToken(accessToken).orElseThrow(() ->
-                new RuntimeException("refreshToken not found"));
+                new CustomException(ErrorCode.REFRESH_TOKEN_NOT_EXIST));
+
         refreshTokenService.delete(refreshToken);
 
         SecurityContextHolder.clearContext();
@@ -114,8 +127,9 @@ public class MemberService {
 
     @Transactional
     public Member updateMember(MemberUpdateRequestDto memberUpdateRequestDto){
-        Member member = memberRepository.findById(memberUpdateRequestDto.getId()).orElseThrow(() ->
-                new RuntimeException("Member with id " + memberUpdateRequestDto.getId() + " not found"));
+        Member loggedInMember = securityUserDetailService.getLoggedInMember();
+        Member member = memberRepository.findById(loggedInMember.getId()).orElseThrow(() ->
+                new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         member.updateMember(memberUpdateRequestDto);
 
@@ -123,18 +137,21 @@ public class MemberService {
     }
 
     @Transactional
-    public void deleteMember(Long memberId){
-        Member member = memberRepository.findById(memberId).orElseThrow(() ->
-                new RuntimeException("Member with id " + memberId + " not found"));
+    public void deleteMember(HttpServletRequest request){
+        Member loggedInMember = securityUserDetailService.getLoggedInMember();
+        Member member = memberRepository.findById(loggedInMember.getId()).orElseThrow(() ->
+                new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         member.updateStatus();
         memberRepository.save(member);
+
+        logout(request);
     }
 
     @Transactional
     public void updatePassword(String email, String code){
         Member member = memberRepository.findByEmail(email).orElseThrow(() ->
-                new RuntimeException("Member with email " + email + " not found"));
+                new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         String newPassword = passwordEncoder.encode(code);
 

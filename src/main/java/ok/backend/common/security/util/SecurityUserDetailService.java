@@ -1,8 +1,13 @@
 package ok.backend.common.security.util;
 
 import lombok.RequiredArgsConstructor;
+import ok.backend.common.exception.CustomException;
+import ok.backend.common.exception.ErrorCode;
 import ok.backend.member.domain.entity.Member;
+import ok.backend.member.domain.enums.MemberStatus;
 import ok.backend.member.domain.repository.MemberRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,16 +20,18 @@ public class SecurityUserDetailService implements UserDetailsService {
     private final MemberRepository memberRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) throws CustomException {
         Member member = memberRepository.findByEmail(username).orElseThrow(() ->
-                new UsernameNotFoundException(username + " not found"));
+                new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        if(member.getStatus() == MemberStatus.N){
+            throw new CustomException(ErrorCode.MEMBER_DELETED);
+        }
         return new SecurityUser(member);
-//        Optional<Member> optional = memberRepository.findByEmail(username);
-//        if(optional.isEmpty()) {
-//            throw new UsernameNotFoundException(username + " 사용자 없음");
-//        } else {
-//            Member member = optional.get();
-//            return new SecurityUser(member);
-//        }
+    }
+
+    public Member getLoggedInMember() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
+        return securityUser.getMember();
     }
 }
