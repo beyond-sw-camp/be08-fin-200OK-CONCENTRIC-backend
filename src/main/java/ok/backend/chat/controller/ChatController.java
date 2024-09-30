@@ -31,6 +31,13 @@ public class ChatController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @PostMapping("/create/team")
+    @Operation(summary = "단체 채팅방 생성")
+    public ResponseEntity<ChatRoomListResponseDto> createTeamChat(@RequestParam("teamId") Long teamId) {
+        chatService.createTeamChat(teamId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
     @PutMapping("/update")
     @Operation(summary = "채팅방 이름 수정")
     public ResponseEntity<Void> renameChat(@RequestParam("chatRoomId") Long chatRoomId,

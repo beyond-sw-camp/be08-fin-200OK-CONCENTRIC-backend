@@ -23,6 +23,10 @@ public class ChatRoom {
     @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
     @CreationTimestamp
     @Column(name = "create_at", nullable = false)
     private LocalDateTime createAt;
@@ -34,9 +38,10 @@ public class ChatRoom {
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatRoomList> chatRoomList;
 
-    public static ChatRoom createChatRoom(String name) {
+    public static ChatRoom createChatRoom(String name, Status status) {
         return ChatRoom.builder()
                 .name(name)
+                .status(status)
                 .build();
     }
 }
