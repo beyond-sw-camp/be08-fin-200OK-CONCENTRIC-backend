@@ -1,14 +1,17 @@
 package ok.backend.schedule.service;
 
+import ok.backend.schedule.dto.res.TeamScheduleResponseDto;
 import ok.backend.schedule.domain.entity.Schedule;
 import ok.backend.schedule.domain.entity.TeamSchedule;
 import ok.backend.schedule.domain.repository.ScheduleRepository;
 import ok.backend.schedule.domain.repository.TeamScheduleRepository;
 import ok.backend.schedule.dto.req.TeamScheduleRequestDto;
-import ok.backend.schedule.dto.res.TeamScheduleResponseDto;
 import ok.backend.common.security.util.SecurityUser;
-import ok.backend.team.domain.Team;
 import ok.backend.member.domain.repository.MemberRepository;
+import ok.backend.team.domain.entity.Team;
+import ok.backend.common.exception.CustomException;
+import ok.backend.common.exception.ErrorCode;
+import ok.backend.team.domain.repository.TeamRepository; // 팀 레포지토리 추가
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -23,58 +26,65 @@ public class TeamScheduleService {
     private final TeamScheduleRepository teamScheduleRepository;
     private final ScheduleRepository scheduleRepository;
     private final MemberRepository memberRepository;
+    private final TeamRepository teamRepository; // 팀 레포지토리 추가
 
-    public TeamScheduleService(TeamScheduleRepository teamScheduleRepository, ScheduleRepository scheduleRepository, MemberRepository memberRepository) {
+    public TeamScheduleService(TeamScheduleRepository teamScheduleRepository,
+                               ScheduleRepository scheduleRepository,
+                               MemberRepository memberRepository,
+                               TeamRepository teamRepository) {
         this.teamScheduleRepository = teamScheduleRepository;
         this.scheduleRepository = scheduleRepository;
         this.memberRepository = memberRepository;
+        this.teamRepository = teamRepository;
     }
 
+    // 팀 일정 조회
     @Transactional(readOnly = true)
     public List<TeamScheduleResponseDto> getTeamSchedulesForLoggedInUser() {
-        Long loggedInUserId = getLoggedInUserId();
+        SecurityUser securityUser = getLoggedInUser();
 
-        var member = memberRepository.findById(loggedInUserId)
-                .orElseThrow(() -> new RuntimeException("Member not found"));
+        var member = memberRepository.findById(securityUser.getMember().getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         List<Long> teamIds = member.getTeamList().stream()
                 .map(team -> team.getTeam().getId())
                 .collect(Collectors.toList());
 
-        List<TeamSchedule> teamSchedules = teamScheduleRepository.findByTeam_IdIn(teamIds);
+        List<TeamSchedule> teamSchedules = teamScheduleRepository.findByTeamIdIn(teamIds);
         return teamSchedules.stream().map(TeamScheduleResponseDto::new).collect(Collectors.toList());
     }
 
+    // 특정 팀 일정 조회
     @Transactional(readOnly = true)
     public List<TeamScheduleResponseDto> getTeamSchedulesByTeamId(Long teamId) {
-        Long loggedInUserId = getLoggedInUserId();
+        SecurityUser securityUser = getLoggedInUser();
 
-        // 로그인한 유저의 팀 ID 목록 가져오기
-        var member = memberRepository.findById(loggedInUserId)
-                .orElseThrow(() -> new RuntimeException("Member not found"));
+        var member = memberRepository.findById(securityUser.getMember().getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         List<Long> teamIds = member.getTeamList().stream()
                 .map(team -> team.getTeam().getId())
                 .collect(Collectors.toList());
 
-        // 유저가 속한 팀인지 확인
         if (!teamIds.contains(teamId)) {
-            throw new RuntimeException("You are not authorized to view schedules for this team.");
+            throw new CustomException(ErrorCode.NOT_ACCESS_TEAM);
         }
 
-        // 해당 팀의 일정 조회
         List<TeamSchedule> teamSchedules = teamScheduleRepository.findByTeamId(teamId);
         return teamSchedules.stream().map(TeamScheduleResponseDto::new).collect(Collectors.toList());
     }
 
+    // 팀 일정 생성
     @Transactional
     public TeamScheduleResponseDto createTeamSchedule(TeamScheduleRequestDto teamScheduleRequestDto) {
-        Long teamId = teamScheduleRequestDto.getTeamId();
         Schedule schedule = scheduleRepository.findById(teamScheduleRequestDto.getScheduleId())
-                .orElseThrow(() -> new RuntimeException("Schedule not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
+
+        Team team = teamRepository.findById(teamScheduleRequestDto.getTeamId())
+                .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
 
         TeamSchedule teamSchedule = TeamSchedule.builder()
-                .team(Team.builder().id(teamId).build())
+                .team(team)
                 .schedule(schedule)
                 .build();
 
@@ -82,14 +92,16 @@ public class TeamScheduleService {
         return new TeamScheduleResponseDto(teamSchedule);
     }
 
+    // 팀 일정 수정
     @Transactional
     public TeamScheduleResponseDto updateTeamSchedule(Long id, TeamScheduleRequestDto teamScheduleRequestDto) {
-        Long loggedInUserId = getLoggedInUserId();
+        SecurityUser securityUser = getLoggedInUser();
+
         TeamSchedule existingTeamSchedule = teamScheduleRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Team Schedule not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
 
         Schedule schedule = scheduleRepository.findById(teamScheduleRequestDto.getScheduleId())
-                .orElseThrow(() -> new RuntimeException("Schedule not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
 
         TeamSchedule updatedTeamSchedule = existingTeamSchedule.toBuilder()
                 .schedule(schedule)
@@ -99,18 +111,19 @@ public class TeamScheduleService {
         return new TeamScheduleResponseDto(updatedTeamSchedule);
     }
 
+    // 팀 일정 삭제
     @Transactional
     public void deleteTeamSchedule(Long id) {
-        Long loggedInUserId = getLoggedInUserId();
+        SecurityUser securityUser = getLoggedInUser();
+
         TeamSchedule existingTeamSchedule = teamScheduleRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Team Schedule not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
 
         teamScheduleRepository.deleteById(id);
     }
 
-    private Long getLoggedInUserId() {
+    private SecurityUser getLoggedInUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
-        return securityUser.getMember().getId();
+        return (SecurityUser) authentication.getPrincipal();
     }
 }

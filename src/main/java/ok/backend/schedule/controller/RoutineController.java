@@ -44,6 +44,3 @@ public class RoutineController {
         routineService.deleteRoutine(id);
     }
 }
-
-
-
