@@ -14,7 +14,7 @@ import java.util.List;
 
 @Tag(name = "TeamSchedule", description = "팀 일정 관리")
 @Slf4j
-@RestController  // RestController로 변경 (Controller와 ResponseBody를 합침)
+@RestController
 @RequestMapping("/v1/api/teamSchedule")
 public class TeamScheduleController {
 
@@ -29,34 +29,34 @@ public class TeamScheduleController {
     @GetMapping("/list")
     public ResponseEntity<List<TeamScheduleResponseDto>> getTeamSchedulesForLoggedInUser() {
         List<TeamScheduleResponseDto> teamSchedules = teamScheduleService.getTeamSchedulesForLoggedInUser();
-        return ResponseEntity.ok(teamSchedules);  // ResponseEntity 사용
+        return ResponseEntity.ok(teamSchedules);
     }
 
     @Operation(summary = "특정 팀의 일정 조회 API")
     @GetMapping("/list/{teamId}")
     public ResponseEntity<List<TeamScheduleResponseDto>> getTeamSchedulesByTeamId(@PathVariable Long teamId) {
         List<TeamScheduleResponseDto> teamSchedules = teamScheduleService.getTeamSchedulesByTeamId(teamId);
-        return ResponseEntity.ok(teamSchedules);  // ResponseEntity 사용
+        return ResponseEntity.ok(teamSchedules);
     }
 
-//    @Operation(summary = "팀 일정 생성 API")
-//    @PostMapping("/create")
-//    public ResponseEntity<TeamScheduleResponseDto> createTeamSchedule(@RequestBody TeamScheduleRequestDto teamScheduleRequestDto) {
-//        TeamScheduleResponseDto teamSchedule = teamScheduleService.createTeamSchedule(teamScheduleRequestDto);
-//        return ResponseEntity.ok(teamSchedule);  // ResponseEntity 사용
-//    }
+    @Operation(summary = "팀 일정 생성 API")
+    @PostMapping("/create")
+    public ResponseEntity<TeamScheduleResponseDto> createTeamSchedule(@RequestBody TeamScheduleRequestDto teamScheduleRequestDto) {
+        TeamScheduleResponseDto teamSchedule = teamScheduleService.createTeamSchedule(teamScheduleRequestDto);
+        return ResponseEntity.ok(teamSchedule);
+    }
 
     @Operation(summary = "팀 일정 수정 API")
     @PutMapping("/update/{id}")
     public ResponseEntity<TeamScheduleResponseDto> updateTeamSchedule(@PathVariable Long id, @RequestBody TeamScheduleRequestDto teamScheduleRequestDto) {
         TeamScheduleResponseDto updatedTeamSchedule = teamScheduleService.updateTeamSchedule(id, teamScheduleRequestDto);
-        return ResponseEntity.ok(updatedTeamSchedule);  // ResponseEntity 사용
+        return ResponseEntity.ok(updatedTeamSchedule);
     }
 
     @Operation(summary = "팀 일정 삭제 API")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteTeamSchedule(@PathVariable Long id) {
         teamScheduleService.deleteTeamSchedule(id);
-        return ResponseEntity.noContent().build();  // 성공 시 204 No Content 리턴
+        return ResponseEntity.noContent().build();
     }
 }
