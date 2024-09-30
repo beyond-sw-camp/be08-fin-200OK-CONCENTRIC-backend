@@ -12,8 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@Setter
-@Builder
+@Builder(toBuilder = true)
 @Table(name = "schedules")
 public class Schedule {
     @Id
@@ -55,4 +54,14 @@ public class Schedule {
 
     @OneToOne(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
     private TeamSchedule teamSchedule;
+
+    // 필드 업데이트 메서드
+    public void updateFields(Schedule updatedSchedule) {
+        this.title = updatedSchedule.getTitle();
+        this.description = updatedSchedule.getDescription();
+        this.status = updatedSchedule.getStatus();
+        this.startDate = updatedSchedule.getStartDate();
+        this.endDate = updatedSchedule.getEndDate();
+        this.importance = updatedSchedule.getImportance();
+    }
 }

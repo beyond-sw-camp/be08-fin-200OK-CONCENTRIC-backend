@@ -46,7 +46,7 @@ public enum ErrorCode {
     // 채팅
     CHAT_NOT_FOUND(HttpStatus.NOT_FOUND, "CHAT_001", "채팅방을 찾을 수 없습니다."),
     DUPLICATE_CHAT(HttpStatus.CONFLICT, "CHAT_002", "이미 참여 중인 채팅방입니다."),
-    INVALID_CHAT_REQUEST(HttpStatus.BAD_REQUEST, "CHAT_003", "자기 자신에게 메세지를 보낼 수 없습니다."),
+    INVALID_CHAT_REQUEST(HttpStatus.BAD_REQUEST, "CHAT_003", "자기 자신에게 요청을 보낼 수 없습니다."),
     NOT_ACCESS_CHAT(HttpStatus.FORBIDDEN, "CHAT_004", "권한이 없는 사용자입니다."),
     EMPTY_INPUT_CHAT(HttpStatus.BAD_REQUEST, "CHAT_005", "메세지가 입력되지 않았습니다."),
     UNSUPPORTED_MEDIA_TYPE_CHAT(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "CHAT_006", "지원하지 않는 미디어 유형입니다."),

@@ -25,18 +25,17 @@ public class ChatController {
 
     @PostMapping("/create")
     @Operation(summary = "채팅방 생성")
-    public ResponseEntity<ChatRoomListResponseDto> createChat(@RequestParam("member") Long memberId,
+    public ResponseEntity<ChatRoomListResponseDto> createChat(@RequestParam("friendId") Long friendId,
                                                               @RequestBody @Valid ChatRoomRequestDto chatRoomRequestDto) {
-        chatService.createChat(memberId, chatRoomRequestDto);
+        chatService.createChat(friendId, chatRoomRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PutMapping("/update")
     @Operation(summary = "채팅방 이름 수정")
-    public ResponseEntity<Void> renameChat(@RequestParam("memberId") Long memberId,
-                                           @RequestParam("chatRoomId") Long chatRoomId,
+    public ResponseEntity<Void> renameChat(@RequestParam("chatRoomId") Long chatRoomId,
                                        @RequestBody @Valid ChatRoomListRequestDto chatRoomListRequestDto) {
-        chatService.renameChat(memberId, chatRoomId, chatRoomListRequestDto);
+        chatService.renameChat(chatRoomId, chatRoomListRequestDto);
         return ResponseEntity.noContent().build();
     }
 
@@ -49,40 +48,37 @@ public class ChatController {
 
     @PutMapping("/bookmark")
     @Operation(summary = "채팅방 즐겨찾기 설정")
-    public ResponseEntity<Void> bookmarkChat(@RequestParam("memberId") Long memberId,
-                                             @RequestParam("chatRoomId") Long chatRoomId) {
-        chatService.bookmarkChat(memberId, chatRoomId);
+    public ResponseEntity<Void> bookmarkChat(@RequestParam("chatRoomId") Long chatRoomId) {
+        chatService.bookmarkChat(chatRoomId);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/join")
     @Operation(summary = "단체 채팅방 참여")
-    public ResponseEntity<Void> joinChat(@RequestParam("memberId") Long memberId, @RequestParam("chatRoomId") Long chatRoomId) {
-        chatService.joinChat(memberId, chatRoomId);
+    public ResponseEntity<Void> joinChat(@RequestParam("chatRoomId") Long chatRoomId) {
+        chatService.joinChat(chatRoomId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @DeleteMapping("/drop")
     @Operation(summary = "단체 채팅방 나가기")
-    public ResponseEntity<Void> dropChat(@RequestParam("memberId") Long memberId,
-                                         @RequestParam("chatRoomId") Long chatRoomId) {
-        chatService.dropChat(memberId, chatRoomId);
+    public ResponseEntity<Void> dropChat(@RequestParam("chatRoomId") Long chatRoomId) {
+        chatService.dropChat(chatRoomId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     // TODO: 순환참조 방지
     @GetMapping("/participant")
     @Operation(summary = "채팅방 참여자 조회")
-    public ResponseEntity<List<ChatRoomMemberResponseDto>> findChatParticipant(@RequestParam("memberId") Long memberId,
-                                                                               @RequestParam("chatRoomId") Long chatRoomId) {
-        List<ChatRoomMemberResponseDto> chatRoomMemberResponseDto = chatService.findChatParticipant(memberId, chatRoomId);
+    public ResponseEntity<List<ChatRoomMemberResponseDto>> findChatParticipant(@RequestParam("chatRoomId") Long chatRoomId) {
+        List<ChatRoomMemberResponseDto> chatRoomMemberResponseDto = chatService.findChatParticipant(chatRoomId);
         return ResponseEntity.ok(chatRoomMemberResponseDto);
     }
 
     @GetMapping("/list")
     @Operation(summary = "채팅방 목록 조회")
-    public ResponseEntity<List<ChatRoomListResponseDto>> findChatRooms(@RequestParam("memberId") Long memberId) {
-        List<ChatRoomListResponseDto> chatRoomListResponseDto = chatService.findChatRooms(memberId);
+    public ResponseEntity<List<ChatRoomListResponseDto>> findChatRooms() {
+        List<ChatRoomListResponseDto> chatRoomListResponseDto = chatService.findChatRooms();
         return ResponseEntity.ok(chatRoomListResponseDto);
     }
 

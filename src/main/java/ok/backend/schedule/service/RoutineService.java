@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 public class RoutineService {
 
     private final RoutineRepository routineRepository;
-    private final ScheduleRepository scheduleRepository;  // ScheduleRepository 주입
+    private final ScheduleRepository scheduleRepository;
 
     public RoutineService(RoutineRepository routineRepository, ScheduleRepository scheduleRepository) {
         this.routineRepository = routineRepository;
@@ -47,9 +47,18 @@ public class RoutineService {
         }
 
         RepeatType repeatType = RepeatType.valueOf(routineRequestDto.getRepeatType().toUpperCase());
-        Set<DayOfWeek> repeatOn = Stream.of(routineRequestDto.getRepeatOn())
-                .map(day -> DayOfWeek.valueOf(day.toUpperCase()))
-                .collect(Collectors.toSet());
+
+        // 요일은 WEEKLY일 때만 필요함
+        Set<DayOfWeek> repeatOn = null;
+        if (repeatType == RepeatType.WEEKLY) {
+            repeatOn = Stream.of(routineRequestDto.getRepeatOn())
+                    .map(day -> DayOfWeek.valueOf(day.toUpperCase()))
+                    .collect(Collectors.toSet());
+
+            if (repeatOn.isEmpty()) {
+                throw new IllegalArgumentException("Repeat on must be specified for weekly repeat type.");
+            }
+        }
 
         // 관련 스케줄을 조회
         Schedule schedule = scheduleRepository.findById(routineRequestDto.getScheduleId())
@@ -61,10 +70,10 @@ public class RoutineService {
 
         // 빌더 패턴을 사용하여 Routine 객체 생성
         Routine routine = Routine.builder()
-                .schedule(schedule)  // 스케줄 설정
-                .repeatType(repeatType)  // 반복 유형 설정
+                .schedule(schedule)
+                .repeatType(repeatType)
                 .repeatInterval(routineRequestDto.getRepeatInterval())
-                .repeatOn(repeatOn)  // 요일 설정
+                .repeatOn(repeatType == RepeatType.WEEKLY ? repeatOn : null)  // WEEKLY일 때만 repeatOn 설정
                 .build();
 
         routineRepository.save(routine);
@@ -83,17 +92,23 @@ public class RoutineService {
         }
 
         RepeatType repeatType = RepeatType.valueOf(routineRequestDto.getRepeatType().toUpperCase());
-        Set<DayOfWeek> repeatOn = Stream.of(routineRequestDto.getRepeatOn())
-                .map(day -> DayOfWeek.valueOf(day.toUpperCase()))
-                .collect(Collectors.toSet());
 
-        // 빌더 패턴을 사용하여 수정된 Routine 객체 생성
-        Routine updatedRoutine = Routine.builder()
-                .id(existingRoutine.getId())  // 기존 ID 유지
-                .schedule(existingRoutine.getSchedule())  // 스케줄 유지
+        // 요일은 WEEKLY일 때만 필요함
+        Set<DayOfWeek> repeatOn = null;
+        if (repeatType == RepeatType.WEEKLY) {
+            repeatOn = Stream.of(routineRequestDto.getRepeatOn())
+                    .map(day -> DayOfWeek.valueOf(day.toUpperCase()))
+                    .collect(Collectors.toSet());
+
+            if (repeatOn.isEmpty()) {
+                throw new IllegalArgumentException("Repeat on must be specified for weekly repeat type.");
+            }
+        }
+
+        Routine updatedRoutine = existingRoutine.toBuilder()
                 .repeatType(repeatType)
                 .repeatInterval(routineRequestDto.getRepeatInterval())
-                .repeatOn(repeatOn)
+                .repeatOn(repeatType == RepeatType.WEEKLY ? repeatOn : null)  // WEEKLY일 때만 repeatOn 설정
                 .build();
 
         routineRepository.save(updatedRoutine);

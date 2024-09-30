@@ -14,6 +14,8 @@ import java.util.List;
 @Transactional
 @RequiredArgsConstructor
 public class ChatMessageService {
+    // 안읽음 처리에 대한 고민.. -> Kafka 연결 후 consume event 관련한 메소드를 생성하게 되면, 여기서 처리해줄 수 있지 않을까
+    // 채팅방 메세지 전송 유효성 검증 -> 로그인 후 채팅방 sub 하면서 권한 체크할 수 있도록
     private final ChatMessageRepository chatMessageRepository;
 
     public ChatMessageResponseDto saveChatMessage(final Long chatRoomId, final ChatMessageRequestDto chatMessageRequestDto) {

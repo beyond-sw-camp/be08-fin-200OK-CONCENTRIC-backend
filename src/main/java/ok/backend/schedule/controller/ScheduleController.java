@@ -21,25 +21,25 @@ public class ScheduleController {
     private ScheduleService scheduleService;
 
     @Operation(summary = "일정 조회 API")
-    @GetMapping
+    @GetMapping("/list")
     public List<ScheduleResponseDto> getSchedulesForLoggedInUser() {
         return scheduleService.getSchedulesForLoggedInUser();
     }
 
     @Operation(summary = "일정 생성 API")
-    @PostMapping
+    @PostMapping("/create")
     public ScheduleResponseDto createSchedule(@RequestBody ScheduleRequestDto scheduleRequestDto) {
         return scheduleService.createSchedule(scheduleRequestDto);
     }
 
     @Operation(summary = "일정 수정 API")
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     public ScheduleResponseDto updateSchedule(@PathVariable Long id, @RequestBody ScheduleRequestDto scheduleRequestDto) {
         return scheduleService.updateSchedule(id, scheduleRequestDto);
     }
 
     @Operation(summary = "일정 삭제 API")
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public void deleteSchedule(@PathVariable Long id) {
         scheduleService.deleteSchedule(id);
     }
