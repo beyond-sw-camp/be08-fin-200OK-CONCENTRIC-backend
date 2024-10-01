@@ -21,7 +21,7 @@ public class NotificationPending {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "schedule_id")
     private Schedule schedule;
 
