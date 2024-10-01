@@ -58,6 +58,12 @@ public class Schedule {
     @OneToOne(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
     private TeamSchedule teamSchedule;
 
+    @Column(name = "start_notification", nullable = false)
+    private boolean startNotification;
+
+    @Column(name = "end_notification", nullable = false)
+    private boolean endNotification;
+
     public void updateFields(Schedule updatedSchedule) {
         this.title = updatedSchedule.getTitle();
         this.description = updatedSchedule.getDescription();
@@ -65,5 +71,7 @@ public class Schedule {
         this.startDate = updatedSchedule.getStartDate();
         this.endDate = updatedSchedule.getEndDate();
         this.importance = updatedSchedule.getImportance();
+        this.startNotification = updatedSchedule.isStartNotification();
+        this.endNotification = updatedSchedule.isEndNotification();
     }
 }
