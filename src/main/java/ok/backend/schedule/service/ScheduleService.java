@@ -109,8 +109,12 @@ public class ScheduleService {
                 .endNotification(scheduleRequestDto.isEndNotification())
                 .build();
 
+        notificationPendingService.updateScheduleToPending(existingSchedule, updatedSchedule);
+
         existingSchedule.updateFields(updatedSchedule);
         scheduleRepository.save(existingSchedule);
+
+
         return new ScheduleResponseDto(existingSchedule);
     }
 
