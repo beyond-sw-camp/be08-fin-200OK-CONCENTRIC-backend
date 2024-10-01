@@ -7,7 +7,7 @@ import ok.backend.member.domain.entity.Member;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Setter
+@Builder
 @Getter
 @Table(name = "team_list")
 public class TeamList {

@@ -2,7 +2,7 @@ package ok.backend.team.service;
 
 import jakarta.transaction.Transactional;
 import ok.backend.common.exception.CustomException;
-import ok.backend.common.security.util.SecurityUser;
+import ok.backend.common.security.util.SecurityUserDetailService;
 import ok.backend.member.domain.entity.Member;
 import ok.backend.member.domain.repository.MemberRepository;
 import ok.backend.team.domain.entity.Team;
@@ -12,8 +12,6 @@ import ok.backend.team.domain.repository.TeamRepository;
 import ok.backend.team.dto.TeamRequestDto;
 import ok.backend.team.dto.TeamResponseDto;
 import ok.backend.team.dto.TeamUpdateRequestDto;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,23 +25,18 @@ public class TeamService {
     private final TeamRepository teamRepository;
     private final TeamListRepository teamListRepository;
     private final MemberRepository memberRepository;
+    private final SecurityUserDetailService securityUserDetailService;
 
-    public TeamService(TeamRepository teamRepository, TeamListRepository teamListRepository, MemberRepository memberRepository) {
+    public TeamService(TeamRepository teamRepository, TeamListRepository teamListRepository, MemberRepository memberRepository, SecurityUserDetailService securityUserDetailService) {
         this.teamRepository = teamRepository;
         this.teamListRepository = teamListRepository;
         this.memberRepository = memberRepository;
-    }
-
-    public Long getLoggedInUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
-        return securityUser.getMember().getId();
+        this.securityUserDetailService = securityUserDetailService;
     }
 
     // 팀 목록 조회 (로그인한 사람것만 조회가능)
     public List<TeamResponseDto> getAllTeams() {
-        Long currentUserId = getLoggedInUserId();
-
+        Long currentUserId = securityUserDetailService.getLoggedInMember().getId();
         Member currentMember = memberRepository.findById(currentUserId)
                 .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
 
@@ -56,7 +49,7 @@ public class TeamService {
 
     // 특정 팀 조회 (로그인한 사람것만 조회가능)
     public TeamResponseDto getTeamById(Long id) {
-        Long currentUserId = getLoggedInUserId();
+        Long currentUserId = securityUserDetailService.getLoggedInMember().getId();
         Team team = teamRepository.findById(id)
                 .orElseThrow(() -> new CustomException(TEAM_NOT_FOUND));
 
@@ -75,19 +68,23 @@ public class TeamService {
             throw new CustomException(DUPLICATE_TEAM_REQUEST);
         }
 
-        Team team = new Team();
-        team.setName(teamRequestDto.getName());
-        // creatorId를 자동으로 회원 id로 설정
-        team.setCreatorId(getLoggedInUserId());
+        Long currentMemberId = securityUserDetailService.getLoggedInMember().getId();
+
+        Team team = Team.builder()
+                .name(teamRequestDto.getName())
+                .creatorId(currentMemberId)
+                .build();
+
         teamRepository.save(team);
 
-        TeamList teamList = new TeamList();
-        teamList.setTeam(team);
-
-        teamList.setMember(memberRepository.findById(getLoggedInUserId())
-                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND)));
+        TeamList teamList = TeamList.builder()
+                .team(team)
+                .member(memberRepository.findById(currentMemberId)
+                        .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND)))
+                .build();
 
         teamListRepository.save(teamList);
+
         return new TeamResponseDto(team);
     }
 
@@ -96,13 +93,13 @@ public class TeamService {
         Team team = teamRepository.findById(id)
                 .orElseThrow(() -> new CustomException(TEAM_NOT_FOUND));
 
-        Long currentMemberId = getLoggedInUserId();
+        Long currentMemberId = securityUserDetailService.getLoggedInMember().getId();
 
         if (!currentMemberId.equals(team.getCreatorId())) {
             throw new CustomException(NOT_ACCESS_TEAM);
         }
 
-        team.setName(teamUpdateRequestDTO.getName());
+        team.updateName(teamUpdateRequestDTO);
         teamRepository.save(team);
     }
 
@@ -111,7 +108,7 @@ public class TeamService {
         Team team = teamRepository.findById(id)
                 .orElseThrow(() -> new CustomException(TEAM_NOT_FOUND));
 
-        Long currentMemberId = getLoggedInUserId();
+        Long currentMemberId = securityUserDetailService.getLoggedInMember().getId();
 
         if (!currentMemberId.equals(team.getCreatorId())) {
             throw new CustomException(NOT_ACCESS_TEAM);

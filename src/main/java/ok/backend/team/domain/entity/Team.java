@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import ok.backend.chat.domain.entity.ChatRoom;
 import ok.backend.schedule.domain.entity.TeamSchedule;
+import ok.backend.team.dto.TeamUpdateRequestDto;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -13,8 +14,8 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Setter
 @Getter
+@Builder
 @Table(name = "teams")
 public class Team {
     @Id
@@ -40,6 +41,11 @@ public class Team {
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamSchedule> teamSchedules = new ArrayList<>();
+
+
+    public void updateName(TeamUpdateRequestDto teamUpdateRequestDto) {
+        this.name = teamUpdateRequestDto.getName();
+    }
 
 
 }
