@@ -13,7 +13,7 @@ import ok.backend.friendship.domain.repository.FriendshipRepository;
 import ok.backend.friendship.domain.repository.FriendshipRequestRepository;
 import ok.backend.friendship.dto.*;
 import ok.backend.member.domain.entity.Member;
-import ok.backend.member.domain.repository.MemberRepository;
+import ok.backend.member.service.MemberService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,7 +27,7 @@ public class FriendshipService {
 
     private final FriendshipRepository friendshipRepository;
 
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
     private final FriendshipCustomRepositoryImpl friendshipCustomRepositoryImpl;
 
@@ -35,11 +35,9 @@ public class FriendshipService {
 
     @Transactional
     public Member createFriendshipRequest(FriendshipRequestDto friendshipRequestDto) {
-        Member member = memberRepository.findById(securityUserDetailService.getLoggedInMember().getId()).orElseThrow(() ->
-                new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Member member = memberService.findMemberById(securityUserDetailService.getLoggedInMember().getId());
 
-        Member toMember = memberRepository.findById(friendshipRequestDto.getReceiverId()).orElseThrow(() ->
-                new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Member toMember = memberService.findMemberById(friendshipRequestDto.getReceiverId());
 
         FriendshipRequest friendshipRequest = FriendshipRequest.builder()
                 .member(member)
@@ -70,10 +68,8 @@ public class FriendshipService {
         ).orElseThrow(() -> new CustomException(ErrorCode.FRIENDSHIP_REQUEST_NOT_FOUND));
 
         if (friendshipRequestUpdateDto.getIsAccept()) {
-            Member toMember = memberRepository.findById(member.getId()).orElseThrow(() ->
-                    new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-            Member fromMember = memberRepository.findById(friendshipRequestUpdateDto.getSenderId()).orElseThrow(() ->
-                    new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+            Member toMember = memberService.findMemberById(member.getId());
+            Member fromMember = memberService.findMemberById(friendshipRequestUpdateDto.getSenderId());
 
             Friendship fromFriendship = Friendship.builder()
                     .member(fromMember)

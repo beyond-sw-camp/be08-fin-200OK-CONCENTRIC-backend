@@ -19,6 +19,8 @@ public class ScheduleResponseDto {
     private Integer importance;
     private String createAt;
     private String updateAt;
+    private boolean startNotification;
+    private boolean endNotification;
 
     public ScheduleResponseDto(Schedule schedule) {
         this.id = schedule.getId();
@@ -31,5 +33,7 @@ public class ScheduleResponseDto {
         this.importance = schedule.getImportance();
         this.createAt = schedule.getCreateAt().toString();
         this.updateAt = schedule.getUpdateAt().toString();
+        this.startNotification = schedule.isStartNotification();
+        this.endNotification = schedule.isEndNotification();
     }
 }
