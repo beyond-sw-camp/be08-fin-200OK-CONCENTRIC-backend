@@ -71,12 +71,13 @@ public class TeamController {
 //        return ResponseEntity.noContent().build();
 //    }
 
-//    // 그룹 나가기
-//    @DeleteMapping("/leave")
-//    public ResponseEntity<Void> leaveTeam(@PathVariable Long id) {
-//        teamService.leaveTeam(id);
-//        return ResponseEntity.noContent().build();
-//    }
+    // 그룹 나가기
+    @DeleteMapping("/leave/{id}")
+    @Operation(summary = "그룹 나가기 API")
+    public ResponseEntity<Void> leaveTeam(@PathVariable Long id) {
+        teamService.leaveTeam(id);
+        return ResponseEntity.noContent().build();
+    }
 
 
 
