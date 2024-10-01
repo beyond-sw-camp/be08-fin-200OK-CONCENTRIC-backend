@@ -1,14 +1,10 @@
 package ok.backend.friendship.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import ok.backend.friendship.domain.entity.FriendshipRequest;
 import java.time.LocalDate;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 public class FriendshipRequestResponseDto {
 

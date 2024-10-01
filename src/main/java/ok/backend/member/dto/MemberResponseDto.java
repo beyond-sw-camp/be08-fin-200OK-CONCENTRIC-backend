@@ -1,15 +1,11 @@
 package ok.backend.member.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import ok.backend.member.domain.entity.Member;
 
 import java.time.LocalDate;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 public class MemberResponseDto {
 

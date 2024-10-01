@@ -1,8 +1,10 @@
 package ok.backend.friendship.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 import ok.backend.member.domain.entity.Member;
 
+@Getter
 public class FriendshipResponseDto {
 
     @JsonProperty
