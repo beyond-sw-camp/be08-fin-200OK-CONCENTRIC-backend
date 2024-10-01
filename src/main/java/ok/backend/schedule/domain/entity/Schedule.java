@@ -59,10 +59,10 @@ public class Schedule {
     private TeamSchedule teamSchedule;
 
     @Column(name = "start_notification", nullable = false)
-    private boolean startNotification;
+    private Boolean startNotification;
 
     @Column(name = "end_notification", nullable = false)
-    private boolean endNotification;
+    private Boolean endNotification;
 
     public void updateFields(Schedule updatedSchedule) {
         this.title = updatedSchedule.getTitle();
@@ -71,7 +71,7 @@ public class Schedule {
         this.startDate = updatedSchedule.getStartDate();
         this.endDate = updatedSchedule.getEndDate();
         this.importance = updatedSchedule.getImportance();
-        this.startNotification = updatedSchedule.isStartNotification();
-        this.endNotification = updatedSchedule.isEndNotification();
+        this.startNotification = updatedSchedule.getStartNotification();
+        this.endNotification = updatedSchedule.getEndNotification();
     }
 }
