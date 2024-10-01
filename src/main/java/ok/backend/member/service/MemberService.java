@@ -64,6 +64,11 @@ public class MemberService {
                 new CustomException(ErrorCode.MEMBER_NOT_FOUND));
     }
 
+    public Member findMemberById(Long id) {
+        return memberRepository.findById(id).orElseThrow(() ->
+                new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+    }
+
     public Member findMemberByEmailAndPassword(MemberLoginRequestDto memberLoginRequestDto) {
         Member member = memberRepository.findByEmail(memberLoginRequestDto.getEmail()).orElseThrow(() ->
                 new CustomException(ErrorCode.MEMBER_NOT_FOUND));
