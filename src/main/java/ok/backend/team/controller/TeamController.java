@@ -7,6 +7,7 @@ import ok.backend.team.dto.TeamResponseDto;
 import ok.backend.team.dto.TeamUpdateRequestDto;
 import ok.backend.team.service.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -61,4 +62,25 @@ public class TeamController {
         teamService.deleteTeam(id);
         return ResponseEntity.noContent().build();
     }
+
+//    // 그룹 참가
+//    @PostMapping("/join")
+//    @Operation(summary = "특정 그룹 참가 API")
+//    public ResponseEntity<Void> joinTeam(@PathVariable Long id) {
+//        teamService.joinTeam(id);
+//        return ResponseEntity.noContent().build();
+//    }
+
+//    // 그룹 나가기
+//    @DeleteMapping("/leave")
+//    public ResponseEntity<Void> leaveTeam(@PathVariable Long id) {
+//        teamService.leaveTeam(id);
+//        return ResponseEntity.noContent().build();
+//    }
+
+
+
+
+
+
 }

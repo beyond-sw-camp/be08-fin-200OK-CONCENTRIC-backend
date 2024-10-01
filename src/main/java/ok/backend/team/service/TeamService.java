@@ -116,4 +116,21 @@ public class TeamService {
 
         teamRepository.delete(team);
     }
-}
+
+//    // 팀 참여
+//    public void joinTeam(Long id) {
+//        Team team = teamRepository.findById(id)
+//                .orElseThrow(() -> new CustomException(TEAM_NOT_FOUND));
+//
+//
+//    }
+
+//    // 팀 나가기
+//    public void leaveTeam(Long id) {
+//        Long currentMemberId = securityUserDetailService.getLoggedInMember().getId();
+//
+//        TeamList teamList = teamListRepository.findByTeamIdAndMemberId(id, currentMemberId)
+//                .orElseThrow(() -> new CustomException(NOT_ACCESS_TEAM));
+//
+//        teamListRepository.delete(teamList);
+//    }
