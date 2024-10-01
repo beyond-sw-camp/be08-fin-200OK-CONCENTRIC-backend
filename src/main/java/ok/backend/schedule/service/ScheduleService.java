@@ -4,6 +4,8 @@ import ok.backend.common.exception.CustomException;
 import ok.backend.common.exception.ErrorCode;
 import ok.backend.common.security.util.SecurityUserDetailService;
 import ok.backend.member.domain.entity.Member;
+import ok.backend.notification.service.NotificationPendingService;
+import ok.backend.notification.service.NotificationService;
 import ok.backend.schedule.domain.entity.Schedule;
 import ok.backend.schedule.domain.repository.ScheduleRepository;
 import ok.backend.schedule.dto.req.ScheduleRequestDto;
@@ -19,12 +21,17 @@ import java.util.stream.Collectors;
 public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
+    private final NotificationService notificationService;
     private final SecurityUserDetailService securityUserDetailService;
+    private final NotificationPendingService notificationPendingService;
 
     public ScheduleService(ScheduleRepository scheduleRepository,
-                           SecurityUserDetailService securityUserDetailService) {
+                           NotificationService notificationService,
+                           SecurityUserDetailService securityUserDetailService, NotificationPendingService notificationPendingService) {
         this.scheduleRepository = scheduleRepository;
+        this.notificationService = notificationService;
         this.securityUserDetailService = securityUserDetailService;
+        this.notificationPendingService = notificationPendingService;
     }
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
@@ -64,6 +71,9 @@ public class ScheduleService {
                 .build();
 
         scheduleRepository.save(schedule);
+
+        notificationPendingService.saveScheduleToPending(schedule);
+
         return new ScheduleResponseDto(schedule);
     }
 
@@ -99,8 +109,12 @@ public class ScheduleService {
                 .endNotification(scheduleRequestDto.isEndNotification())
                 .build();
 
+        notificationPendingService.updateScheduleToPending(existingSchedule, updatedSchedule);
+
         existingSchedule.updateFields(updatedSchedule);
         scheduleRepository.save(existingSchedule);
+
+
         return new ScheduleResponseDto(existingSchedule);
     }
 

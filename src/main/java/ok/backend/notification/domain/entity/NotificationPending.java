@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import ok.backend.notification.domain.enums.NotificationType;
 import ok.backend.schedule.domain.entity.Schedule;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
@@ -21,8 +23,9 @@ public class NotificationPending {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "schedule_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Schedule schedule;
 
     @Column(name = "is_sent", nullable = false)
