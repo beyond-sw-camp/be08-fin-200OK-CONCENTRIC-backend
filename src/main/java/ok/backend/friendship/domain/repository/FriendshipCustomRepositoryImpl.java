@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import ok.backend.friendship.domain.entity.FriendshipRequest;
 import ok.backend.friendship.domain.enums.FriendshipRequestStatus;
 import ok.backend.member.domain.entity.Member;
-import ok.backend.member.domain.enums.MemberStatus;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -31,7 +30,7 @@ public class FriendshipCustomRepositoryImpl implements FriendshipCustomRepositor
                 .from(member)
                 .innerJoin(friendship)
                 .on(member.id.eq(friendship.otherId))
-                .where(friendship.member.id.eq(memberId), member.status.eq(MemberStatus.Y))
+                .where(friendship.member.id.eq(memberId), member.isActive.eq(true))
                 .fetch();
     }
 
@@ -47,7 +46,7 @@ public class FriendshipCustomRepositoryImpl implements FriendshipCustomRepositor
                 .from(friendshipRequest)
                 .innerJoin(friendshipRequest.member, member).fetchJoin()
                 .where(friendshipRequest.receiverId.eq(receiverId),
-                        member.status.eq(MemberStatus.Y),
+                        member.isActive.eq(true),
                         friendshipRequest.status.eq(FriendshipRequestStatus.WAITING))
                 .fetch();
     }

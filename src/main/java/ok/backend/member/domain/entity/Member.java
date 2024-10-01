@@ -5,11 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import ok.backend.chat.domain.entity.ChatMessage;
 import ok.backend.chat.domain.entity.ChatRoomList;
 import ok.backend.friendship.domain.entity.Friendship;
 import ok.backend.friendship.domain.entity.FriendshipRequest;
-import ok.backend.member.domain.enums.MemberStatus;
 import ok.backend.member.dto.MemberUpdateRequestDto;
 import ok.backend.schedule.domain.entity.Schedule;
 import ok.backend.team.domain.entity.TeamList;
@@ -46,9 +44,8 @@ public class Member {
     @Column(name = "created_at")
     private LocalDate createDate;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private MemberStatus status;
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
 
     @Column(name = "image_url")
     private String imageUrl;
@@ -89,7 +86,7 @@ public class Member {
     }
 
     public void updateStatus(){
-        this.status = MemberStatus.N;
+        this.isActive = false;
     }
 
     public void updatePassword(String password){

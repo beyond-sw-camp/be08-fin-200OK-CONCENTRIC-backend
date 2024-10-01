@@ -11,7 +11,6 @@ import ok.backend.common.security.util.JwtProvider;
 import ok.backend.common.security.util.SecurityUserDetailService;
 import ok.backend.member.domain.entity.Member;
 import ok.backend.member.domain.entity.RefreshToken;
-import ok.backend.member.domain.enums.MemberStatus;
 import ok.backend.member.domain.repository.MemberRepository;
 import ok.backend.member.dto.MemberLoginRequestDto;
 import ok.backend.member.dto.MemberRegisterRequestDto;
@@ -53,7 +52,7 @@ public class MemberService {
                 .password(hashPassword)
                 .name(memberRegisterRequestDto.getName())
                 .nickname(memberRegisterRequestDto.getNickname())
-                .status(MemberStatus.Y)
+                .isActive(true)
                 .build();
 
         return Optional.of(memberRepository.save(member));
@@ -65,8 +64,14 @@ public class MemberService {
     }
 
     public Member findMemberById(Long id) {
-        return memberRepository.findById(id).orElseThrow(() ->
+        Member member = memberRepository.findById(id).orElseThrow(() ->
                 new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        if(!member.getIsActive()){
+            throw new CustomException(ErrorCode.MEMBER_DELETED);
+        }
+
+        return member;
     }
 
     public Member findMemberByEmailAndPassword(MemberLoginRequestDto memberLoginRequestDto) {
@@ -76,7 +81,7 @@ public class MemberService {
         if(!passwordEncoder.matches(memberLoginRequestDto.getPassword(), member.getPassword())) {
             throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
-        if(member.getStatus() == MemberStatus.N) {
+        if(!member.getIsActive()) {
             throw new CustomException(ErrorCode.MEMBER_DELETED);
         }
 
@@ -133,8 +138,7 @@ public class MemberService {
     @Transactional
     public Member updateMember(MemberUpdateRequestDto memberUpdateRequestDto){
         Member loggedInMember = securityUserDetailService.getLoggedInMember();
-        Member member = memberRepository.findById(loggedInMember.getId()).orElseThrow(() ->
-                new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Member member = this.findMemberById(loggedInMember.getId());
 
         member.updateMember(memberUpdateRequestDto);
 
@@ -144,8 +148,7 @@ public class MemberService {
     @Transactional
     public void deleteMember(HttpServletRequest request){
         Member loggedInMember = securityUserDetailService.getLoggedInMember();
-        Member member = memberRepository.findById(loggedInMember.getId()).orElseThrow(() ->
-                new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Member member = this.findMemberById(loggedInMember.getId());
 
         member.updateStatus();
         memberRepository.save(member);

@@ -4,13 +4,11 @@ import lombok.RequiredArgsConstructor;
 import ok.backend.common.exception.CustomException;
 import ok.backend.common.exception.ErrorCode;
 import ok.backend.member.domain.entity.Member;
-import ok.backend.member.domain.enums.MemberStatus;
 import ok.backend.member.domain.repository.MemberRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,7 +21,7 @@ public class SecurityUserDetailService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws CustomException {
         Member member = memberRepository.findByEmail(username).orElseThrow(() ->
                 new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-        if(member.getStatus() == MemberStatus.N){
+        if(!member.getIsActive()){
             throw new CustomException(ErrorCode.MEMBER_DELETED);
         }
         return new SecurityUser(member);
