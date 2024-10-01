@@ -2,9 +2,10 @@ package ok.backend.team.service;
 
 import jakarta.transaction.Transactional;
 import ok.backend.common.exception.CustomException;
+import ok.backend.common.exception.ErrorCode;
 import ok.backend.common.security.util.SecurityUserDetailService;
 import ok.backend.member.domain.entity.Member;
-import ok.backend.member.domain.repository.MemberRepository;
+import ok.backend.member.service.MemberService;
 import ok.backend.team.domain.entity.Team;
 import ok.backend.team.domain.entity.TeamList;
 import ok.backend.team.domain.repository.TeamListRepository;
@@ -24,21 +25,20 @@ import static ok.backend.common.exception.ErrorCode.*;
 public class TeamService {
     private final TeamRepository teamRepository;
     private final TeamListRepository teamListRepository;
-    private final MemberRepository memberRepository;
     private final SecurityUserDetailService securityUserDetailService;
+    private final MemberService memberService;
 
-    public TeamService(TeamRepository teamRepository, TeamListRepository teamListRepository, MemberRepository memberRepository, SecurityUserDetailService securityUserDetailService) {
+    public TeamService(TeamRepository teamRepository, TeamListRepository teamListRepository, SecurityUserDetailService securityUserDetailService, MemberService memberService) {
         this.teamRepository = teamRepository;
         this.teamListRepository = teamListRepository;
-        this.memberRepository = memberRepository;
         this.securityUserDetailService = securityUserDetailService;
+        this.memberService = memberService;
     }
 
     // 팀 목록 조회 (로그인한 사람것만 조회가능)
     public List<TeamResponseDto> getAllTeams() {
-        Long currentUserId = securityUserDetailService.getLoggedInMember().getId();
-        Member currentMember = memberRepository.findById(currentUserId)
-                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
+        Long currentMemberId = securityUserDetailService.getLoggedInMember().getId();
+        Member currentMember = memberService.findMemberById(currentMemberId);
 
         List<TeamList> myTeamLists = teamListRepository.findByMemberId(currentMember.getId());
 
@@ -79,8 +79,7 @@ public class TeamService {
 
         TeamList teamList = TeamList.builder()
                 .team(team)
-                .member(memberRepository.findById(currentMemberId)
-                        .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND)))
+                .member(memberService.findMemberById(currentMemberId))
                 .build();
 
         teamListRepository.save(teamList);
@@ -116,4 +115,28 @@ public class TeamService {
 
         teamRepository.delete(team);
     }
+
+    // 팀 나가기 (팀 리스트에서 삭제됨)
+    public void leaveTeam(Long id) {
+        Long currentMemberId = securityUserDetailService.getLoggedInMember().getId();
+
+        TeamList teamList = teamListRepository.findByMemberIdAndTeamId(currentMemberId, id)
+                .orElseThrow(() -> new CustomException(NOT_ACCESS_TEAM));
+
+        teamListRepository.delete(teamList);
+    }
+
+    public Team findById(Long id) {
+        return teamRepository.findById(id).orElseThrow(() ->
+                new CustomException(ErrorCode.TEAM_NOT_FOUND));
+    }
+
+    public List<TeamList> findByTeamId(Long teamId) {
+        return teamListRepository.findByTeamId(teamId);
+    }
+
+
 }
+
+
+
