@@ -17,4 +17,6 @@ public class ScheduleRequestDto {
     private String startDate;
     private String endDate;
     private Integer importance;
+    private boolean startNotification;
+    private boolean endNotification;
 }

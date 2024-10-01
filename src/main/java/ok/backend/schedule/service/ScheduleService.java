@@ -59,6 +59,8 @@ public class ScheduleService {
                 .startDate(startDate)
                 .endDate(endDate)
                 .importance(scheduleRequestDto.getImportance())
+                .startNotification(scheduleRequestDto.isStartNotification())
+                .endNotification(scheduleRequestDto.isEndNotification())
                 .build();
 
         scheduleRepository.save(schedule);
@@ -93,6 +95,8 @@ public class ScheduleService {
                 .startDate(startDate)
                 .endDate(endDate)
                 .importance(scheduleRequestDto.getImportance())
+                .startNotification(scheduleRequestDto.isStartNotification())
+                .endNotification(scheduleRequestDto.isEndNotification())
                 .build();
 
         existingSchedule.updateFields(updatedSchedule);
