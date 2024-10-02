@@ -35,5 +35,7 @@ public class Notification {
     @Column(name = "is_read", nullable = false)
     private Boolean isRead;
 
-
+    public void updateRead(){
+        this.isRead = true;
+    }
 }
