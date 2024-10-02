@@ -20,6 +20,12 @@ public class ScheduleController {
     @Autowired
     private ScheduleService scheduleService;
 
+    @Operation(summary = "특정 일정 조회 API")
+    @GetMapping("/list/{id}")
+    public ScheduleResponseDto getScheduleById(@PathVariable Long id) {
+        return scheduleService.getScheduleById(id);
+    }
+
     @Operation(summary = "일정 조회 API")
     @GetMapping("/list")
     public List<ScheduleResponseDto> getSchedulesForLoggedInUser() {
