@@ -1,5 +1,6 @@
 package ok.backend.chat.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import ok.backend.chat.dto.req.ChatRoomRequestDto;
