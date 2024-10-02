@@ -7,8 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import ok.backend.member.domain.entity.Email;
 import ok.backend.member.domain.repository.EmailRepository;
 import ok.backend.member.dto.EmailVerifyRequestDto;
+import ok.backend.notification.domain.entity.Notification;
+import ok.backend.notification.domain.entity.NotificationPending;
+import ok.backend.notification.domain.enums.NotificationType;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Random;
@@ -20,7 +22,7 @@ public class EmailService {
 
     private final EmailRepository emailRepository;
 
-    private static final String senderEmail = "concentric.200@gmail.com";
+    private static final String senderEmail = "macleod.park@gmail.com";
 
     private final MemberService memberService;
 
@@ -38,7 +40,7 @@ public class EmailService {
                 .toString();
     }
 
-    private MimeMessage createEmailForm(String email) throws MessagingException {
+    private MimeMessage createVerificationEmailForm(String email) throws MessagingException {
         String authCode = createCode(6);
 
         MimeMessage message = javaMailSender.createMimeMessage();
@@ -62,14 +64,14 @@ public class EmailService {
         return message;
     }
 
-    public void sendEmail(String toEmail) throws MessagingException {
+    public void sendVerificationEmail(String toEmail) throws MessagingException {
         Email exist = emailRepository.findByEmail(toEmail).orElse(null);
 
         if(exist != null) {
             emailRepository.deleteByEmail(toEmail);
         }
 
-        MimeMessage emailForm = createEmailForm(toEmail);
+        MimeMessage emailForm = createVerificationEmailForm(toEmail);
 
         javaMailSender.send(emailForm);
     }
@@ -102,5 +104,19 @@ public class EmailService {
         MimeMessage emailForm = createPasswordEmailForm(email);
 
         javaMailSender.send(emailForm);
+    }
+
+    public void sendNotificationEmail(NotificationPending notificationPending) throws MessagingException {
+        MimeMessage message = javaMailSender.createMimeMessage();
+        message.addRecipients(MimeMessage.RecipientType.TO, notificationPending.getSchedule().getMember().getEmail());
+        if(notificationPending.getNotificationType() == NotificationType.BEFORE_START_SCHEDULE){
+            message.setSubject("일정이 곧 시작됩니다");
+        }else{
+            message.setSubject("일정이 곧 종료됩니다.");
+        }
+        message.setFrom(senderEmail);
+        message.setText("알림이다!");
+
+        javaMailSender.send(message);
     }
 }

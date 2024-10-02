@@ -23,7 +23,7 @@ public class EmailController {
     @PostMapping("/send")
     public ResponseEntity<String> sendEmail(@RequestParam String toEmail) throws MessagingException {
         log.info("Sending email to " + toEmail);
-        emailService.sendEmail(toEmail);
+        emailService.sendVerificationEmail(toEmail);
 
         return ResponseEntity.ok("인증 코드가 발송되었습니다.");
     }
