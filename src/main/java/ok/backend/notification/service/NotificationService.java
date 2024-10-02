@@ -2,6 +2,8 @@ package ok.backend.notification.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import ok.backend.common.exception.CustomException;
+import ok.backend.common.exception.ErrorCode;
 import ok.backend.common.security.util.SecurityUserDetailService;
 import ok.backend.notification.domain.entity.Notification;
 import ok.backend.notification.domain.entity.NotificationPending;
@@ -38,5 +40,14 @@ public class NotificationService {
                 .stream()
                 .map(NotificationResponseDto::new)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public NotificationResponseDto updateNotificationReadById(Long notificationId){
+        Notification notification = notificationRepository.findById(notificationId).orElseThrow(() ->
+                new CustomException(ErrorCode.NOTIFICATION_NOT_FOUND));
+
+        notification.updateRead();
+        return new NotificationResponseDto(notificationRepository.save(notification));
     }
 }
