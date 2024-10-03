@@ -166,6 +166,8 @@ public class MemberService {
         member.updateStatus();
         memberRepository.save(member);
 
+        storageService.deletePrivateStorage(member.getId());
+
         logout(request);
     }
 
