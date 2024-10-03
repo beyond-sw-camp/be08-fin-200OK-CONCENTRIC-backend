@@ -7,7 +7,7 @@ import ok.backend.storage.domain.entity.StorageFile;
 import java.time.LocalDateTime;
 
 @Getter
-public class StorageUploadResponseDto {
+public class StorageResponseDto {
 
     @JsonProperty
     private Long storageId;
@@ -24,7 +24,7 @@ public class StorageUploadResponseDto {
     @JsonProperty
     private LocalDateTime createDate;
 
-    public StorageUploadResponseDto(StorageFile storageFile) {
+    public StorageResponseDto(StorageFile storageFile) {
         this.storageId = storageFile.getId();
         this.storageFileId = storageFile.getId();
         this.originalName = storageFile.getOriginalName();
