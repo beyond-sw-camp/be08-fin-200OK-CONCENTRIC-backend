@@ -41,4 +41,8 @@ public class Storage {
 
     @OneToMany(mappedBy = "storage")
     private List<StorageFile> storageFiles;
+
+    public void updateStorageCurrentSize(Long added){
+        currentSize += added;
+    }
 }

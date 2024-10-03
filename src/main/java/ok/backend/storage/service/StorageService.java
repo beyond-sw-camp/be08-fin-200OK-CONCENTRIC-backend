@@ -31,9 +31,44 @@ public class StorageService {
     @Value("${spring.servlet.multipart.location}")
     private String basePath;
 
-    public List<StorageUploadResponseDto> uploadFileToStorage(Long ownerId, StorageType storageType, List<MultipartFile> files) throws IOException {
-        Storage storage = storageRepository.findByOwnerIdAndStorageType(ownerId, storageType).orElseThrow(() ->
+    public Storage findByOwnerIdAndStorageType(Long ownerId, StorageType storageType) {
+        return storageRepository.findByOwnerIdAndStorageType(ownerId, storageType).orElseThrow(() ->
                 new CustomException(ErrorCode.STORAGE_NOT_FOUND));
+    }
+
+    public void createTeamStorage(Long ownerId){
+        Storage storage = Storage.builder()
+                .ownerId(ownerId)
+                .storageType(StorageType.TEAM)
+                .capacity(1024 * 1024 * 500L)
+                .currentSize(0L)
+                .build();
+
+        storageRepository.save(storage);
+    }
+
+    public void createPrivateStorage(Long ownerId){
+        Storage storage = Storage.builder()
+                .ownerId(ownerId)
+                .storageType(StorageType.PRIVATE)
+                .capacity(1024 * 1024 * 100L)
+                .currentSize(0L)
+                .build();
+
+        storageRepository.save(storage);
+    }
+
+    public List<StorageUploadResponseDto> uploadFileToStorage(Long ownerId, StorageType storageType, List<MultipartFile> files) throws IOException {
+        Storage storage = this.findByOwnerIdAndStorageType(ownerId, storageType);
+
+        Long totalSize = 0L;
+        for (MultipartFile file : files) {
+            totalSize += file.getSize();
+        }
+        System.out.println(totalSize + " " + storage.getCapacity());
+        if(storage.getCapacity() < storage.getCurrentSize() + totalSize){
+            throw new CustomException(ErrorCode.STORAGE_CAPACITY_EXCEED);
+        }
 
         List<StorageUploadResponseDto> storageFiles = new ArrayList<>();
 
@@ -55,6 +90,7 @@ public class StorageService {
                     .build();
 
             storageFiles.add(storageFileService.save(storageFile));
+            storage.updateStorageCurrentSize(size);
 
             file.transferTo(new File(savedPath));
         }
