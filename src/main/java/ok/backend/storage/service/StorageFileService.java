@@ -8,11 +8,16 @@ import ok.backend.storage.domain.entity.StorageFile;
 import ok.backend.storage.domain.repository.StorageFileRepository;
 import ok.backend.storage.dto.StorageResponseDto;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,5 +59,23 @@ public class StorageFileService {
         file.transferTo(new File(savedPath));
 
         return savedPath;
+    }
+
+    public ResponseEntity<Resource> getProfileImage(String path) throws MalformedURLException {
+        UrlResource resource = new UrlResource("file:" + path);
+
+        String extension = resource.getFilename().substring(resource.getFilename().lastIndexOf("."));
+
+        if(".jpg".equals(extension) || ".jpeg".equals(extension)){
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType("image/jpeg"))
+                    .body(resource);
+        } else if(".png".equals(extension)){
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType("image/png"))
+                    .body(resource);
+        }
+
+        return ResponseEntity.notFound().build();
     }
 }

@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import ok.backend.storage.domain.enums.StorageType;
 import ok.backend.storage.dto.StorageResponseDto;
+import ok.backend.storage.service.StorageFileService;
 import ok.backend.storage.service.StorageService;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -25,6 +26,7 @@ import java.util.List;
 public class StorageController {
 
     private final StorageService storageService;
+    private final StorageFileService storageFileService;
 
     @Operation(summary = "파일 업로드 API", description = "파일을 업로드하고 저장한 파일의 정보를 반환합니다.")
     @PostMapping(value = "/upload", consumes = "multipart/form-data")
@@ -43,6 +45,11 @@ public class StorageController {
                                                             @RequestParam Long storageFileId) throws MalformedURLException {
 
         return storageService.downloadFileFromStorage(ownerId, storageType, storageFileId);
+    }
+
+    @PostMapping(value = "/image/profile")
+    public ResponseEntity<Resource> getProfileImage(@RequestParam String path) throws MalformedURLException {
+        return storageFileService.getProfileImage(path);
     }
 
 }
