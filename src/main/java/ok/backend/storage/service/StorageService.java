@@ -9,6 +9,7 @@ import ok.backend.storage.domain.entity.StorageFile;
 import ok.backend.storage.domain.enums.StorageType;
 import ok.backend.storage.domain.repository.StorageRepository;
 import ok.backend.storage.dto.StorageResponseDto;
+import ok.backend.storage.dto.StorageStatusResponseDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -24,6 +25,7 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -115,5 +117,44 @@ public class StorageService {
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + storageFile.getOriginalName() + "\"")
                 .body(resource);
+    }
+
+    public StorageStatusResponseDto findStorage(Long ownerId, StorageType storageType) {
+        return new StorageStatusResponseDto(this.findByOwnerIdAndStorageType(ownerId, storageType));
+    }
+
+    public List<StorageResponseDto> findAllStorageFiles(Long ownerId, StorageType storageType) {
+        Storage storage = this.findByOwnerIdAndStorageType(ownerId, storageType);
+
+        return storageFileService.findAllStorageFilesByStorageId(storage.getId())
+                .stream()
+                .map(StorageResponseDto::new)
+                .collect(Collectors.toList());
+    }
+
+    public void deletePrivateStorage(Long ownerId) {
+        this.deleteStorage(ownerId, StorageType.PRIVATE);
+    }
+
+    public void deleteTeamStorage(Long ownerId) {
+        this.deleteStorage(ownerId, StorageType.TEAM);
+    }
+
+    public void deleteStorage(Long ownerId, StorageType storageType) {
+        Storage storage = this.findByOwnerIdAndStorageType(ownerId, storageType);
+
+        storageFileService.deleteAllStorageFiles(storage.getId());
+
+        storageRepository.delete(storage);
+    }
+
+    public StorageStatusResponseDto deleteStorageFile(Long ownerId, StorageType storageType, Long storageFileId){
+        Storage storage = this.findByOwnerIdAndStorageType(ownerId, storageType);
+
+        Long size = storageFileService.deleteStorageFile(storage.getId(), storageFileId);
+
+        storage.updateStorageCurrentSize(-size);
+
+        return new StorageStatusResponseDto(storageRepository.save(storage));
     }
 }

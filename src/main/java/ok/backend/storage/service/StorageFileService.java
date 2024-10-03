@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import ok.backend.common.exception.CustomException;
 import ok.backend.common.exception.ErrorCode;
 import ok.backend.storage.domain.entity.StorageFile;
+import ok.backend.storage.domain.enums.StorageType;
 import ok.backend.storage.domain.repository.StorageFileRepository;
 import ok.backend.storage.dto.StorageResponseDto;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,10 +35,8 @@ public class StorageFileService {
         return new StorageResponseDto(storageFileRepository.save(storageFile));
     }
 
-    public List<StorageResponseDto> findAllStorageFilesByStorageId(Long storageId) {
-        return storageFileRepository.findAllStorageFilesByStorageId(storageId).stream()
-                .map(StorageResponseDto::new)
-                .collect(Collectors.toList());
+    public List<StorageFile> findAllStorageFilesByStorageId(Long storageId) {
+        return storageFileRepository.findAllStorageFilesByStorageId(storageId);
     }
 
     public StorageFile findByStorageIdAndId(Long storageId, Long storageFileId) {
@@ -77,5 +75,23 @@ public class StorageFileService {
         }
 
         return ResponseEntity.notFound().build();
+    }
+
+    public void deleteAllStorageFiles(Long storageId) {
+        List<StorageFile> storageFiles = this.findAllStorageFilesByStorageId(storageId);
+
+        storageFiles.forEach((storageFile) -> new File(storageFile.getPath()).delete());
+
+        storageFileRepository.deleteAll(storageFiles);
+    }
+
+    public Long deleteStorageFile(Long storageId, Long storageFileId) {
+        StorageFile storageFile = this.findByStorageIdAndId(storageId, storageFileId);
+
+        new File(storageFile.getPath()).delete();
+
+        storageFileRepository.delete(storageFile);
+
+        return storageFile.getSize();
     }
 }
