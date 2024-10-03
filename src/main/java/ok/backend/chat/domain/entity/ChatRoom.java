@@ -13,7 +13,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@Setter
 @Builder
 @Table(name = "chat_room")
 public class ChatRoom {
@@ -28,6 +27,9 @@ public class ChatRoom {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @Column(name = "team_id")
+    private Long teamId;
+
     @CreationTimestamp
     @Column(name = "create_at", nullable = false)
     private LocalDateTime createAt;
@@ -39,10 +41,11 @@ public class ChatRoom {
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatRoomList> chatRoomList;
 
-    public static ChatRoom createChatRoom(String name, Status status) {
+    public static ChatRoom createChatRoom(String name, Status status, Long teamId) {
         return ChatRoom.builder()
                 .name(name)
                 .status(status)
+                .teamId(teamId)
                 .build();
     }
 }

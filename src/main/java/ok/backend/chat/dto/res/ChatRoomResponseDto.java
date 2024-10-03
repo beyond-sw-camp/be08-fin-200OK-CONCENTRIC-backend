@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import ok.backend.chat.domain.entity.ChatRoom;
+import ok.backend.chat.domain.entity.Status;
 
 import java.time.LocalDateTime;
 
@@ -16,6 +17,8 @@ public class ChatRoomResponseDto {
 
     private String name;
 
+    private String status;
+
     private LocalDateTime createAt;
 
     private LocalDateTime updateAt;
@@ -23,6 +26,7 @@ public class ChatRoomResponseDto {
     public ChatRoomResponseDto(ChatRoom chatRoom) {
         this.id = chatRoom.getId();
         this.name = chatRoom.getName();
+        this.status = chatRoom.getStatus().toString();
         this.createAt = chatRoom.getCreateAt();
         this.updateAt = chatRoom.getUpdateAt();
     }
