@@ -56,7 +56,13 @@ public enum ErrorCode {
     MESSAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "CHAT_007", "메세지를 찾을 수 없습니다."),
 
     // 알림
-    NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTIFICATION_001", "알림을 찾을 수 없습니다.");
+    NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTIFICATION_001", "알림을 찾을 수 없습니다."),
+
+    // 파일
+    STORAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "STORAGE_001", "파일함을 찾을 수 없습니다."),
+    STORAGE_CAPACITY_EXCEED(HttpStatus.BAD_REQUEST, "STORAGE_002", "파일함 용량이 부족합니다."),
+    STORAGE_FILE_SIZE_EXCEED(HttpStatus.BAD_REQUEST, "STORAGE_003", "업로드 가능한 파일의 크기는 10MB 이하입니다."),
+    STORAGE_REQUEST_SIZE_EXCEED(HttpStatus.BAD_REQUEST, "STORAGE_004", "한번에 업로드 가능한 크기는 50MB 이하입니다");
 
     private final HttpStatus httpStatus;
     private final String code;

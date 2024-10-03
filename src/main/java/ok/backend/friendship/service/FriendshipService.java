@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class FriendshipService {
 
@@ -33,7 +34,6 @@ public class FriendshipService {
 
     private final SecurityUserDetailService securityUserDetailService;
 
-    @Transactional
     public Member createFriendshipRequest(FriendshipRequestDto friendshipRequestDto) {
         Member member = memberService.findMemberById(securityUserDetailService.getLoggedInMember().getId());
 
@@ -58,7 +58,6 @@ public class FriendshipService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
     public void updateFriendshipRequest(FriendshipRequestUpdateDto friendshipRequestUpdateDto) {
         Member member = securityUserDetailService.getLoggedInMember();
         FriendshipRequest friendshipRequest = friendshipRequestRepository.findByMemberIdAndReceiverIdAndStatus(
@@ -101,7 +100,6 @@ public class FriendshipService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
     public void deleteFriendship(FriendshipDeleteRequestDto friendshipDeleteRequestDto){
         Long memberId = securityUserDetailService.getLoggedInMember().getId();
         Long otherId = friendshipDeleteRequestDto.getOtherId();

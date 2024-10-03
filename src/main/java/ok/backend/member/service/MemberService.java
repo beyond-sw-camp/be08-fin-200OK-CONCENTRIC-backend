@@ -14,17 +14,22 @@ import ok.backend.member.domain.entity.RefreshToken;
 import ok.backend.member.domain.repository.MemberRepository;
 import ok.backend.member.dto.MemberLoginRequestDto;
 import ok.backend.member.dto.MemberRegisterRequestDto;
-import ok.backend.member.dto.MemberUpdateRequestDto;
+import ok.backend.member.dto.MemberResponseDto;
+import ok.backend.storage.service.StorageFileService;
+import ok.backend.storage.service.StorageService;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.Optional;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class MemberService {
 
@@ -38,8 +43,11 @@ public class MemberService {
 
     private final SecurityUserDetailService securityUserDetailService;
 
-    @Transactional
-    public Optional<Member> registerMember(MemberRegisterRequestDto memberRegisterRequestDto) {
+    private final StorageService storageService;
+
+    private final StorageFileService storageFileService;
+
+    public MemberResponseDto registerMember(MemberRegisterRequestDto memberRegisterRequestDto) {
         Optional<Member> exist = memberRepository.findByEmail(memberRegisterRequestDto.getEmail());
         if (exist.isPresent()) {
             throw  new CustomException(ErrorCode.DUPLICATE_SIGNUP_ID);
@@ -55,7 +63,11 @@ public class MemberService {
                 .isActive(true)
                 .build();
 
-        return Optional.of(memberRepository.save(member));
+        Member savedMember = memberRepository.save(member);
+
+        storageService.createPrivateStorage(savedMember.getId());
+
+        return new MemberResponseDto(savedMember);
     }
 
     public Member findMemberByEmail(String email) {
@@ -88,7 +100,6 @@ public class MemberService {
         return member;
     }
 
-    @Transactional
     public ResponseCookie createToken(Member member) {
 
         String accessToken = jwtProvider.createAccessToken(member.getEmail());
@@ -117,7 +128,6 @@ public class MemberService {
         return cookie;
     }
 
-    @Transactional
     public void logout(HttpServletRequest request){
         Cookie accessTokenCookie = jwtProvider.resolveAccessToken(request).orElseThrow(() ->
                 new CustomException(ErrorCode.TOKEN_NOT_EXIST));
@@ -135,17 +145,20 @@ public class MemberService {
         SecurityContextHolder.clearContext();
     }
 
-    @Transactional
-    public Member updateMember(MemberUpdateRequestDto memberUpdateRequestDto){
+    public MemberResponseDto updateMember(String nickname, String content, MultipartFile file) throws IOException {
         Member loggedInMember = securityUserDetailService.getLoggedInMember();
         Member member = this.findMemberById(loggedInMember.getId());
 
-        member.updateMember(memberUpdateRequestDto);
+        member.updateMember(nickname, content);
 
-        return memberRepository.save(member);
+        if(file != null){
+            String path = storageFileService.saveProfileImage(member.getId(), member.getImageUrl(), file);
+            member.updatePath(path);
+        }
+
+        return new MemberResponseDto(memberRepository.save(member));
     }
 
-    @Transactional
     public void deleteMember(HttpServletRequest request){
         Member loggedInMember = securityUserDetailService.getLoggedInMember();
         Member member = this.findMemberById(loggedInMember.getId());
@@ -156,7 +169,6 @@ public class MemberService {
         logout(request);
     }
 
-    @Transactional
     public void updatePassword(String email, String code){
         Member member = memberRepository.findByEmail(email).orElseThrow(() ->
                 new CustomException(ErrorCode.MEMBER_NOT_FOUND));
