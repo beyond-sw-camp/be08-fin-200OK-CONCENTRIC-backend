@@ -109,7 +109,6 @@ public class StorageService {
 
         StorageFile storageFile = storageFileService.findByStorageIdAndId(storage.getId(), storageFileId);
 
-        System.out.println(storageFile.getOriginalName());
         UrlResource resource = new UrlResource("file:" + storageFile.getPath());
 
         return ResponseEntity.ok()
