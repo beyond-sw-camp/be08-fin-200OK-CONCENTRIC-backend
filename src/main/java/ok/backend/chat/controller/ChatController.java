@@ -31,12 +31,12 @@ public class ChatController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/create/team")
-    @Operation(summary = "단체 채팅방 생성")
-    public ResponseEntity<ChatRoomListResponseDto> createTeamChat(@RequestParam("teamId") Long teamId) {
-        chatService.createTeamChat(teamId);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
+//    @PostMapping("/create/team")
+//    @Operation(summary = "단체 채팅방 생성")
+//    public ResponseEntity<ChatRoomListResponseDto> createTeamChat(@RequestParam("teamId") Long teamId) {
+//        chatService.createTeamChat(teamId);
+//        return ResponseEntity.status(HttpStatus.CREATED).build();
+//    }
 
     @PutMapping("/update")
     @Operation(summary = "채팅방 이름 수정")
@@ -46,12 +46,12 @@ public class ChatController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/delete")
-    @Operation(summary = "채팅방 삭제")
-    public ResponseEntity<Void> deleteChat(@RequestParam("chatRoomId") Long chatRoomId) {
-        chatService.deleteChat(chatRoomId);
-        return ResponseEntity.noContent().build();
-    }
+//    @DeleteMapping("/delete")
+//    @Operation(summary = "채팅방 삭제")
+//    public ResponseEntity<Void> deleteChat(@RequestParam("teamId") Long teamId) {
+//        chatService.deleteChat(teamId);
+//        return ResponseEntity.noContent().build();
+//    }
 
     @PutMapping("/bookmark")
     @Operation(summary = "채팅방 즐겨찾기 설정")
@@ -60,12 +60,12 @@ public class ChatController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/join")
-    @Operation(summary = "단체 채팅방 참여")
-    public ResponseEntity<Void> joinChat(@RequestParam("chatRoomId") Long chatRoomId) {
-        chatService.joinChat(chatRoomId);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
+//    @PostMapping("/join")
+//    @Operation(summary = "단체 채팅방 참여")
+//    public ResponseEntity<Void> joinChat(@RequestParam("teamId") Long teamId) {
+//        chatService.joinChat(teamId);
+//        return ResponseEntity.status(HttpStatus.CREATED).build();
+//    }
 
     @DeleteMapping("/drop")
     @Operation(summary = "단체 채팅방 나가기")
@@ -74,7 +74,6 @@ public class ChatController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    // TODO: 순환참조 방지
     @GetMapping("/participant")
     @Operation(summary = "채팅방 참여자 조회")
     public ResponseEntity<List<ChatRoomMemberResponseDto>> findChatParticipant(@RequestParam("chatRoomId") Long chatRoomId) {
