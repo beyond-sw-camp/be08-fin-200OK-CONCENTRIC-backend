@@ -56,7 +56,10 @@ public enum ErrorCode {
     MESSAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "CHAT_007", "메세지를 찾을 수 없습니다."),
 
     // 알림
-    NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTIFICATION_001", "알림을 찾을 수 없습니다.");
+    NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTIFICATION_001", "알림을 찾을 수 없습니다."),
+
+    // 파일
+    STORAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "STORAGE_001", "파일함을 찾을 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
