@@ -8,12 +8,14 @@ import ok.backend.member.domain.entity.Member;
 import ok.backend.member.dto.MemberLoginRequestDto;
 import ok.backend.member.dto.MemberRegisterRequestDto;
 import ok.backend.member.dto.MemberResponseDto;
-import ok.backend.member.dto.MemberUpdateRequestDto;
 import ok.backend.member.service.MemberService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @Tag(name = "User", description = "회원 관리")
 @RequiredArgsConstructor
@@ -25,10 +27,11 @@ public class MemberController {
 
     @Operation(summary = "회원가입 API")
     @PostMapping("/register")
-    public ResponseEntity<String> registerMember(@RequestBody MemberRegisterRequestDto memberRegisterRequestDto) {
-        memberService.registerMember(memberRegisterRequestDto);
+    public ResponseEntity<MemberResponseDto> registerMember(@RequestBody MemberRegisterRequestDto memberRegisterRequestDto) {
+        MemberResponseDto memberResponseDto = memberService.registerMember(memberRegisterRequestDto);
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(memberResponseDto);
     }
 
     @Operation(summary = "로그인 API")
@@ -50,12 +53,11 @@ public class MemberController {
     }
 
     @Operation(summary = "회원 정보 수정 API")
-    @PutMapping("/update")
-    public ResponseEntity<MemberResponseDto> updateMember(@RequestBody MemberUpdateRequestDto memberUpdateRequestDto) {
-        Member member = memberService.updateMember(memberUpdateRequestDto);
-        System.out.println("member.getId() = " + member.getId());
-        System.out.println("member.getNickname() = " + member.getNickname());
-        return ResponseEntity.ok(new MemberResponseDto(member));
+    @PutMapping(value = "/update", consumes = "multipart/form-data")
+    public ResponseEntity<MemberResponseDto> updateMember(@RequestParam String nickname, @RequestParam String content,
+                                                          @RequestParam MultipartFile file) throws IOException {
+
+        return ResponseEntity.ok(memberService.updateMember(nickname, content, file));
     }
 
     @Operation(summary = "회원 탈퇴 API")

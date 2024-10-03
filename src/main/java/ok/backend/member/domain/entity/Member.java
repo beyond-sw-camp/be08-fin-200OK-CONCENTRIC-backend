@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import ok.backend.chat.domain.entity.ChatRoomList;
 import ok.backend.friendship.domain.entity.Friendship;
 import ok.backend.friendship.domain.entity.FriendshipRequest;
-import ok.backend.member.dto.MemberUpdateRequestDto;
 import ok.backend.schedule.domain.entity.Schedule;
 import ok.backend.team.domain.entity.TeamList;
 import org.hibernate.annotations.CreationTimestamp;
@@ -79,10 +78,9 @@ public class Member {
     @OneToMany(mappedBy = "member")
     private List<FriendshipRequest> friendshipRequests = new ArrayList<>();
 
-    public void updateMember(MemberUpdateRequestDto memberUpdateRequestDto) {
-        this.nickname = memberUpdateRequestDto.getNickname();
-        this.imageUrl = memberUpdateRequestDto.getImageUrl();
-        this.content = memberUpdateRequestDto.getContent();
+    public void updateMember(String nickname, String content) {
+        this.nickname = nickname;
+        this.content = content;
     }
 
     public void updateStatus(){
@@ -91,5 +89,9 @@ public class Member {
 
     public void updatePassword(String password){
         this.password = password;
+    }
+
+    public void updatePath(String path){
+        this.imageUrl = path;
     }
 }
