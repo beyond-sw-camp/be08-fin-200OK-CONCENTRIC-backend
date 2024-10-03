@@ -8,13 +8,19 @@ import ok.backend.storage.domain.entity.Storage;
 import ok.backend.storage.domain.entity.StorageFile;
 import ok.backend.storage.domain.enums.StorageType;
 import ok.backend.storage.domain.repository.StorageRepository;
-import ok.backend.storage.dto.StorageUploadResponseDto;
+import ok.backend.storage.dto.StorageResponseDto;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -58,7 +64,7 @@ public class StorageService {
         storageRepository.save(storage);
     }
 
-    public List<StorageUploadResponseDto> uploadFileToStorage(Long ownerId, StorageType storageType, List<MultipartFile> files) throws IOException {
+    public List<StorageResponseDto> uploadFileToStorage(Long ownerId, StorageType storageType, List<MultipartFile> files) throws IOException {
         Storage storage = this.findByOwnerIdAndStorageType(ownerId, storageType);
 
         Long totalSize = 0L;
@@ -70,7 +76,7 @@ public class StorageService {
             throw new CustomException(ErrorCode.STORAGE_CAPACITY_EXCEED);
         }
 
-        List<StorageUploadResponseDto> storageFiles = new ArrayList<>();
+        List<StorageResponseDto> storageFiles = new ArrayList<>();
 
         String additionalPath = storageType.equals(StorageType.TEAM) ? "/teams/" : "/private/";
         for (MultipartFile file : files) {
@@ -96,5 +102,19 @@ public class StorageService {
         }
 
         return storageFiles;
+    }
+
+    public ResponseEntity<Resource> downloadFileFromStorage(Long ownerId, StorageType storageType, Long storageFileId) throws MalformedURLException {
+        Storage storage = this.findByOwnerIdAndStorageType(ownerId, storageType);
+
+        StorageFile storageFile = storageFileService.findByStorageIdAndId(storage.getId(), storageFileId);
+
+        System.out.println(storageFile.getOriginalName());
+        UrlResource resource = new UrlResource("file:" + storageFile.getPath());
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + storageFile.getOriginalName() + "\"")
+                .body(resource);
     }
 }
