@@ -6,6 +6,7 @@ import ok.backend.common.exception.ErrorCode;
 import ok.backend.common.security.util.SecurityUserDetailService;
 import ok.backend.member.domain.entity.Member;
 import ok.backend.member.service.MemberService;
+import ok.backend.storage.service.StorageService;
 import ok.backend.team.domain.entity.Team;
 import ok.backend.team.domain.entity.TeamList;
 import ok.backend.team.domain.repository.TeamListRepository;
@@ -27,12 +28,14 @@ public class TeamService {
     private final TeamListRepository teamListRepository;
     private final SecurityUserDetailService securityUserDetailService;
     private final MemberService memberService;
+    private final StorageService storageService;
 
-    public TeamService(TeamRepository teamRepository, TeamListRepository teamListRepository, SecurityUserDetailService securityUserDetailService, MemberService memberService) {
+    public TeamService(TeamRepository teamRepository, TeamListRepository teamListRepository, SecurityUserDetailService securityUserDetailService, MemberService memberService, StorageService storageService) {
         this.teamRepository = teamRepository;
         this.teamListRepository = teamListRepository;
         this.securityUserDetailService = securityUserDetailService;
         this.memberService = memberService;
+        this.storageService = storageService;
     }
 
     // 팀 목록 조회 (로그인한 사람것만 조회가능)
@@ -75,7 +78,9 @@ public class TeamService {
                 .creatorId(currentMemberId)
                 .build();
 
-        teamRepository.save(team);
+        Team savedteam = teamRepository.save(team);
+
+        storageService.createTeamStorage(savedteam.getId());
 
         TeamList teamList = TeamList.builder()
                 .team(team)

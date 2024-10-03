@@ -14,7 +14,9 @@ import ok.backend.member.domain.entity.RefreshToken;
 import ok.backend.member.domain.repository.MemberRepository;
 import ok.backend.member.dto.MemberLoginRequestDto;
 import ok.backend.member.dto.MemberRegisterRequestDto;
+import ok.backend.member.dto.MemberResponseDto;
 import ok.backend.member.dto.MemberUpdateRequestDto;
+import ok.backend.storage.service.StorageService;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -38,8 +40,10 @@ public class MemberService {
 
     private final SecurityUserDetailService securityUserDetailService;
 
+    private final StorageService storageService;
+
     @Transactional
-    public Optional<Member> registerMember(MemberRegisterRequestDto memberRegisterRequestDto) {
+    public MemberResponseDto registerMember(MemberRegisterRequestDto memberRegisterRequestDto) {
         Optional<Member> exist = memberRepository.findByEmail(memberRegisterRequestDto.getEmail());
         if (exist.isPresent()) {
             throw  new CustomException(ErrorCode.DUPLICATE_SIGNUP_ID);
@@ -55,7 +59,11 @@ public class MemberService {
                 .isActive(true)
                 .build();
 
-        return Optional.of(memberRepository.save(member));
+        Member savedMember = memberRepository.save(member);
+
+        storageService.createPrivateStorage(savedMember.getId());
+
+        return new MemberResponseDto(savedMember);
     }
 
     public Member findMemberByEmail(String email) {
