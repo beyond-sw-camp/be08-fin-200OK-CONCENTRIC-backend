@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 @Getter
-@Setter
 @Document(collection = "chat_messages")
 @NoArgsConstructor
 @AllArgsConstructor
