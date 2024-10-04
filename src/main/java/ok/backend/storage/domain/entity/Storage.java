@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import ok.backend.storage.domain.enums.StorageType;
-import ok.backend.team.domain.entity.Team;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.List;
