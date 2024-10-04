@@ -33,9 +33,9 @@ public class ChatController {
 
 //    @PostMapping("/create/team")
 //    @Operation(summary = "단체 채팅방 생성")
-//    public ResponseEntity<ChatRoomListResponseDto> createTeamChat(@RequestParam("teamId") Long teamId) {
+//    public ResponseEntity<HttpStatus> createTeamChat(@RequestParam("teamId") Long teamId) {
 //        chatService.createTeamChat(teamId);
-//        return ResponseEntity.status(HttpStatus.CREATED).build();
+//        return ResponseEntity.ok(HttpStatus.CREATED);
 //    }
 
     @PutMapping("/update")
@@ -62,13 +62,13 @@ public class ChatController {
 
 //    @PostMapping("/join")
 //    @Operation(summary = "단체 채팅방 참여")
-//    public ResponseEntity<Void> joinChat(@RequestParam("teamId") Long teamId) {
+//    public ResponseEntity<HttpStatus> joinChat(@RequestParam("teamId") Long teamId) {
 //        chatService.joinChat(teamId);
-//        return ResponseEntity.status(HttpStatus.CREATED).build();
+//        return ResponseEntity.ok(HttpStatus.CREATED);
 //    }
 
     @DeleteMapping("/drop")
-    @Operation(summary = "단체 채팅방 나가기")
+    @Operation(summary = "채팅방 나가기")
     public ResponseEntity<Void> dropChat(@RequestParam("chatRoomId") Long chatRoomId) {
         chatService.dropChat(chatRoomId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
