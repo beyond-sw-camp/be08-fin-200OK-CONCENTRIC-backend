@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import ok.backend.common.exception.CustomException;
 import ok.backend.common.exception.ErrorCode;
 import ok.backend.storage.domain.entity.StorageFile;
-import ok.backend.storage.domain.enums.StorageType;
 import ok.backend.storage.domain.repository.StorageFileRepository;
 import ok.backend.storage.dto.StorageResponseDto;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,11 +35,11 @@ public class StorageFileService {
     }
 
     public List<StorageFile> findAllStorageFilesByStorageId(Long storageId) {
-        return storageFileRepository.findAllStorageFilesByStorageId(storageId);
+        return storageFileRepository.findAllStorageFilesByStorageIdAndIsActiveTrue(storageId);
     }
 
     public StorageFile findByStorageIdAndId(Long storageId, Long storageFileId) {
-        return storageFileRepository.findByStorageIdAndId(storageId, storageFileId).orElseThrow(() ->
+        return storageFileRepository.findByStorageIdAndIdAndIsActiveTrue(storageId, storageFileId).orElseThrow(() ->
                 new CustomException(ErrorCode.STORAGE_FILE_NOT_MATCHED));
     }
 
@@ -82,7 +81,9 @@ public class StorageFileService {
 
         storageFiles.forEach((storageFile) -> new File(storageFile.getPath()).delete());
 
-        storageFileRepository.deleteAll(storageFiles);
+        storageFiles.forEach((storageFile) -> storageFile.updateStatus(false));
+
+        storageFileRepository.saveAll(storageFiles);
     }
 
     public Long deleteStorageFile(Long storageId, Long storageFileId) {
@@ -90,7 +91,23 @@ public class StorageFileService {
 
         new File(storageFile.getPath()).delete();
 
-        storageFileRepository.delete(storageFile);
+        storageFile.updateStatus(false);
+
+        storageFileRepository.save(storageFile);
+
+        return storageFile.getSize();
+    }
+
+    public Long deleteStorageFileByOrder(Long storageId) {
+        StorageFile storageFile = storageFileRepository
+                .findTop1ByStorageIdAndIsActiveTrueOrderByCreateDateAsc(storageId).orElseThrow(() ->
+                        new CustomException(ErrorCode.STORAGE_FILE_NOT_MATCHED));
+
+        new File(storageFile.getPath()).delete();
+
+        storageFile.updateStatus(false);
+
+        storageFileRepository.save(storageFile);
 
         return storageFile.getSize();
     }

@@ -36,7 +36,14 @@ public class StorageFile {
     @Column(nullable = false)
     private Long size;
 
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
+
     @CreationTimestamp
     @Column(name = "create_at")
     private LocalDateTime createDate;
+
+    public void updateStatus(Boolean isActive){
+        this.isActive = isActive;
+    }
 }

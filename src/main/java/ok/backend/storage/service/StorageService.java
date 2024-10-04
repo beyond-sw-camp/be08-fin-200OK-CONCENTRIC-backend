@@ -66,6 +66,17 @@ public class StorageService {
         storageRepository.save(storage);
     }
 
+    public void createChatStorage(Long ownerId){
+        Storage storage = Storage.builder()
+                .ownerId(ownerId)
+                .storageType(StorageType.CHAT)
+                .capacity(1024 * 1024 * 100L)
+                .currentSize(0L)
+                .build();
+
+        storageRepository.save(storage);
+    }
+
     public List<StorageResponseDto> uploadFileToStorage(Long ownerId, StorageType storageType, List<MultipartFile> files) throws IOException {
         Storage storage = this.findByOwnerIdAndStorageType(ownerId, storageType);
 
@@ -73,14 +84,29 @@ public class StorageService {
         for (MultipartFile file : files) {
             totalSize += file.getSize();
         }
-        System.out.println(totalSize + " " + storage.getCapacity());
-        if(storage.getCapacity() < storage.getCurrentSize() + totalSize){
+        System.out.println(files.get(0).getSize());
+//        System.out.println(totalSize + " " + storage.getCapacity());
+        if(storageType.equals(StorageType.CHAT) && storage.getCapacity() < totalSize){
+            throw new CustomException(ErrorCode.STORAGE_CAPACITY_EXCEED);
+        } else if(storageType.equals(StorageType.CHAT) && storage.getCapacity() < storage.getCurrentSize() + totalSize){
+            while(storage.getCapacity() < storage.getCurrentSize() + totalSize){
+                Long size = storageFileService.deleteStorageFileByOrder(storage.getId());
+                storage.updateStorageCurrentSize(-size);
+            }
+        } else if(storage.getCapacity() < storage.getCurrentSize() + totalSize){
             throw new CustomException(ErrorCode.STORAGE_CAPACITY_EXCEED);
         }
 
         List<StorageResponseDto> storageFiles = new ArrayList<>();
 
-        String additionalPath = storageType.equals(StorageType.TEAM) ? "/teams/" : "/private/";
+        String additionalPath = null;
+        if(storageType.equals(StorageType.TEAM)){
+            additionalPath = "/teams/";
+        } else if(storageType.equals(StorageType.PRIVATE)){
+            additionalPath = "/private/";
+        }else if(storageType.equals(StorageType.CHAT)){
+            additionalPath = "/chat/";
+        }
         for (MultipartFile file : files) {
             String originalName = file.getOriginalFilename();
             String uuid = UUID.randomUUID().toString();
@@ -95,6 +121,7 @@ public class StorageService {
                     .originalName(originalName)
                     .path(savedPath)
                     .size(size)
+                    .isActive(true)
                     .build();
 
             storageFiles.add(storageFileService.save(storageFile));
@@ -138,6 +165,10 @@ public class StorageService {
 
     public void deleteTeamStorage(Long ownerId) {
         this.deleteStorage(ownerId, StorageType.TEAM);
+    }
+
+    public void deleteChatStorage(Long ownerId) {
+        this.deleteStorage(ownerId, StorageType.CHAT);
     }
 
     public void deleteStorage(Long ownerId, StorageType storageType) {
