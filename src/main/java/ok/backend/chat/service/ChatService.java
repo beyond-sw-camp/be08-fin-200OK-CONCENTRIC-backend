@@ -68,7 +68,7 @@ public class ChatService {
         chatRoomListRepository.save(ChatRoomList.createChatRoomList(member, savedChatRoom));
         chatRoomListRepository.save(ChatRoomList.createChatRoomList(friend, savedChatRoom));
 
-//        storageService.createChatStorage(chatRoom.getId());
+        storageService.createChatStorage(chatRoom.getId());
 
         return new ChatRoomResponseDto(savedChatRoom);
     }
@@ -88,7 +88,7 @@ public class ChatService {
             chatRoomListRepository.save(chatRoomList);
         }
 
-//        storageService.createChatStorage(savedChatRoom.getId());
+        storageService.createChatStorage(savedChatRoom.getId());
     }
 
     // 채팅방 삭제(팀 서비스)
@@ -102,7 +102,7 @@ public class ChatService {
         }
         else throw new CustomException(NOT_ACCESS_CHAT);
 
-//        storageService.deleteChatStorage(chatRoom.getId());
+        storageService.deleteChatStorage(chatRoom.getId());
     }
 
     // 채팅방 이름 수정

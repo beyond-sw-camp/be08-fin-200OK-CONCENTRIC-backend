@@ -38,24 +38,25 @@ public class ChatMessageService {
 
         ChatMessage chatMessage = chatMessageRepository.save(ChatMessage.createMessage(
                 chatRoomId, chatMessageRequestDto.getMemberId(), chatMessageRequestDto.getMessage(),
-                null));
+                chatMessageRequestDto.getFileUrl()));
 
         String topic = chatRoomId.toString();
         kafkaTemplate.send(topic, chatMessage);
     }
 
-    public void sendFile(Long chatRoomId, Long memberId, List<MultipartFile> files) throws IOException {
+    public void sendFileMessage(Long chatRoomId, Long memberId, List<StorageResponseDto> storageFiles) {
+        for (StorageResponseDto storageResponse : storageFiles) {
+            StorageFile storageFile = storageFileService.findByStorageIdAndId(
+                    storageResponse.getStorageId(), storageResponse.getStorageFileId());
 
-        StorageResponseDto storageResponseDto = (StorageResponseDto) storageService.uploadFileToStorage(chatRoomId, StorageType.CHAT, files);
-        StorageFile storageFile = storageFileService.findByStorageIdAndId(
-                storageResponseDto.getStorageId(), storageResponseDto.getStorageFileId());
+            String fileUrl = storageFile.getPath();
 
-        String fileUrl = storageFile.getPath();
-        ChatMessage chatMessage = chatMessageRepository.save(ChatMessage.createMessage(
-                chatRoomId, memberId, null, fileUrl));
+            ChatMessage chatMessage = chatMessageRepository.save(ChatMessage.createMessage(
+                    chatRoomId, memberId, null, fileUrl));
 
-        String topic = chatRoomId.toString();
-        kafkaTemplate.send(topic, chatMessage);
+            String topic = chatRoomId.toString();
+            kafkaTemplate.send(topic, chatMessage);
+        }
     }
 
     // consumer

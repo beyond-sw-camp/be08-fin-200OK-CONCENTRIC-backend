@@ -13,4 +13,6 @@ public class ChatMessageRequestDto {
     private Long memberId;
 
     private String message;
+
+    private String fileUrl;
 }
