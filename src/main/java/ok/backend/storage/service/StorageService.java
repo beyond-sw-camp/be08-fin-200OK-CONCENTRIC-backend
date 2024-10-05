@@ -53,6 +53,9 @@ public class StorageService {
                 .build();
 
         storageRepository.save(storage);
+
+        File file = new File(basePath + "/teams/" + storage.getOwnerId());
+        file.mkdir();
     }
 
     public void createPrivateStorage(Long ownerId){
@@ -64,6 +67,9 @@ public class StorageService {
                 .build();
 
         storageRepository.save(storage);
+
+        File file = new File(basePath + "/private/" + storage.getOwnerId());
+        file.mkdir();
     }
 
     public void createChatStorage(Long ownerId){
@@ -75,6 +81,9 @@ public class StorageService {
                 .build();
 
         storageRepository.save(storage);
+
+        File file = new File(basePath + "/chat/" + storage.getOwnerId());
+        file.mkdir();
     }
 
     public List<StorageResponseDto> uploadFileToStorage(Long ownerId, StorageType storageType, List<MultipartFile> files) throws IOException {
@@ -188,4 +197,6 @@ public class StorageService {
 
         return new StorageStatusResponseDto(storageRepository.save(storage));
     }
+
+
 }
