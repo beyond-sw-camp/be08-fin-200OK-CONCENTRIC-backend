@@ -1,9 +1,8 @@
 package ok.backend.chat.domain.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
-import ok.backend.chat.dto.req.ChatRoomRequestDto;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -25,7 +24,7 @@ public class ChatRoom {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private Type type;
 
     @Column(name = "team_id")
     private Long teamId;
@@ -38,14 +37,23 @@ public class ChatRoom {
     @Column(name = "update_at", nullable = false)
     private LocalDateTime updateAt;
 
+    @Column(name = "is_active", nullable = false)
+    @ColumnDefault("true")
+    private Boolean isActive;
+
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatRoomList> chatRoomList;
 
-    public static ChatRoom createChatRoom(String name, Status status, Long teamId) {
+    public static ChatRoom createChatRoom(String name, Type type, Long teamId, Boolean isActive) {
         return ChatRoom.builder()
                 .name(name)
-                .status(status)
+                .type(type)
                 .teamId(teamId)
+                .isActive(isActive)
                 .build();
+    }
+
+    public void updateIsActive(boolean isActive) {
+        this.isActive = isActive;
     }
 }

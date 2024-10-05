@@ -25,7 +25,7 @@ public class StorageResponseDto {
     private LocalDateTime createDate;
 
     public StorageResponseDto(StorageFile storageFile) {
-        this.storageId = storageFile.getId();
+        this.storageId = storageFile.getStorage().getId();
         this.storageFileId = storageFile.getId();
         this.originalName = storageFile.getOriginalName();
         this.size = storageFile.getSize();

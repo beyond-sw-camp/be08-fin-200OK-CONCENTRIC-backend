@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ok.backend.chat.domain.entity.ChatRoom;
 import ok.backend.chat.domain.entity.ChatRoomList;
-import ok.backend.chat.domain.entity.Status;
+import ok.backend.chat.domain.entity.Type;
 import ok.backend.chat.domain.repository.ChatRoomListRepository;
 import ok.backend.chat.domain.repository.ChatRoomRepository;
 import ok.backend.chat.dto.req.ChatRoomListRequestDto;
@@ -16,6 +16,8 @@ import ok.backend.common.exception.CustomException;
 import ok.backend.common.security.util.SecurityUserDetailService;
 import ok.backend.member.domain.entity.Member;
 import ok.backend.member.service.MemberService;
+import ok.backend.storage.service.StorageFileService;
+import ok.backend.storage.service.StorageService;
 import ok.backend.team.domain.entity.Team;
 import ok.backend.team.domain.entity.TeamList;
 import ok.backend.team.service.TeamService;
@@ -38,6 +40,8 @@ public class ChatService {
     private final MemberService memberService;
     private final TeamService teamService;
     private final SecurityUserDetailService securityUserDetailService;
+    private final StorageService storageService;
+    private final StorageFileService storageFileService;
 
     // 개인 채팅방 생성
     public ChatRoomResponseDto createChat(Long friendId, ChatRoomRequestDto chatRoomRequestDto) {
@@ -53,16 +57,18 @@ public class ChatService {
 
         for (ChatRoomList chatRoomList : memberChatRoomLists) {
             if (chatRoomList.getChatRoom().getChatRoomList().stream()
-                    .anyMatch(crList -> crList.getMember().equals(friend) && crList.getChatRoom().getStatus() == Status.P)) {
+                    .anyMatch(crList -> crList.getMember().equals(friend) && crList.getChatRoom().getType() == Type.P)) {
                 throw new CustomException(DUPLICATE_CHAT);
             }
         }
 
-        ChatRoom chatRoom = ChatRoom.createChatRoom(chatRoomRequestDto.getName(), Status.P, null);
+        ChatRoom chatRoom = ChatRoom.createChatRoom(chatRoomRequestDto.getName(), Type.P, null, true);
         ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
 
         chatRoomListRepository.save(ChatRoomList.createChatRoomList(member, savedChatRoom));
         chatRoomListRepository.save(ChatRoomList.createChatRoomList(friend, savedChatRoom));
+
+        storageService.createChatStorage(chatRoom.getId());
 
         return new ChatRoomResponseDto(savedChatRoom);
     }
@@ -71,7 +77,7 @@ public class ChatService {
     public void createTeamChat(Long teamId) {
         Team team = teamService.findById(teamId);
 
-        ChatRoom chatRoom = ChatRoom.createChatRoom(team.getName(), Status.T, teamId);
+        ChatRoom chatRoom = ChatRoom.createChatRoom(team.getName(), Type.T, teamId, true);
         ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
 
         List<TeamList> teamMember = teamService.findByTeamId(teamId);
@@ -81,6 +87,8 @@ public class ChatService {
             ChatRoomList chatRoomList = ChatRoomList.createChatRoomList(teamList.getMember(), savedChatRoom);
             chatRoomListRepository.save(chatRoomList);
         }
+
+        storageService.createChatStorage(savedChatRoom.getId());
     }
 
     // 채팅방 삭제(팀 서비스)
@@ -94,6 +102,7 @@ public class ChatService {
         }
         else throw new CustomException(NOT_ACCESS_CHAT);
 
+        storageService.deleteChatStorage(chatRoom.getId());
     }
 
     // 채팅방 이름 수정
@@ -132,7 +141,7 @@ public class ChatService {
         chatRoomListRepository.save(chatRoomList);
     }
 
-    // 채팅방 나가기
+    // 채팅방 나가기(팀 탈퇴 시: 리스트 삭제, 회원 탈퇴 시: 비활성화)
     public void dropChat(Long chatRoomId) {
 
         ChatRoomList chatRoomList = chatRoomListRepository.findByMemberIdAndChatRoomId(
@@ -142,13 +151,18 @@ public class ChatService {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(()
                 -> new CustomException(CHAT_NOT_FOUND));
 
-        Team team = teamService.findById(chatRoom.getTeamId());
-        Long creatorId = securityUserDetailService.getLoggedInMember().getId();
-        if (team.getCreatorId().equals(creatorId)) {
-            throw new CustomException(INVALID_DELETE_REQUEST);
+        if (chatRoom.getType().equals(Type.T)) {
+            Team team = teamService.findById(chatRoom.getTeamId());
+            Long creatorId = securityUserDetailService.getLoggedInMember().getId();
+            if (team.getCreatorId().equals(creatorId)) {
+                throw new CustomException(INVALID_DELETE_REQUEST);
+            }
+            chatRoomListRepository.delete(chatRoomList);
+        } else {
+            chatRoom.updateIsActive(false);
+            chatRoomRepository.save(chatRoom);
+            chatRoomListRepository.delete(chatRoomList);
         }
-
-        chatRoomListRepository.delete(chatRoomList);
     }
 
     // 채팅방 참여자 조회
@@ -172,7 +186,7 @@ public class ChatService {
         if (chatRoomListRepository.findByMemberId(securityUserDetailService.getLoggedInMember().getId()).isEmpty()) {
             throw new CustomException(NOT_ACCESS_CHAT);
         }
-        List<ChatRoomList> chatRoomLists = chatRoomListRepository.findByMemberId(
+        List<ChatRoomList> chatRoomLists = chatRoomListRepository.findByMemberIdAndChatRoomIsActiveTrue(
                 securityUserDetailService.getLoggedInMember().getId());
 
         return chatRoomLists.stream()
@@ -193,14 +207,14 @@ public class ChatService {
                 securityUserDetailService.getLoggedInMember().getId(), chatRoomId).orElseThrow(
                 () -> new CustomException(NOT_ACCESS_CHAT));
 
-        if (chatRoom.getStatus().equals(Status.P)) {
+        if (chatRoom.getType().equals(Type.P)) {
             List<ChatRoomList> chatRoomLists = chatRoomListRepository
                     .findByChatRoomIdAndMemberIdNot(chatRoomId, member.getId());
 
             for (ChatRoomList chatRoomList : chatRoomLists) {
                 Member otherMember = memberService.findMemberById(chatRoomList.getMember().getId());
                 // 이 상태로는 상대방이 탈퇴할 경우 채팅방 조회 불가능
-                // 채팅방도 상태값을 관리해야하나? isActive
+                // 지금은 오류를 던져주는데 이거 말고 프론트 구현되면 채팅을 막는 방법을 찾아야할듯
                 if (otherMember.getIsActive().equals(false)) {
                     throw new CustomException(MEMBER_DELETED);
                 }

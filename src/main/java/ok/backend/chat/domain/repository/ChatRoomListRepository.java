@@ -18,4 +18,6 @@ public interface ChatRoomListRepository extends JpaRepository<ChatRoomList, Long
 
     List<ChatRoomList> findByChatRoomIdAndMemberIdNot(Long chatRoomId, Long memberId);
 
+    List<ChatRoomList> findByMemberIdAndChatRoomIsActiveTrue(Long chatRoomId);
+
 }
