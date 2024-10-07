@@ -21,6 +21,7 @@ import ok.backend.storage.service.StorageService;
 import ok.backend.team.domain.entity.Team;
 import ok.backend.team.domain.entity.TeamList;
 import ok.backend.team.service.TeamService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +43,7 @@ public class ChatService {
     private final SecurityUserDetailService securityUserDetailService;
     private final StorageService storageService;
     private final StorageFileService storageFileService;
+
 
     // 개인 채팅방 생성
     public ChatRoomResponseDto createChat(Long friendId, ChatRoomRequestDto chatRoomRequestDto) {
@@ -221,5 +223,10 @@ public class ChatService {
             }
         }
 
+    }
+
+    public ChatRoom findByTeamId(Long teamId) {
+        return chatRoomRepository.findByTeamId(teamId).orElseThrow(()
+                -> new CustomException(CHAT_NOT_FOUND));
     }
 }
