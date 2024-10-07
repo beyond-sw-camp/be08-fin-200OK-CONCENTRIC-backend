@@ -2,12 +2,14 @@ package ok.backend.team.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.mail.MessagingException;
+import lombok.RequiredArgsConstructor;
 import ok.backend.team.dto.TeamRequestDto;
 import ok.backend.team.dto.TeamResponseDto;
 import ok.backend.team.dto.TeamUpdateRequestDto;
+import ok.backend.team.service.TeamSendingService;
 import ok.backend.team.service.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,11 +18,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("v1/api/team")
+@RequiredArgsConstructor
 @Tag(name = "Team", description = "그룹 관리")
 public class TeamController {
 
     @Autowired
     private TeamService teamService;
+    @Autowired
+    private TeamSendingService teamSendingService;
 
     @GetMapping("/list")
     @Operation(summary = "그룹 목록 조회 API")
@@ -63,13 +68,21 @@ public class TeamController {
         return ResponseEntity.noContent().build();
     }
 
-//    // 그룹 참가
-//    @PostMapping("/join")
-//    @Operation(summary = "특정 그룹 참가 API")
-//    public ResponseEntity<Void> joinTeam(@PathVariable Long id) {
-//        teamService.joinTeam(id);
-//        return ResponseEntity.noContent().build();
-//    }
+    // 팀 초대 URL 생성 및 이메일 전송
+    @PostMapping("/{id}/invite")
+    @Operation(summary = "팀 초대 이메일 전송 API")
+    public ResponseEntity<String> inviteMember(@PathVariable Long id, @RequestParam String inviteeEmail) throws MessagingException {
+        teamSendingService.sendInviteEmail(id, inviteeEmail);
+        return ResponseEntity.ok("초대 이메일이 성공적으로 전송되었습니다.");
+    }
+
+    // 팀 참여
+    @GetMapping("/invite")
+    @Operation(summary = "팀 초대 수락 API")
+    public ResponseEntity<String> joinTeam(@RequestParam Long teamId) {
+        teamService.joinTeam(teamId);
+        return ResponseEntity.ok("팀에 성공적으로 참여하였습니다.");
+    }
 
     // 그룹 나가기
     @DeleteMapping("/leave/{id}")

@@ -1,6 +1,8 @@
 package ok.backend.team.service;
 
+
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import ok.backend.common.exception.CustomException;
 import ok.backend.common.exception.ErrorCode;
 import ok.backend.common.security.util.SecurityUserDetailService;
@@ -14,13 +16,13 @@ import ok.backend.team.dto.TeamRequestDto;
 import ok.backend.team.dto.TeamResponseDto;
 import ok.backend.team.dto.TeamUpdateRequestDto;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static ok.backend.common.exception.ErrorCode.*;
 
 @Service
+@RequiredArgsConstructor
 @Transactional
 public class TeamService {
     private final TeamRepository teamRepository;
@@ -28,12 +30,7 @@ public class TeamService {
     private final SecurityUserDetailService securityUserDetailService;
     private final MemberService memberService;
 
-    public TeamService(TeamRepository teamRepository, TeamListRepository teamListRepository, SecurityUserDetailService securityUserDetailService, MemberService memberService) {
-        this.teamRepository = teamRepository;
-        this.teamListRepository = teamListRepository;
-        this.securityUserDetailService = securityUserDetailService;
-        this.memberService = memberService;
-    }
+
 
     // 팀 목록 조회 (로그인한 사람것만 조회가능)
     public List<TeamResponseDto> getAllTeams() {
@@ -84,6 +81,7 @@ public class TeamService {
 
         teamListRepository.save(teamList);
 
+
         return new TeamResponseDto(team);
     }
 
@@ -116,6 +114,26 @@ public class TeamService {
         teamRepository.delete(team);
     }
 
+    public void joinTeam(Long teamId) {
+        Long currentMemberId = securityUserDetailService.getLoggedInMember().getId();
+        Member member = memberService.findMemberById(currentMemberId);
+
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new CustomException(TEAM_NOT_FOUND));
+
+        boolean isMemberOfTeam = teamListRepository.existsByTeamIdAndMemberId(team.getId(), member.getId());
+        if (isMemberOfTeam) {
+            throw new CustomException(DUPLICATE_TEAM);
+        }
+
+        TeamList teamList = TeamList.builder()
+                .team(team)
+                .member(member)
+                .build();
+
+        teamListRepository.save(teamList);
+    }
+
+
     // 팀 나가기 (팀 리스트에서 삭제됨)
     public void leaveTeam(Long id) {
         Long currentMemberId = securityUserDetailService.getLoggedInMember().getId();
@@ -125,6 +143,8 @@ public class TeamService {
 
         teamListRepository.delete(teamList);
     }
+
+
 
     public Team findById(Long id) {
         return teamRepository.findById(id).orElseThrow(() ->

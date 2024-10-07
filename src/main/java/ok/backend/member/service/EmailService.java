@@ -119,4 +119,15 @@ public class EmailService {
 
         javaMailSender.send(message);
     }
+
+    public void sendInviteEmail(String recipientEmail, String inviteUrl) throws MessagingException {
+        MimeMessage message = javaMailSender.createMimeMessage();
+        message.addRecipients(MimeMessage.RecipientType.TO, recipientEmail);
+
+        message.setSubject("그룹에 초대합니다.");
+        message.setFrom(senderEmail);
+        message.setText("링크를 클릭하여 그룹에 참여하세요: " + inviteUrl); // HTML 형식으로 설정
+
+        javaMailSender.send(message);
+    }
 }
