@@ -1,6 +1,6 @@
 package ok.backend.chat.domain.entity;
 
-public enum Status {
+public enum Type {
     T,
     P
 }

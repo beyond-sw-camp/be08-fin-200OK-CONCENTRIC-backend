@@ -10,7 +10,6 @@ import org.hibernate.annotations.ColumnDefault;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@Setter
 @Builder
 @Table(name = "chat_room_list")
 public class ChatRoomList {

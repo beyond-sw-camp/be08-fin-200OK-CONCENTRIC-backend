@@ -16,6 +16,8 @@ public class ChatRoomResponseDto {
 
     private String name;
 
+    private String type;
+
     private LocalDateTime createAt;
 
     private LocalDateTime updateAt;
@@ -23,6 +25,7 @@ public class ChatRoomResponseDto {
     public ChatRoomResponseDto(ChatRoom chatRoom) {
         this.id = chatRoom.getId();
         this.name = chatRoom.getName();
+        this.type = chatRoom.getType().toString();
         this.createAt = chatRoom.getCreateAt();
         this.updateAt = chatRoom.getUpdateAt();
     }

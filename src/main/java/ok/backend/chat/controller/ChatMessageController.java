@@ -1,29 +1,50 @@
 package ok.backend.chat.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ok.backend.chat.dto.req.ChatMessageRequestDto;
-import ok.backend.chat.dto.res.ChatMessageResponseDto;
 import ok.backend.chat.service.ChatMessageService;
+import ok.backend.storage.domain.enums.StorageType;
+import ok.backend.storage.dto.StorageResponseDto;
+import ok.backend.storage.service.StorageService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
+
 
 @Slf4j
-@Controller
+@RestController
 @RequiredArgsConstructor
+@Tag(name = "Chat", description = "채팅 관리")
 public class ChatMessageController {
 
     private final ChatMessageService chatMessageService;
+    private final StorageService storageService;
 
     @MessageMapping("/chat/{chatRoomId}")
-    @SendTo("/sub/chat/{chatRoomId}")
-    public ChatMessageResponseDto broadcasting(final ChatMessageRequestDto chatMessageRequestDto,
-                                               @DestinationVariable(value = "chatRoomId") final Long chatRoomId) {
-        log.info("{chatRoomId: {}, request: {}}", chatRoomId, chatMessageRequestDto);
-        // return: MongoDB에 채팅 메세지를 저장
-        return chatMessageService.saveChatMessage(chatRoomId, chatMessageRequestDto);
+    public void sendMessage(@DestinationVariable Long chatRoomId, ChatMessageRequestDto chatMessageRequestDto) {
+        chatMessageService.sendMessage(chatRoomId, chatMessageRequestDto);
     }
+
+
+    @PostMapping(value = "v1/api/chat/upload", consumes = "multipart/form-data")
+    @Operation(summary = "채팅방 파일 업로드")
+    public ResponseEntity<List<StorageResponseDto>> sendFileMessage(@DestinationVariable @RequestParam Long chatRoomId,
+                                @RequestParam Long memberId,
+                                @RequestParam List<MultipartFile> files) throws IOException {
+        List<StorageResponseDto> storageFiles =  storageService.uploadFileToStorage(chatRoomId, StorageType.CHAT, files);
+        chatMessageService.sendFileMessage(chatRoomId, memberId, storageFiles);
+        return ResponseEntity.ok(storageFiles);
+    }
+
 }

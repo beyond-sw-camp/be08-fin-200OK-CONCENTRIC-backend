@@ -1,9 +1,10 @@
 package ok.backend.chat.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ok.backend.chat.domain.entity.ChatRoom;
 import ok.backend.chat.domain.entity.ChatRoomList;
-import ok.backend.chat.domain.entity.Status;
+import ok.backend.chat.domain.entity.Type;
 import ok.backend.chat.domain.repository.ChatRoomListRepository;
 import ok.backend.chat.domain.repository.ChatRoomRepository;
 import ok.backend.chat.dto.req.ChatRoomListRequestDto;
@@ -14,12 +15,13 @@ import ok.backend.chat.dto.res.ChatRoomResponseDto;
 import ok.backend.common.exception.CustomException;
 import ok.backend.common.security.util.SecurityUserDetailService;
 import ok.backend.member.domain.entity.Member;
-import ok.backend.member.domain.repository.MemberRepository;
+import ok.backend.member.service.MemberService;
+import ok.backend.storage.service.StorageFileService;
+import ok.backend.storage.service.StorageService;
 import ok.backend.team.domain.entity.Team;
 import ok.backend.team.domain.entity.TeamList;
-import ok.backend.team.domain.repository.TeamListRepository;
-import ok.backend.team.domain.repository.TeamRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import ok.backend.team.service.TeamService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,37 +33,23 @@ import static ok.backend.common.exception.ErrorCode.*;
 @Slf4j
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class ChatService {
 
-    @Autowired
-    ChatRoomRepository chatRoomRepository;
-
-    @Autowired
-    ChatRoomListRepository chatRoomListRepository;
-
-    @Autowired
-    MemberRepository memberRepository;
-
-    @Autowired
-    TeamRepository teamRepository;
-
-    @Autowired
-    TeamListRepository teamListRepository;
-
+    private final ChatRoomRepository chatRoomRepository;
+    private final ChatRoomListRepository chatRoomListRepository;
+    private final MemberService memberService;
+    private final TeamService teamService;
     private final SecurityUserDetailService securityUserDetailService;
+    private final StorageService storageService;
+    private final StorageFileService storageFileService;
 
-    public ChatService(SecurityUserDetailService securityUserDetailService) {
-        this.securityUserDetailService = securityUserDetailService;
-    }
 
     // 개인 채팅방 생성
     public ChatRoomResponseDto createChat(Long friendId, ChatRoomRequestDto chatRoomRequestDto) {
 
-        Member member = memberRepository.findById(securityUserDetailService.getLoggedInMember().getId()).orElseThrow(()
-                -> new CustomException(MEMBER_NOT_FOUND));
-
-        Member friend = memberRepository.findById(friendId).orElseThrow(()
-                -> new CustomException(MEMBER_NOT_FOUND));
+        Member member = memberService.findMemberById(securityUserDetailService.getLoggedInMember().getId());
+        Member friend = memberService.findMemberById(friendId);
 
         if (member.getId().equals(friendId)) {
             throw new CustomException(INVALID_CHAT_REQUEST);
@@ -71,48 +59,52 @@ public class ChatService {
 
         for (ChatRoomList chatRoomList : memberChatRoomLists) {
             if (chatRoomList.getChatRoom().getChatRoomList().stream()
-                    .anyMatch(crList -> crList.getMember().equals(friend) && crList.getChatRoom().getStatus() == Status.P)) {
+                    .anyMatch(crList -> crList.getMember().equals(friend) && crList.getChatRoom().getType() == Type.P)) {
                 throw new CustomException(DUPLICATE_CHAT);
             }
         }
 
-        ChatRoom chatRoom = ChatRoom.createChatRoom(chatRoomRequestDto.getName(), Status.P);
+        ChatRoom chatRoom = ChatRoom.createChatRoom(chatRoomRequestDto.getName(), Type.P, null, true);
         ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
 
-        ChatRoomList chatRoomListMember = ChatRoomList.createChatRoomList(member, savedChatRoom);
-        ChatRoomList chatRoomListFriend = ChatRoomList.createChatRoomList(friend, savedChatRoom);
-        chatRoomListRepository.save(chatRoomListMember);
-        chatRoomListRepository.save(chatRoomListFriend);
+        chatRoomListRepository.save(ChatRoomList.createChatRoomList(member, savedChatRoom));
+        chatRoomListRepository.save(ChatRoomList.createChatRoomList(friend, savedChatRoom));
+
+        storageService.createChatStorage(chatRoom.getId());
 
         return new ChatRoomResponseDto(savedChatRoom);
     }
 
-    //     단체 채팅방 생성
-    public ChatRoomResponseDto createTeamChat(Long teamId) {
-        Team team = teamRepository.findById(teamId).orElseThrow(()
-                -> new CustomException(TEAM_NOT_FOUND));
+    // 단체 채팅방 생성(팀 서비스)
+    public void createTeamChat(Long teamId) {
+        Team team = teamService.findById(teamId);
 
-        ChatRoom chatRoom = ChatRoom.createChatRoom(team.getName(), Status.T);
+        ChatRoom chatRoom = ChatRoom.createChatRoom(team.getName(), Type.T, teamId, true);
         ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
 
-        List<TeamList> teamMember = teamListRepository.findByTeamId(teamId);
+        List<TeamList> teamMember = teamService.findByTeamId(teamId);
 
         // 각 멤버를 ChatRoomList에 저장
         for (TeamList teamList : teamMember) {
             ChatRoomList chatRoomList = ChatRoomList.createChatRoomList(teamList.getMember(), savedChatRoom);
             chatRoomListRepository.save(chatRoomList);
         }
-        return new ChatRoomResponseDto(savedChatRoom);
+
+        storageService.createChatStorage(savedChatRoom.getId());
     }
 
-    // 채팅방 삭제(그룹 삭제 시)
-    public void deleteChat(Long chatRoomId) {
-        // TODO: 팀 테이블 가져와서 생성 회원 ID가 memberId와 일치할 경우, 삭제 or NOT_ACCESS_CHAT
-        Member member = memberRepository.findById(securityUserDetailService.getLoggedInMember().getId()).orElseThrow(()
-                -> new CustomException(MEMBER_NOT_FOUND));
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(()
+    // 채팅방 삭제(팀 서비스)
+    public void deleteChat(Long teamId) {
+        Member member = memberService.findMemberById(securityUserDetailService.getLoggedInMember().getId());
+        ChatRoom chatRoom = chatRoomRepository.findByTeamId(teamId).orElseThrow(()
                 -> new CustomException(CHAT_NOT_FOUND));
-        chatRoomRepository.delete(chatRoom);
+        Team team = teamService.findById(teamId);
+        if (member.getId().equals(team.getCreatorId())) {
+            chatRoomRepository.delete(chatRoom);
+        }
+        else throw new CustomException(NOT_ACCESS_CHAT);
+
+        storageService.deleteChatStorage(chatRoom.getId());
     }
 
     // 채팅방 이름 수정
@@ -141,25 +133,38 @@ public class ChatService {
         }
     }
 
-    // 단체 채팅방 참여
-    public void joinChat(Long chatRoomId) {
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(()
+    // 단체 채팅방 참여(팀 서비스)
+    public void joinChat(Long teamId) {
+        Member member = memberService.findMemberById(securityUserDetailService.getLoggedInMember().getId());
+        ChatRoom chatRoom = chatRoomRepository.findByTeamId(teamId).orElseThrow(()
                 -> new CustomException(CHAT_NOT_FOUND));
-        Member member = memberRepository.findById(securityUserDetailService.getLoggedInMember().getId()).orElseThrow(()
-                -> new CustomException(MEMBER_NOT_FOUND));
         ChatRoomList chatRoomList = ChatRoomList.createChatRoomList(member, chatRoom);
 
         chatRoomListRepository.save(chatRoomList);
     }
 
-    // 단체 채팅방 나가기
+    // 채팅방 나가기(팀 탈퇴 시: 리스트 삭제, 회원 탈퇴 시: 비활성화)
     public void dropChat(Long chatRoomId) {
 
         ChatRoomList chatRoomList = chatRoomListRepository.findByMemberIdAndChatRoomId(
                         securityUserDetailService.getLoggedInMember().getId(), chatRoomId)
                 .orElseThrow(() -> new CustomException(NOT_ACCESS_CHAT));
 
-        chatRoomListRepository.delete(chatRoomList);
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(()
+                -> new CustomException(CHAT_NOT_FOUND));
+
+        if (chatRoom.getType().equals(Type.T)) {
+            Team team = teamService.findById(chatRoom.getTeamId());
+            Long creatorId = securityUserDetailService.getLoggedInMember().getId();
+            if (team.getCreatorId().equals(creatorId)) {
+                throw new CustomException(INVALID_DELETE_REQUEST);
+            }
+            chatRoomListRepository.delete(chatRoomList);
+        } else {
+            chatRoom.updateIsActive(false);
+            chatRoomRepository.save(chatRoom);
+            chatRoomListRepository.delete(chatRoomList);
+        }
     }
 
     // 채팅방 참여자 조회
@@ -183,7 +188,7 @@ public class ChatService {
         if (chatRoomListRepository.findByMemberId(securityUserDetailService.getLoggedInMember().getId()).isEmpty()) {
             throw new CustomException(NOT_ACCESS_CHAT);
         }
-        List<ChatRoomList> chatRoomLists = chatRoomListRepository.findByMemberId(
+        List<ChatRoomList> chatRoomLists = chatRoomListRepository.findByMemberIdAndChatRoomIsActiveTrue(
                 securityUserDetailService.getLoggedInMember().getId());
 
         return chatRoomLists.stream()
@@ -193,5 +198,35 @@ public class ChatService {
                         chatRoomList.getBookmark()
                 ))
                 .collect(Collectors.toList());
+    }
+
+    // 채팅방 권한 확인
+    public void authMember(Long chatRoomId) {
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(()
+                -> new CustomException(CHAT_NOT_FOUND));
+        Member member = memberService.findMemberById(securityUserDetailService.getLoggedInMember().getId());
+        chatRoomListRepository.findByMemberIdAndChatRoomId(
+                securityUserDetailService.getLoggedInMember().getId(), chatRoomId).orElseThrow(
+                () -> new CustomException(NOT_ACCESS_CHAT));
+
+        if (chatRoom.getType().equals(Type.P)) {
+            List<ChatRoomList> chatRoomLists = chatRoomListRepository
+                    .findByChatRoomIdAndMemberIdNot(chatRoomId, member.getId());
+
+            for (ChatRoomList chatRoomList : chatRoomLists) {
+                Member otherMember = memberService.findMemberById(chatRoomList.getMember().getId());
+                // 이 상태로는 상대방이 탈퇴할 경우 채팅방 조회 불가능
+                // 지금은 오류를 던져주는데 이거 말고 프론트 구현되면 채팅을 막는 방법을 찾아야할듯
+                if (otherMember.getIsActive().equals(false)) {
+                    throw new CustomException(MEMBER_DELETED);
+                }
+            }
+        }
+
+    }
+
+    public ChatRoom findByTeamId(Long teamId) {
+        return chatRoomRepository.findByTeamId(teamId).orElseThrow(()
+                -> new CustomException(CHAT_NOT_FOUND));
     }
 }

@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import ok.backend.member.domain.entity.Email;
 import ok.backend.member.domain.repository.EmailRepository;
 import ok.backend.member.dto.EmailVerifyRequestDto;
-import ok.backend.notification.domain.entity.Notification;
 import ok.backend.notification.domain.entity.NotificationPending;
 import ok.backend.notification.domain.enums.NotificationType;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -65,11 +64,7 @@ public class EmailService {
     }
 
     public void sendVerificationEmail(String toEmail) throws MessagingException {
-        Email exist = emailRepository.findByEmail(toEmail).orElse(null);
-
-        if(exist != null) {
-            emailRepository.deleteByEmail(toEmail);
-        }
+        emailRepository.findByEmail(toEmail).ifPresent(exist -> emailRepository.deleteByEmail(toEmail));
 
         MimeMessage emailForm = createVerificationEmailForm(toEmail);
 

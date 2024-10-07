@@ -1,32 +1,68 @@
 package ok.backend.chat.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import ok.backend.chat.domain.entity.ChatMessage;
+import ok.backend.chat.domain.entity.ChatRoomList;
 import ok.backend.chat.domain.repository.ChatMessageRepository;
 import ok.backend.chat.dto.req.ChatMessageRequestDto;
-import ok.backend.chat.dto.res.ChatMessageResponseDto;
+import ok.backend.storage.domain.entity.StorageFile;
+import ok.backend.storage.domain.enums.StorageType;
+import ok.backend.storage.dto.StorageResponseDto;
+import ok.backend.storage.service.StorageFileService;
+import ok.backend.storage.service.StorageService;
+import ok.backend.team.domain.entity.TeamList;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class ChatMessageService {
-    // 안읽음 처리에 대한 고민.. -> Kafka 연결 후 consume event 관련한 메소드를 생성하게 되면, 여기서 처리해줄 수 있지 않을까
-    // 채팅방 메세지 전송 유효성 검증 -> 로그인 후 채팅방 sub 하면서 권한 체크할 수 있도록
+    private final KafkaTemplate<String, ChatMessage> kafkaTemplate;
     private final ChatMessageRepository chatMessageRepository;
+    private final SimpMessagingTemplate simpMessagingTemplate;
+    private final StorageService storageService;
+    private final StorageFileService storageFileService;
 
-    public ChatMessageResponseDto saveChatMessage(final Long chatRoomId, final ChatMessageRequestDto chatMessageRequestDto) {
-        final ChatMessage chatMessage = chatMessageRepository.save(
-                ChatMessage.of(chatRoomId, chatMessageRequestDto.getMemberId(),
-                        chatMessageRequestDto.getMessage(), chatMessageRequestDto.getFileUrl())
-        );
-        return ChatMessageResponseDto.of(chatMessage);
+    // producer
+    public void sendMessage(Long chatRoomId, ChatMessageRequestDto chatMessageRequestDto) {
+
+        ChatMessage chatMessage = chatMessageRepository.save(ChatMessage.createMessage(
+                chatRoomId, chatMessageRequestDto.getMemberId(), chatMessageRequestDto.getMessage(),
+                chatMessageRequestDto.getFileUrl()));
+
+        String topic = chatRoomId.toString();
+        kafkaTemplate.send(topic, chatMessage);
     }
 
-    public List<ChatMessage> findAllChatMessage(final long chatRoomId) {
-        return chatMessageRepository.findAll();
+    public void sendFileMessage(Long chatRoomId, Long memberId, List<StorageResponseDto> storageFiles) {
+        for (StorageResponseDto storageResponse : storageFiles) {
+            StorageFile storageFile = storageFileService.findByStorageIdAndId(
+                    storageResponse.getStorageId(), storageResponse.getStorageFileId());
+
+            String fileUrl = storageFile.getPath();
+
+            ChatMessage chatMessage = chatMessageRepository.save(ChatMessage.createMessage(
+                    chatRoomId, memberId, null, fileUrl));
+
+            String topic = chatRoomId.toString();
+            kafkaTemplate.send(topic, chatMessage);
+        }
     }
+
+    // consumer
+    @KafkaListener(topicPattern = ".*")
+    public void consumeMessage(ChatMessage chatMessage) {
+        simpMessagingTemplate.convertAndSend("/sub/chat/"+chatMessage.getChatRoomId().toString(), chatMessage);
+    }
+
 }
