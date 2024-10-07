@@ -150,6 +150,7 @@ public class TeamService {
                 .build();
 
         teamListRepository.save(teamList);
+        chatService.joinChat(teamId);
     }
 
     // 팀 나가기 (팀 리스트에서 삭제됨)
