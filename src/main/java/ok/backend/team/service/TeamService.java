@@ -1,6 +1,8 @@
 package ok.backend.team.service;
 
 import jakarta.transaction.Transactional;
+import ok.backend.chat.domain.entity.ChatRoom;
+import ok.backend.chat.service.ChatService;
 import ok.backend.common.exception.CustomException;
 import ok.backend.common.exception.ErrorCode;
 import ok.backend.common.security.util.SecurityUserDetailService;
@@ -14,6 +16,7 @@ import ok.backend.team.domain.repository.TeamRepository;
 import ok.backend.team.dto.TeamRequestDto;
 import ok.backend.team.dto.TeamResponseDto;
 import ok.backend.team.dto.TeamUpdateRequestDto;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,13 +32,15 @@ public class TeamService {
     private final SecurityUserDetailService securityUserDetailService;
     private final MemberService memberService;
     private final StorageService storageService;
+    private final ChatService chatService;
 
-    public TeamService(TeamRepository teamRepository, TeamListRepository teamListRepository, SecurityUserDetailService securityUserDetailService, MemberService memberService, StorageService storageService) {
+    public TeamService(TeamRepository teamRepository, TeamListRepository teamListRepository, SecurityUserDetailService securityUserDetailService, MemberService memberService, StorageService storageService, @Lazy ChatService chatService) {
         this.teamRepository = teamRepository;
         this.teamListRepository = teamListRepository;
         this.securityUserDetailService = securityUserDetailService;
         this.memberService = memberService;
         this.storageService = storageService;
+        this.chatService = chatService;
     }
 
     // 팀 목록 조회 (로그인한 사람것만 조회가능)
@@ -89,6 +94,9 @@ public class TeamService {
 
         teamListRepository.save(teamList);
 
+
+        chatService.createTeamChat(savedteam.getId());
+
         return new TeamResponseDto(team);
     }
 
@@ -118,9 +126,11 @@ public class TeamService {
             throw new CustomException(NOT_ACCESS_TEAM);
         }
 
+        storageService.deleteTeamStorage(team.getId());
+        chatService.deleteChat(team.getId());
+
         teamRepository.delete(team);
 
-        storageService.deleteTeamStorage(team.getId());
     }
 
     // 팀 나가기 (팀 리스트에서 삭제됨)
@@ -131,6 +141,8 @@ public class TeamService {
                 .orElseThrow(() -> new CustomException(NOT_ACCESS_TEAM));
 
         teamListRepository.delete(teamList);
+        ChatRoom chatRoom = chatService.findByTeamId(teamList.getTeam().getId());
+        chatService.dropChat(chatRoom.getId());
     }
 
     public Team findById(Long id) {
