@@ -3,7 +3,7 @@
 
 ## 👨‍👩‍👧‍👦 팀원
 ### TEAM 200ok
-|<img src="https://github.com/user-attachments/assets/21f7bb3d-e531-4761-a049-de9409999c49" width="150" height="180"/>|<img src="https://github.com/user-attachments/assets/0a29e181-6324-428b-bbaf-d1933dba1e24" width="150" height="180"/>|<img src="https://github.com/user-attachments/assets/253fa4f8-2e33-4613-bc46-e5da7ae2b139" width="150" height="180"/>|<img src="https://github.com/user-attachments/assets/62b7f197-2584-428f-8418-33bd90867093" width="150" height="180"/>|<img src="https://github.com/user-attachments/assets/9b7b3b12-158b-45b4-aaec-f3364e723ae8" width="150" height="180"/>|
+|<img src="https://github.com/user-attachments/assets/80f306b6-c063-4384-a090-275ca2aae1d7" width="150" height="190"/>|<img src="https://github.com/user-attachments/assets/e6a1a5fa-50d0-4478-ab84-a9b9ce229044" width="150" height="190"/>|<img src="https://github.com/user-attachments/assets/253fa4f8-2e33-4613-bc46-e5da7ae2b139" width="150" height="190"/>|<img src="https://github.com/user-attachments/assets/62b7f197-2584-428f-8418-33bd90867093" width="150" height="190"/>|<img src="https://github.com/user-attachments/assets/9b7b3b12-158b-45b4-aaec-f3364e723ae8" width="150" height="190"/>|
 |:-:|:-:|:-:|:-:|:-:|
 |박성준 (팀장)<br><a href="https://github.com/sjpark-08"><img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=GitHub&logoColor=white"/></a>|김도하<br><a href="https://github.com/esueng"><img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=GitHub&logoColor=white"/></a>|서현지<br><a href=https://github.com/henhen7><img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=GitHub&logoColor=white"/></a>|전현규<br><a href="https://github.com/ideapple"><img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=GitHub&logoColor=white"/></a>|조혜인<br><a href="https://github.com/byHyen"><img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=GitHub&logoColor=white"/></a>|
 
@@ -90,7 +90,7 @@
 <details>
   <summary>📑 ERD</summary>
 
-  ![fin_ERD](https://github.com/user-attachments/assets/1219043a-4b48-4776-a183-e1b638e14032)
+  ![fin_ERD](https://github.com/user-attachments/assets/aab08108-3fe4-45a2-ad33-4f4a4893b432)
     <ul>
       <li>
         <a href="https://docs.google.com/spreadsheets/d/1I9NTIEf78iupBykQbElSe1u6AqR_ePbRZP8Z9JJtxlo/edit?gid=692233280#gid=692233280">테이블 명세서</a>
