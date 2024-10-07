@@ -130,7 +130,26 @@ public class TeamService {
         chatService.deleteChat(team.getId());
 
         teamRepository.delete(team);
+    }
 
+    // 팀 가입
+    public void joinTeam(Long teamId) {
+        Long currentMemberId = securityUserDetailService.getLoggedInMember().getId();
+        Member member = memberService.findMemberById(currentMemberId);
+
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new CustomException(TEAM_NOT_FOUND));
+
+        boolean isMemberOfTeam = teamListRepository.existsByTeamIdAndMemberId(team.getId(), member.getId());
+        if (isMemberOfTeam) {
+            throw new CustomException(DUPLICATE_TEAM);
+        }
+
+        TeamList teamList = TeamList.builder()
+                .team(team)
+                .member(member)
+                .build();
+
+        teamListRepository.save(teamList);
     }
 
     // 팀 나가기 (팀 리스트에서 삭제됨)
@@ -156,6 +175,3 @@ public class TeamService {
 
 
 }
-
-
-

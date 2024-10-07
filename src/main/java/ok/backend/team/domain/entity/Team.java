@@ -22,9 +22,9 @@ public class Team {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "chat_room_id")
-    private ChatRoom chatroom;
+//    @OneToOne
+//    @JoinColumn(name = "chat_room_id")
+//    private ChatRoom chatroom;
 
     @Column(nullable = false, length = 10)
     private String name;
