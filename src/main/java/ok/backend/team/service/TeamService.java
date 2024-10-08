@@ -48,10 +48,16 @@ public class TeamService {
         Long currentMemberId = securityUserDetailService.getLoggedInMember().getId();
         Member currentMember = memberService.findMemberById(currentMemberId);
 
-        List<TeamList> myTeamLists = teamListRepository.findByMemberId(currentMember.getId());
+//        List<TeamList> myTeamLists = teamListRepository.findByMemberId(currentMember.getId());
+//
+//        return myTeamLists.stream()
+//                .map(teamList -> new TeamResponseDto(teamList.getTeam()))
+//                .collect(Collectors.toList());
 
-        return myTeamLists.stream()
-                .map(teamList -> new TeamResponseDto(teamList.getTeam()))
+        List<Team> teams = teamRepository.findAllByMemberId(currentMember.getId());
+
+        return teams.stream()
+                .map(TeamResponseDto::new)
                 .collect(Collectors.toList());
     }
 
