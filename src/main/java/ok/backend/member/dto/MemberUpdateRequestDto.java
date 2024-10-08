@@ -13,7 +13,7 @@ public class MemberUpdateRequestDto {
     @NotNull
     private String nickname;
 
-    private String imageUrl;
+//    private String imageUrl;
 
     private String content;
 }

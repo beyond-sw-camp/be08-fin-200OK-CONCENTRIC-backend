@@ -8,9 +8,11 @@ import ok.backend.member.domain.entity.Member;
 import ok.backend.member.dto.MemberLoginRequestDto;
 import ok.backend.member.dto.MemberRegisterRequestDto;
 import ok.backend.member.dto.MemberResponseDto;
+import ok.backend.member.dto.MemberUpdateRequestDto;
 import ok.backend.member.service.MemberService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -53,11 +55,11 @@ public class MemberController {
     }
 
     @Operation(summary = "회원 정보 수정 API")
-    @PutMapping(value = "/update", consumes = "multipart/form-data")
-    public ResponseEntity<MemberResponseDto> updateMember(@RequestParam String nickname, @RequestParam String content,
-                                                          @RequestParam MultipartFile file) throws IOException {
+    @PutMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<MemberResponseDto> updateMember(@RequestPart("user") MemberUpdateRequestDto memberUpdateRequestDto,
+                                                          @RequestPart("file") MultipartFile file) throws IOException {
 
-        return ResponseEntity.ok(memberService.updateMember(nickname, content, file));
+        return ResponseEntity.ok(memberService.updateMember(memberUpdateRequestDto, file));
     }
 
     @Operation(summary = "회원 탈퇴 API")
