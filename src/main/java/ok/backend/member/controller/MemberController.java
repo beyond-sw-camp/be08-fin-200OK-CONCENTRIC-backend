@@ -40,7 +40,7 @@ public class MemberController {
         Member member = memberService.findMemberByEmailAndPassword(memberLoginRequestDto);
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, memberService.createToken(member).toString())
+                .header(HttpHeaders.AUTHORIZATION , "Bearer " + memberService.createToken(member))
                 .body(new MemberResponseDto(member));
     }
 
