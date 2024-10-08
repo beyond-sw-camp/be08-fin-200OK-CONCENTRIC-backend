@@ -14,6 +14,7 @@ import ok.backend.member.domain.repository.MemberRepository;
 import ok.backend.member.dto.MemberLoginRequestDto;
 import ok.backend.member.dto.MemberRegisterRequestDto;
 import ok.backend.member.dto.MemberResponseDto;
+import ok.backend.member.dto.MemberUpdateRequestDto;
 import ok.backend.storage.service.StorageFileService;
 import ok.backend.storage.service.StorageService;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -142,11 +143,11 @@ public class MemberService {
         SecurityContextHolder.clearContext();
     }
 
-    public MemberResponseDto updateMember(String nickname, String content, MultipartFile file) throws IOException {
+    public MemberResponseDto updateMember(MemberUpdateRequestDto memberUpdateRequestDto, MultipartFile file) throws IOException {
         Member loggedInMember = securityUserDetailService.getLoggedInMember();
         Member member = this.findMemberById(loggedInMember.getId());
 
-        member.updateMember(nickname, content);
+        member.updateMember(memberUpdateRequestDto);
 
         if(file != null){
             String path = storageFileService.saveProfileImage(member.getId(), member.getImageUrl(), file);
