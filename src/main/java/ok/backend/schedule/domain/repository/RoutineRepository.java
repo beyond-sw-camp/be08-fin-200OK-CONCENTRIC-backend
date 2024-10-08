@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface RoutineRepository extends JpaRepository<Routine, Long> {
     List<Routine> findBySchedule_MemberId(Long memberId);
+    boolean existsBySchedule_Id(Long scheduleId);
+
 }

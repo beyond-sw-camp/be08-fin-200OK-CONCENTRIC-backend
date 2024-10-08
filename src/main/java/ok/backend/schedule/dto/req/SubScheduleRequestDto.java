@@ -10,14 +10,11 @@ import ok.backend.schedule.domain.enums.Status;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ScheduleRequestDto {
-    private Long userId;
+public class SubScheduleRequestDto {
+    private Long scheduleId;
     private String title;
     private String description;
     private Status status;
     private String startDate;
     private String endDate;
-    private Integer importance;
-    private Boolean startNotification;
-    private Boolean endNotification;
 }
