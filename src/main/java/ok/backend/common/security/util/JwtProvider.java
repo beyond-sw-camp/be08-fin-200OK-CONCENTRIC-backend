@@ -5,7 +5,6 @@ import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,6 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -97,17 +95,12 @@ public class JwtProvider {
         return Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload().get("role").toString();
     }
 
-    public Optional<Cookie> resolveAccessToken(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals(accessHeader)) {
-                    return Optional.of(cookie);
-                }
-            }
+    public String resolveAccessToken(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        if (token != null && token.startsWith("Bearer ")) {
+            return token.substring(7);
         }
-
-        return Optional.empty();
+        return null;
     }
 
     public boolean validateToken(String token) {
@@ -121,7 +114,7 @@ public class JwtProvider {
         }
     }
 
-    public Cookie reIssueAccessToken(String accessToken) {
+    public String reIssueAccessToken(String accessToken) {
         RefreshToken refreshToken = refreshTokenService.findByAccessToken(accessToken).orElse(null);
 
         if(refreshToken != null) {
@@ -131,15 +124,13 @@ public class JwtProvider {
             refreshTokenService.updateAccessToken(refreshToken, newAccessToken);
             Authentication authentication = getAuthentication(newAccessToken);
 
-            Cookie cookie = new Cookie(accessHeader, newAccessToken);
-            cookie.setHttpOnly(true);
-            cookie.setSecure(true);
-            cookie.setPath("/");
-            cookie.setMaxAge(3600);
+            System.out.println(refreshToken.getAccessToken());
+            System.out.println(refreshTokenService.findByAccessToken(newAccessToken).get().getAccessToken());
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            System.out.println(SecurityContextHolder.getContext().getAuthentication().toString());
 
-            return cookie;
+            return newAccessToken;
         }
 
         return null;

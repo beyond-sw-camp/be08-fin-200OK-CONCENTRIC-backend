@@ -47,8 +47,7 @@ public class SecurityConfig {
                         config.setAllowedMethods(Collections.singletonList("*"));
                         config.setAllowCredentials(true);
                         config.setAllowedHeaders(Collections.singletonList("*"));
-//                        config.setExposedHeaders(Arrays.asList("access_token"));
-//                        config.setExposedHeaders(Collections.singletonList("*"));
+                        config.setExposedHeaders(Collections.singletonList("Authorization"));
                         config.setMaxAge(3600L);
                         return config;
                     }

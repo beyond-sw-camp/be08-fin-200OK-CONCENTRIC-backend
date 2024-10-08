@@ -1,6 +1,5 @@
 package ok.backend.member.service;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +16,6 @@ import ok.backend.member.dto.MemberRegisterRequestDto;
 import ok.backend.member.dto.MemberResponseDto;
 import ok.backend.storage.service.StorageFileService;
 import ok.backend.storage.service.StorageService;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -100,7 +98,7 @@ public class MemberService {
         return member;
     }
 
-    public ResponseCookie createToken(Member member) {
+    public String createToken(Member member) {
 
         String accessToken = jwtProvider.createAccessToken(member.getEmail());
         String refreshToken = jwtProvider.createRefreshToken(member.getEmail());
@@ -114,24 +112,23 @@ public class MemberService {
 
         refreshTokenService.save(newRefreshToken);
 
-        ResponseCookie cookie = ResponseCookie.from(jwtProvider.getAccessHeader(), accessToken)
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(3600)
-                .build();
-
         log.info(accessToken);
         log.info(refreshToken);
         log.info("token created");
 
-        return cookie;
+        return accessToken;
     }
 
     public void logout(HttpServletRequest request){
-        Cookie accessTokenCookie = jwtProvider.resolveAccessToken(request).orElseThrow(() ->
-                new CustomException(ErrorCode.TOKEN_NOT_EXIST));
-        String accessToken = accessTokenCookie.getValue();
+        String accessToken = jwtProvider.resolveAccessToken(request);
+
+        if(accessToken == null){
+            throw  new CustomException(ErrorCode.TOKEN_NOT_EXIST);
+        }
+
+        if(!jwtProvider.validateToken(accessToken)){
+            throw new CustomException(ErrorCode.EXPIRED_VERIFICATION_TOKEN);
+        }
 
         if(!jwtProvider.getUserPK(accessToken).equals(securityUserDetailService.getLoggedInMember().getEmail())){
             throw new CustomException(ErrorCode.BAD_REQUEST);

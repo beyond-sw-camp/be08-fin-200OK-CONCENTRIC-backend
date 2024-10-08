@@ -2,7 +2,6 @@ package ok.backend.common.security.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +13,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -23,22 +21,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
-        Optional<Cookie> accessTokenCookie = jwtProvider.resolveAccessToken(request);
-        if(accessTokenCookie.isEmpty()){
-            System.out.println("accessTokenCookie is empty");
+        String accessToken = jwtProvider.resolveAccessToken(request);
+        if(accessToken == null){
+            System.out.println("accessToken Not Found");
         }
-        if(accessTokenCookie.isPresent()){
-            String accessToken = accessTokenCookie.get().getValue();
+        System.out.println("request " + accessToken);
+        if(accessToken != null){
             boolean isValid = jwtProvider.validateToken(accessToken);
 
             if(isValid){
                 Authentication authentication = jwtProvider.getAuthentication(accessToken);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }else{
-                Cookie cookie = jwtProvider.reIssueAccessToken(accessToken);
+                System.out.println("accessToken Expired");
+                String newAccessToken = jwtProvider.reIssueAccessToken(accessToken);
 
-                if(cookie != null){
-                    response.addCookie(cookie);
+                if(newAccessToken != null){
+                    response.setHeader("Authorization", "Bearer " + newAccessToken);
+                    System.out.println("accessToken ReIssued");
                 }else{
                     throw new CustomException(ErrorCode.UNAUTHORIZED);
                 }
