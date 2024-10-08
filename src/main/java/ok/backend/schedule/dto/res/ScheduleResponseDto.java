@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import ok.backend.schedule.domain.entity.Schedule;
+import ok.backend.schedule.domain.enums.Status;
 
 @Getter
 @NoArgsConstructor
@@ -13,7 +14,7 @@ public class ScheduleResponseDto {
     private Long userId;
     private String title;
     private String description;
-    private String status;
+    private Status status;
     private String startDate;
     private String endDate;
     private Integer importance;
@@ -21,6 +22,7 @@ public class ScheduleResponseDto {
     private String updateAt;
     private Boolean startNotification;
     private Boolean endNotification;
+    private Integer progress;
 
     public ScheduleResponseDto(Schedule schedule) {
         this.id = schedule.getId();
@@ -35,5 +37,6 @@ public class ScheduleResponseDto {
         this.updateAt = schedule.getUpdateAt().toString();
         this.startNotification = schedule.getStartNotification();
         this.endNotification = schedule.getEndNotification();
+        this.progress = schedule.getProgress();
     }
 }

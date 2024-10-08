@@ -3,17 +3,15 @@ package ok.backend.schedule.service;
 import ok.backend.common.exception.CustomException;
 import ok.backend.common.exception.ErrorCode;
 import ok.backend.common.security.util.SecurityUserDetailService;
-import ok.backend.member.domain.entity.Member;
-import ok.backend.member.domain.repository.MemberRepository;
-import ok.backend.schedule.domain.entity.Schedule;
+import ok.backend.member.service.MemberService;
 import ok.backend.schedule.domain.entity.TeamSchedule;
-import ok.backend.schedule.domain.repository.ScheduleRepository;
 import ok.backend.schedule.domain.repository.TeamScheduleRepository;
 import ok.backend.schedule.dto.req.TeamScheduleRequestDto;
 import ok.backend.schedule.dto.res.TeamScheduleResponseDto;
-import ok.backend.team.domain.entity.Team;
-import ok.backend.team.domain.repository.TeamRepository;
+import ok.backend.team.service.TeamService;
+import ok.backend.schedule.service.ScheduleService;
 import org.hibernate.Hibernate;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,30 +22,29 @@ import java.util.stream.Collectors;
 public class TeamScheduleService {
 
     private final TeamScheduleRepository teamScheduleRepository;
-    private final ScheduleRepository scheduleRepository;
-    private final MemberRepository memberRepository;
-    private final TeamRepository teamRepository;
+    private final ScheduleService scheduleService;
+    private final TeamService teamService;
     private final SecurityUserDetailService securityUserDetailService;
+    private final MemberService memberService;
 
     public TeamScheduleService(TeamScheduleRepository teamScheduleRepository,
-                               ScheduleRepository scheduleRepository,
-                               MemberRepository memberRepository,
-                               TeamRepository teamRepository,
-                               SecurityUserDetailService securityUserDetailService) {
+                               @Lazy ScheduleService scheduleService,
+                               TeamService teamService,
+                               SecurityUserDetailService securityUserDetailService,
+                               MemberService memberService) {
         this.teamScheduleRepository = teamScheduleRepository;
-        this.scheduleRepository = scheduleRepository;
-        this.memberRepository = memberRepository;
-        this.teamRepository = teamRepository;
+        this.scheduleService = scheduleService;
+        this.teamService = teamService;
         this.securityUserDetailService = securityUserDetailService;
+        this.memberService = memberService;
     }
 
     // 팀 일정 조회
     @Transactional(readOnly = true)
     public List<TeamScheduleResponseDto> getTeamSchedulesForLoggedInUser() {
-        Member loggedInMember = securityUserDetailService.getLoggedInMember();
+        Long loggedInMemberId = securityUserDetailService.getLoggedInMember().getId();
 
-        var member = memberRepository.findById(loggedInMember.getId())
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        var member = memberService.findMemberById(loggedInMemberId);
 
         Hibernate.initialize(member.getTeamList());
 
@@ -62,13 +59,10 @@ public class TeamScheduleService {
     // 특정 팀 일정 조회
     @Transactional(readOnly = true)
     public List<TeamScheduleResponseDto> getTeamSchedulesByTeamId(Long teamId) {
-        Member loggedInMember = securityUserDetailService.getLoggedInMember();
+        Long loggedInMemberId = securityUserDetailService.getLoggedInMember().getId();
 
-        // 명시적으로 teamList를 초기화하여 LazyInitializationException을 방지
-        var member = memberRepository.findById(loggedInMember.getId())
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        var member = memberService.findMemberById(loggedInMemberId);
 
-        // Hibernate.initialize()로 teamList를 강제 초기화
         Hibernate.initialize(member.getTeamList());
 
         List<Long> teamIds = member.getTeamList().stream()
@@ -86,11 +80,9 @@ public class TeamScheduleService {
     // 팀 일정 생성
     @Transactional
     public TeamScheduleResponseDto createTeamSchedule(TeamScheduleRequestDto teamScheduleRequestDto) {
-        Schedule schedule = scheduleRepository.findById(teamScheduleRequestDto.getScheduleId())
-                .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
+        var schedule = scheduleService.getScheduleEntityById(teamScheduleRequestDto.getScheduleId());
 
-        Team team = teamRepository.findById(teamScheduleRequestDto.getTeamId())
-                .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
+        var team = teamService.findById(teamScheduleRequestDto.getTeamId());
 
         TeamSchedule teamSchedule = TeamSchedule.builder()
                 .team(team)
@@ -104,11 +96,10 @@ public class TeamScheduleService {
     // 팀 일정 수정
     @Transactional
     public TeamScheduleResponseDto updateTeamSchedule(Long id, TeamScheduleRequestDto teamScheduleRequestDto) {
-        TeamSchedule existingTeamSchedule = teamScheduleRepository.findById(id)
+        var existingTeamSchedule = teamScheduleRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
 
-        Schedule schedule = scheduleRepository.findById(teamScheduleRequestDto.getScheduleId())
-                .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
+        var schedule = scheduleService.getScheduleEntityById(teamScheduleRequestDto.getScheduleId());
 
         TeamSchedule updatedTeamSchedule = existingTeamSchedule.toBuilder()
                 .schedule(schedule)
@@ -121,7 +112,7 @@ public class TeamScheduleService {
     // 팀 일정 삭제
     @Transactional
     public void deleteTeamSchedule(Long id) {
-        TeamSchedule existingTeamSchedule = teamScheduleRepository.findById(id)
+        var existingTeamSchedule = teamScheduleRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
 
         teamScheduleRepository.deleteById(id);
