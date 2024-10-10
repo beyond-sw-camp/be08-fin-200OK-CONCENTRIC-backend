@@ -22,7 +22,7 @@ public enum ErrorCode {
     REFRESH_TOKEN_NOT_EXIST(HttpStatus.UNAUTHORIZED, "USER_010", "리프레시 토큰이 존재하지 않습니다."),
 
     // 회원
-    DUPLICATE_SIGNUP_ID(HttpStatus.BAD_REQUEST, "USER_005", "사용자 이메일이 중복 되었습니다."),
+    DUPLICATE_SIGNUP_ID(HttpStatus.CONFLICT, "USER_005", "사용자 이메일이 중복 되었습니다."),
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_006", "사용자를 찾을 수 없습니다."),
     INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "USER_007", "사용자의 패스워드가 일치하지 않습니다."),
     EMPTY_INPUT_MEMBER(HttpStatus.BAD_REQUEST, "USER_008", "공백을 사용할 수 없습니다."),

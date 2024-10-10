@@ -4,6 +4,8 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import ok.backend.common.exception.CustomException;
+import ok.backend.common.exception.ErrorCode;
 import ok.backend.member.domain.entity.Email;
 import ok.backend.member.domain.repository.EmailRepository;
 import ok.backend.member.dto.EmailVerifyRequestDto;
@@ -143,6 +145,8 @@ public class EmailService {
     }
 
     public void sendVerificationEmail(String toEmail) throws MessagingException {
+        memberService.findMemberByToEmail(toEmail);
+
         emailRepository.findByEmail(toEmail).ifPresent(exist -> emailRepository.deleteByEmail(toEmail));
 
         MimeMessage emailForm = createVerificationEmailForm(toEmail);
@@ -152,7 +156,7 @@ public class EmailService {
 
     public Boolean verifyEmailCode(EmailVerifyRequestDto emailVerifyRequestDto) {
         Email found = emailRepository.findByEmail(emailVerifyRequestDto.getEmail()).orElse(null);
-        log.info("code found by email: " + found);
+        log.info("code found by email: " + found.getVerificationCode());
         if (found == null) {
             return false;
         }

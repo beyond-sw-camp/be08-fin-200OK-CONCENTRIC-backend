@@ -34,7 +34,7 @@ public class EmailController {
         log.info("Verifying email to " + emailVerifyRequestDto.getEmail());
         boolean isVerified = emailService.verifyEmailCode(emailVerifyRequestDto);
 
-        String result = isVerified ? "인증을 완료하였습니다." : "인증을 실패하였습니다.";
+        String result = isVerified ? "success" : "fail";
         return ResponseEntity.ok(result);
     }
 
