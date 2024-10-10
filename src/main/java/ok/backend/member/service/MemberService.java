@@ -74,6 +74,13 @@ public class MemberService {
                 new CustomException(ErrorCode.MEMBER_NOT_FOUND));
     }
 
+    public void findMemberByToEmail(String toEmail) {
+        Member member = memberRepository.findByEmail(toEmail).orElse(null);
+        if(member != null){
+            throw new CustomException(ErrorCode.DUPLICATE_SIGNUP_ID);
+        }
+    }
+
     public Member findMemberById(Long id) {
         Member member = memberRepository.findById(id).orElseThrow(() ->
                 new CustomException(ErrorCode.MEMBER_NOT_FOUND));
