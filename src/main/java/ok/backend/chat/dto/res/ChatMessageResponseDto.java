@@ -18,13 +18,13 @@ public class ChatMessageResponseDto {
     private Long memberId;
     private String message;
     private String fileUrl;
-    private LocalDateTime createAt;
+    private String createAt;
 
     public ChatMessageResponseDto(Long chatRoomId, ChatMessageRequestDto chatMessageRequestDto) {
         this.chatRoomId = chatRoomId;
         this.memberId = chatMessageRequestDto.getMemberId();
         this.message = chatMessageRequestDto.getMessage();
         this.fileUrl = chatMessageRequestDto.getMessage();
-        this.createAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+        this.createAt = LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString();
     }
 }
