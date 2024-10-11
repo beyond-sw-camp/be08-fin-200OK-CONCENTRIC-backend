@@ -36,6 +36,6 @@ public class Notification {
     private Boolean isRead;
 
     public void updateRead(){
-        this.isRead = true;
+        this.isRead = !this.isRead;
     }
 }

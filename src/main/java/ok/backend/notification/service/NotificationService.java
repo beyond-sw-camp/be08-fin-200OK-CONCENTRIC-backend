@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class NotificationService {
 
@@ -22,7 +23,6 @@ public class NotificationService {
 
     private final SecurityUserDetailService securityUserDetailService;
 
-    @Transactional
     public void saveNotification(NotificationPending notificationPending) {
         Notification notification = Notification.builder()
                 .receiver(notificationPending.getSchedule().getMember())
@@ -36,13 +36,21 @@ public class NotificationService {
     public List<NotificationResponseDto> getAllNotifications() {
         Long memberId = securityUserDetailService.getLoggedInMember().getId();
 
-        return notificationRepository.findAllByReceiverId(memberId)
+        return notificationRepository.findAllByReceiverIdOrderByCreateDateDesc(memberId)
                 .stream()
                 .map(NotificationResponseDto::new)
                 .collect(Collectors.toList());
     }
 
-    @Transactional
+    public List<NotificationResponseDto> getNotReadNotifications() {
+        Long memberId = securityUserDetailService.getLoggedInMember().getId();
+
+        return notificationRepository.findAllByReceiverIdAndIsReadFalseOrderByCreateDateDesc(memberId)
+                .stream()
+                .map(NotificationResponseDto::new)
+                .collect(Collectors.toList());
+    }
+
     public NotificationResponseDto updateNotificationReadById(Long notificationId){
         Notification notification = notificationRepository.findById(notificationId).orElseThrow(() ->
                 new CustomException(ErrorCode.NOTIFICATION_NOT_FOUND));
