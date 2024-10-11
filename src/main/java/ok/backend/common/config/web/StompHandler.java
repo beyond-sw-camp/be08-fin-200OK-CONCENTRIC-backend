@@ -40,9 +40,10 @@ public class StompHandler implements ChannelInterceptor {
             boolean isValid = jwtProvider.validateToken(token);
             if (!isValid) {
                 logger.error("Invalid JWT token: {}", token);
-//                throw new IllegalStateException("Invalid JWT token");
-                return message;
+                throw new IllegalStateException("Invalid JWT token");
+//                return message;
             }
+
         }
         return message;
     }

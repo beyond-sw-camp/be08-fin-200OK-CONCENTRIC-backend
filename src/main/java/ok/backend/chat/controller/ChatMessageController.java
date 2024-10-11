@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ok.backend.chat.dto.req.ChatMessageRequestDto;
+import ok.backend.chat.dto.res.ChatMessageResponseDto;
 import ok.backend.chat.service.ChatMessageService;
 import ok.backend.storage.domain.enums.StorageType;
 import ok.backend.storage.dto.StorageResponseDto;
@@ -12,10 +13,7 @@ import ok.backend.storage.service.StorageService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -45,6 +43,13 @@ public class ChatMessageController {
         List<StorageResponseDto> storageFiles =  storageService.uploadFileToStorage(chatRoomId, StorageType.CHAT, files);
         chatMessageService.sendFileMessage(chatRoomId, memberId, storageFiles);
         return ResponseEntity.ok(storageFiles);
+    }
+
+    @GetMapping(value = "v1/api/chat/{chatRoomId}")
+    @Operation(summary = "채팅방 메세지 내역 조회")
+    public ResponseEntity<List<ChatMessageResponseDto>> findAllChatMessage(@PathVariable Long chatRoomId) {
+        List<ChatMessageResponseDto> chatMessageResponseDto =  chatMessageService.findAllChatMessage(chatRoomId);
+        return ResponseEntity.ok(chatMessageResponseDto);
     }
 
 }
