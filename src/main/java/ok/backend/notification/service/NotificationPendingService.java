@@ -13,13 +13,12 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class NotificationPendingService {
 
@@ -29,7 +28,6 @@ public class NotificationPendingService {
 
     private final EmailService emailService;
 
-    @Transactional
     public void saveScheduleToPending(Schedule schedule) {
 
         if(schedule.getStartNotification()){
@@ -55,7 +53,6 @@ public class NotificationPendingService {
         }
     }
 
-    @Transactional
     public void updateScheduleToPending(Schedule existingSchedule, Schedule updatedSchedule) {
 
         // check start notification
@@ -127,7 +124,6 @@ public class NotificationPendingService {
     }
 
     @Scheduled(cron = "0 0/1 * * * *")
-    @Transactional
     public void SendAndSaveNotification() throws MessagingException {
 
         List<NotificationPending> notificationPendingList =
