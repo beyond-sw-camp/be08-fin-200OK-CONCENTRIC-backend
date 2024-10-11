@@ -108,12 +108,12 @@ public class ChatService {
     }
 
     // 채팅방 이름 수정
-    public void renameChat(Long chatRoomId, ChatRoomListRequestDto chatRoomListRequestDto) {
+    public void renameChat(ChatRoomListRequestDto chatRoomListRequestDto) {
         if (chatRoomListRequestDto.getNickname().isEmpty()) {
             throw new CustomException(EMPTY_INPUT_CHAT);
         }
         ChatRoomList chatRoomList = chatRoomListRepository.findByMemberIdAndChatRoomId(
-                        securityUserDetailService.getLoggedInMember().getId(), chatRoomId)
+                        securityUserDetailService.getLoggedInMember().getId(), chatRoomListRequestDto.getChatRoomId())
                 .orElseThrow(() -> new CustomException(NOT_ACCESS_CHAT));
         chatRoomList.updateNickname(chatRoomListRequestDto);
         chatRoomListRepository.save(chatRoomList);

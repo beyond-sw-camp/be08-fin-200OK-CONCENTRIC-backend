@@ -10,5 +10,8 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 public class ChatRoomListRequestDto {
     @NotNull
+    private Long chatRoomId;
+
+    @NotNull
     private String nickname;
 }

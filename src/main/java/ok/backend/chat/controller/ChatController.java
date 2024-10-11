@@ -38,11 +38,10 @@ public class ChatController {
 //        return ResponseEntity.ok(HttpStatus.CREATED);
 //    }
 
-    @PutMapping("/update")
+    @PutMapping("/rename")
     @Operation(summary = "채팅방 이름 수정")
-    public ResponseEntity<Void> renameChat(@RequestParam("chatRoomId") Long chatRoomId,
-                                       @RequestBody @Valid ChatRoomListRequestDto chatRoomListRequestDto) {
-        chatService.renameChat(chatRoomId, chatRoomListRequestDto);
+    public ResponseEntity<Void> renameChat(@RequestBody @Valid ChatRoomListRequestDto chatRoomListRequestDto) {
+        chatService.renameChat(chatRoomListRequestDto);
         return ResponseEntity.noContent().build();
     }
 
