@@ -1,5 +1,6 @@
 package ok.backend.storage.service;
 
+import com.amazonaws.services.s3.AmazonS3Client;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import ok.backend.common.exception.CustomException;
@@ -8,6 +9,7 @@ import ok.backend.storage.domain.entity.StorageFile;
 import ok.backend.storage.domain.repository.StorageFileRepository;
 import ok.backend.storage.dto.StorageResponseDto;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.MediaType;
@@ -27,8 +29,7 @@ public class StorageFileService {
 
     private final StorageFileRepository storageFileRepository;
 
-    @Value("${spring.servlet.multipart.location}")
-    private String basePath;
+    private final AwsFileService awsFileService;
 
     public StorageResponseDto save(StorageFile storageFile){
         return new StorageResponseDto(storageFileRepository.save(storageFile));
@@ -45,23 +46,26 @@ public class StorageFileService {
 
     public String saveProfileImage(Long memberId, String previous, MultipartFile file) throws IOException {
         if(previous != null){
-            File previousFile = new File(previous);
-            boolean fileDeleted = previousFile.delete();
+//            File previousFile = new File(previous);
+//            boolean fileDeleted = previousFile.delete();
+            awsFileService.deleteFile(previous);
         }
 
-        String originalName = file.getOriginalFilename();
-        String extension = originalName.substring(originalName.lastIndexOf("."));
-        String savedPath = basePath + "/profiles/" + memberId + "_profile_image" + extension;
+//        String originalName = file.getOriginalFilename();
+//        String extension = originalName.substring(originalName.lastIndexOf("."));
+//        String savedPath = "profiles/" + memberId + "_profile_image" + extension;
+//
+//        file.transferTo(new File(savedPath));
 
-        file.transferTo(new File(savedPath));
+        String dir = "profiles/" + memberId + "/";
 
-        return savedPath;
+        return awsFileService.uploadFile(file, dir);
     }
 
-    public ResponseEntity<Resource> getProfileImage(String path) throws MalformedURLException {
-        UrlResource resource = new UrlResource("file:" + path);
-
-        String extension = resource.getFilename().substring(resource.getFilename().lastIndexOf("."));
+    public ResponseEntity<ByteArrayResource> getProfileImage(String path) throws MalformedURLException {
+//        UrlResource resource = new UrlResource("file:" + path);
+        ByteArrayResource resource = new ByteArrayResource(awsFileService.downloadFile(path));
+        String extension = path.substring(path.lastIndexOf("."));
 
         if(".jpg".equals(extension) || ".jpeg".equals(extension)){
             return ResponseEntity.ok()

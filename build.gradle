@@ -73,6 +73,7 @@ dependencies {
     testImplementation 'org.springframework.kafka:spring-kafka-test'
     implementation 'com.google.guava:guava:32.0.0-android'
 
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 }
 
 tasks.named('test') {

@@ -8,6 +8,7 @@ import ok.backend.storage.dto.StorageResponseDto;
 import ok.backend.storage.dto.StorageStatusResponseDto;
 import ok.backend.storage.service.StorageFileService;
 import ok.backend.storage.service.StorageService;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -51,7 +52,7 @@ public class StorageController {
 
     @Operation(summary = "프로필 사진 요청 API", description = "프로필 사진을 요청하고 반환합니다.")
     @PostMapping(value = "/image/profile")
-    public ResponseEntity<Resource> getProfileImage(@RequestParam String path) throws MalformedURLException {
+    public ResponseEntity<ByteArrayResource> getProfileImage(@RequestParam String path) throws MalformedURLException {
         return storageFileService.getProfileImage(path);
     }
 
