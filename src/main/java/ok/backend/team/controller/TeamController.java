@@ -92,6 +92,14 @@ public class TeamController {
         return ResponseEntity.noContent().build();
     }
 
+    // 그룹 강퇴
+    @DeleteMapping("/{id}/members/{memberId}")
+    @Operation(summary = "팀원 강퇴 API")
+    public ResponseEntity<String> removeTeamMember(@PathVariable Long id, @PathVariable Long memberId) {
+        teamService.removeTeamMember(id, memberId);
+        return ResponseEntity.ok("팀원 삭제가 완료되었습니다.");
+    }
+
 
 
 

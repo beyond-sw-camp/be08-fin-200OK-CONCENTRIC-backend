@@ -171,6 +171,23 @@ public class TeamService {
         chatService.dropChat(chatRoom.getId());
     }
 
+    // 팀원 삭제 (팀장만 가능)
+    public void removeTeamMember(Long teamId, Long memberIdToRemove) {
+        Long currentMemberId = securityUserDetailService.getLoggedInMember().getId();
+
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new CustomException(TEAM_NOT_FOUND));
+
+        if (!currentMemberId.equals(team.getCreatorId())) {
+            throw new CustomException(NOT_ACCESS_TEAM);
+        }
+        TeamList teamList = teamListRepository.findByMemberIdAndTeamId(memberIdToRemove, teamId)
+                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
+
+        teamListRepository.delete(teamList);
+
+    }
+
     public Team findById(Long id) {
         return teamRepository.findById(id).orElseThrow(() ->
                 new CustomException(ErrorCode.TEAM_NOT_FOUND));
