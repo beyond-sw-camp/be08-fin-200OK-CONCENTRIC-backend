@@ -38,6 +38,14 @@ public class AwsFileService {
         return fileName;
     }
 
+    public void uploadFileByPath(MultipartFile file, String fileName) {
+        File fileObj = convertFile(file);
+
+        log.info("upload file: {}", fileName);
+        amazonS3Client.putObject(bucket, fileName, fileObj);
+        fileObj.delete();
+    }
+
     public byte[] downloadFile(String fileName) {
         S3Object s3Object = amazonS3Client.getObject(bucket, fileName);
         log.info(s3Object.getKey());

@@ -9,10 +9,6 @@ import ok.backend.storage.dto.StorageStatusResponseDto;
 import ok.backend.storage.service.StorageFileService;
 import ok.backend.storage.service.StorageService;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,7 +39,7 @@ public class StorageController {
 
     @Operation(summary = "파일 다운로드 API", description = "요청한 파일을 반환합니다.")
     @PostMapping(value = "/download")
-    public ResponseEntity<Resource> downloadFileFromStorage(@RequestParam Long ownerId,
+    public ResponseEntity<ByteArrayResource> downloadFileFromStorage(@RequestParam Long ownerId,
                                                             @RequestParam StorageType storageType,
                                                             @RequestParam Long storageFileId) throws MalformedURLException {
 
@@ -73,11 +69,12 @@ public class StorageController {
     }
 
     @Operation(summary = "파일함의 파일 삭제 API", description = "파일함에서 파일을 삭제합니다.")
-    @DeleteMapping(value = "/delete/file")
+    @PutMapping(value = "/delete/file")
     public ResponseEntity<StorageStatusResponseDto> deleteStorageFile(@RequestParam Long ownerId,
                                                                       @RequestParam StorageType storageType,
                                                                       @RequestParam Long storageFileId) {
 
         return ResponseEntity.ok(storageService.deleteStorageFile(ownerId, storageType, storageFileId));
     }
+
 }
