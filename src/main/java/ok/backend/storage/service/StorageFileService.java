@@ -7,15 +7,12 @@ import ok.backend.common.exception.ErrorCode;
 import ok.backend.storage.domain.entity.StorageFile;
 import ok.backend.storage.domain.repository.StorageFileRepository;
 import ok.backend.storage.dto.StorageResponseDto;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.List;
@@ -27,8 +24,7 @@ public class StorageFileService {
 
     private final StorageFileRepository storageFileRepository;
 
-    @Value("${spring.servlet.multipart.location}")
-    private String basePath;
+    private final AwsFileService awsFileService;
 
     public StorageResponseDto save(StorageFile storageFile){
         return new StorageResponseDto(storageFileRepository.save(storageFile));
@@ -45,23 +41,17 @@ public class StorageFileService {
 
     public String saveProfileImage(Long memberId, String previous, MultipartFile file) throws IOException {
         if(previous != null){
-            File previousFile = new File(previous);
-            boolean fileDeleted = previousFile.delete();
+            awsFileService.deleteFile(previous);
         }
 
-        String originalName = file.getOriginalFilename();
-        String extension = originalName.substring(originalName.lastIndexOf("."));
-        String savedPath = basePath + "/profiles/" + memberId + "_profile_image" + extension;
+        String dir = "profiles/" + memberId + "/";
 
-        file.transferTo(new File(savedPath));
-
-        return savedPath;
+        return awsFileService.uploadFile(file, dir);
     }
 
-    public ResponseEntity<Resource> getProfileImage(String path) throws MalformedURLException {
-        UrlResource resource = new UrlResource("file:" + path);
-
-        String extension = resource.getFilename().substring(resource.getFilename().lastIndexOf("."));
+    public ResponseEntity<ByteArrayResource> getProfileImage(String path) throws MalformedURLException {
+        ByteArrayResource resource = new ByteArrayResource(awsFileService.downloadFile(path));
+        String extension = path.substring(path.lastIndexOf("."));
 
         if(".jpg".equals(extension) || ".jpeg".equals(extension)){
             return ResponseEntity.ok()
@@ -79,7 +69,7 @@ public class StorageFileService {
     public void deleteAllStorageFiles(Long storageId) {
         List<StorageFile> storageFiles = this.findAllStorageFilesByStorageId(storageId);
 
-        storageFiles.forEach((storageFile) -> new File(storageFile.getPath()).delete());
+        storageFiles.forEach((storageFile) -> awsFileService.deleteFile(storageFile.getPath()));
 
         storageFiles.forEach((storageFile) -> storageFile.updateStatus(false));
 
@@ -89,8 +79,7 @@ public class StorageFileService {
     public Long deleteStorageFile(Long storageId, Long storageFileId) {
         StorageFile storageFile = this.findByStorageIdAndId(storageId, storageFileId);
 
-        new File(storageFile.getPath()).delete();
-
+        awsFileService.deleteFile(storageFile.getPath());
         storageFile.updateStatus(false);
 
         storageFileRepository.save(storageFile);
@@ -103,7 +92,7 @@ public class StorageFileService {
                 .findTop1ByStorageIdAndIsActiveTrueOrderByCreateDateAsc(storageId).orElseThrow(() ->
                         new CustomException(ErrorCode.STORAGE_FILE_NOT_MATCHED));
 
-        new File(storageFile.getPath()).delete();
+        awsFileService.deleteFile(storageFile.getPath());
 
         storageFile.updateStatus(false);
 

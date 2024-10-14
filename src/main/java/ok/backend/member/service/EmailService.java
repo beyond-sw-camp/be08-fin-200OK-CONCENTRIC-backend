@@ -4,8 +4,6 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import ok.backend.common.exception.CustomException;
-import ok.backend.common.exception.ErrorCode;
 import ok.backend.member.domain.entity.Email;
 import ok.backend.member.domain.repository.EmailRepository;
 import ok.backend.member.dto.EmailVerifyRequestDto;
@@ -24,7 +22,7 @@ public class EmailService {
 
     private final EmailRepository emailRepository;
 
-    private static final String senderEmail = "macleod.park@gmail.com";
+    private static final String senderEmail = "be08fin200okconcentric@gmail.com";
 
     private final MemberService memberService;
 
