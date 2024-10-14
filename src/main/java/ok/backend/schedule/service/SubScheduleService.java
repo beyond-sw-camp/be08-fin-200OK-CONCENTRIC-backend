@@ -17,6 +17,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static ok.backend.schedule.domain.entity.QSubSchedule.subSchedule;
+
 @Service
 public class SubScheduleService {
 
@@ -103,6 +105,7 @@ public class SubScheduleService {
                 .endDate(endDate)
                 .build();
 
+        scheduleService.calculateProgress(subSchedule.getSchedule().getId());
         subScheduleRepository.save(subSchedule);
         return new SubScheduleResponseDto(subSchedule);
     }
@@ -138,6 +141,7 @@ public class SubScheduleService {
                 .endDate(endDate)
                 .build();
 
+        scheduleService.calculateProgress(updatedSubSchedule.getSchedule().getId());
         subScheduleRepository.save(updatedSubSchedule);
         return new SubScheduleResponseDto(updatedSubSchedule);
     }
@@ -155,6 +159,7 @@ public class SubScheduleService {
             throw new CustomException(ErrorCode.NOT_ACCESS_SCHEDULE);
         }
 
+        scheduleService.calculateProgress(subSchedule.getSchedule().getId());
         subScheduleRepository.deleteById(subScheduleId);
     }
 }
