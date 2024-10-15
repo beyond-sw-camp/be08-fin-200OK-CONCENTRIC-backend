@@ -3,6 +3,7 @@ package ok.backend.team.domain.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import ok.backend.chat.domain.entity.ChatRoom;
+import ok.backend.member.dto.MemberUpdateRequestDto;
 import ok.backend.schedule.domain.entity.TeamSchedule;
 import ok.backend.team.dto.TeamUpdateRequestDto;
 import org.hibernate.annotations.CreationTimestamp;
@@ -46,8 +47,12 @@ public class Team {
     private List<TeamSchedule> teamSchedules = new ArrayList<>();
 
 
-    public void updateName(TeamUpdateRequestDto teamUpdateRequestDto) {
+    public void updateTeam(TeamUpdateRequestDto teamUpdateRequestDto) {
         this.name = teamUpdateRequestDto.getName();
+    }
+
+    public void updatePath(String path){
+        this.imageUrl = path;
     }
 
 
