@@ -129,7 +129,6 @@ public class TeamService {
 
 
 
-
     // 팀 삭제 (생성자만 삭제 가능)
     public void deleteTeam(Long id) {
         Team team = teamRepository.findById(id)
@@ -178,6 +177,22 @@ public class TeamService {
         teamListRepository.delete(teamList);
         ChatRoom chatRoom = chatService.findByTeamId(teamList.getTeam().getId());
         chatService.dropChat(chatRoom.getId());
+    }
+
+    public void removeTeamMember(Long teamId, Long memberIdToRemove) {
+        Long currentMemberId = securityUserDetailService.getLoggedInMember().getId();
+
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new CustomException(TEAM_NOT_FOUND));
+
+        if (!currentMemberId.equals(team.getCreatorId())) {
+            throw new CustomException(NOT_ACCESS_TEAM);
+        }
+        TeamList teamList = teamListRepository.findByMemberIdAndTeamId(memberIdToRemove, teamId)
+                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
+
+        teamListRepository.delete(teamList);
+
     }
 
 
