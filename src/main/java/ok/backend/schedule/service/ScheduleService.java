@@ -204,11 +204,16 @@ public class ScheduleService {
 
         List<SubScheduleResponseDto> subSchedules = subScheduleService.getSubSchedulesByScheduleId(scheduleId);
 
+        // 일정이 INACTIVE 상태인 경우 상태를 변경하지 않고 그대로 유지
+        if (schedule.getStatus() == Status.INACTIVE) {
+            return;
+        }
+
         if (subSchedules.isEmpty()) {
             // 하위 일정이 없고 일정이 완료 상태라면 진행률 100%, 그렇지 않으면 0%
             schedule = schedule.toBuilder()
                     .progress(schedule.getStatus() == Status.COMPLETED ? 100 : 0)
-                    .status(schedule.getProgress() < 100 ? Status.ACTIVE : schedule.getStatus())
+                    .status(schedule.getStatus() == Status.COMPLETED ? Status.COMPLETED : Status.ACTIVE)
                     .build();
         } else {
             // 완료된 하위 일정의 비율 계산
