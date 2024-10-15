@@ -8,6 +8,7 @@ import ok.backend.common.exception.ErrorCode;
 import ok.backend.common.security.util.SecurityUserDetailService;
 import ok.backend.member.domain.entity.Member;
 import ok.backend.member.service.MemberService;
+import ok.backend.storage.service.StorageFileService;
 import ok.backend.storage.service.StorageService;
 import ok.backend.team.domain.entity.Team;
 import ok.backend.team.domain.entity.TeamList;
@@ -18,7 +19,9 @@ import ok.backend.team.dto.TeamResponseDto;
 import ok.backend.team.dto.TeamUpdateRequestDto;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,14 +36,16 @@ public class TeamService {
     private final MemberService memberService;
     private final StorageService storageService;
     private final ChatService chatService;
+    private final StorageFileService storageFileService;
 
-    public TeamService(TeamRepository teamRepository, TeamListRepository teamListRepository, SecurityUserDetailService securityUserDetailService, MemberService memberService, StorageService storageService, @Lazy ChatService chatService) {
+    public TeamService(TeamRepository teamRepository, TeamListRepository teamListRepository, SecurityUserDetailService securityUserDetailService, MemberService memberService, StorageService storageService, @Lazy ChatService chatService, StorageFileService storageFileService) {
         this.teamRepository = teamRepository;
         this.teamListRepository = teamListRepository;
         this.securityUserDetailService = securityUserDetailService;
         this.memberService = memberService;
         this.storageService = storageService;
         this.chatService = chatService;
+        this.storageFileService = storageFileService;
     }
 
     // 팀 목록 조회 (로그인한 사람것만 조회가능)
@@ -106,20 +111,24 @@ public class TeamService {
         return new TeamResponseDto(team);
     }
 
-    // 팀 이름 수정 (생성자만 수정 가능)
-    public void updateTeam(Long id, TeamUpdateRequestDto teamUpdateRequestDTO) {
-        Team team = teamRepository.findById(id)
-                .orElseThrow(() -> new CustomException(TEAM_NOT_FOUND));
+//    // 팀 이름 수정 (생성자만 수정 가능)
+//    public void updateTeam(Long id, TeamUpdateRequestDto teamUpdateRequestDTO) {
+//        Team team = teamRepository.findById(id)
+//                .orElseThrow(() -> new CustomException(TEAM_NOT_FOUND));
+//
+//        Long currentMemberId = securityUserDetailService.getLoggedInMember().getId();
+//
+//        if (!currentMemberId.equals(team.getCreatorId())) {
+//            throw new CustomException(NOT_ACCESS_TEAM);
+//        }
+//
+//        team.updateName(teamUpdateRequestDTO);
+//        teamRepository.save(team);
+//    }
 
-        Long currentMemberId = securityUserDetailService.getLoggedInMember().getId();
 
-        if (!currentMemberId.equals(team.getCreatorId())) {
-            throw new CustomException(NOT_ACCESS_TEAM);
-        }
 
-        team.updateName(teamUpdateRequestDTO);
-        teamRepository.save(team);
-    }
+
 
     // 팀 삭제 (생성자만 삭제 가능)
     public void deleteTeam(Long id) {
@@ -170,6 +179,7 @@ public class TeamService {
         ChatRoom chatRoom = chatService.findByTeamId(teamList.getTeam().getId());
         chatService.dropChat(chatRoom.getId());
     }
+
 
     public Team findById(Long id) {
         return teamRepository.findById(id).orElseThrow(() ->

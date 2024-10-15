@@ -12,4 +12,6 @@ public class TeamUpdateRequestDto {
 
     private String name;
 
+    private String imageUrl;
+
 }

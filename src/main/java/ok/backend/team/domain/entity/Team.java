@@ -22,10 +22,6 @@ public class Team {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @OneToOne
-//    @JoinColumn(name = "chat_room_id")
-//    private ChatRoom chatroom;
-
     @Column(nullable = false, length = 10)
     private String name;
 
@@ -35,6 +31,9 @@ public class Team {
     @CreationTimestamp
     @Column(name = "create_at", nullable = false)
     private LocalDateTime createAt;
+
+    @Column(name = "image_url")
+    private String imageUrl;
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamList> teamList = new ArrayList<>();

@@ -4,15 +4,20 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import ok.backend.member.dto.MemberResponseDto;
+import ok.backend.member.dto.MemberUpdateRequestDto;
 import ok.backend.team.dto.TeamRequestDto;
 import ok.backend.team.dto.TeamResponseDto;
 import ok.backend.team.dto.TeamUpdateRequestDto;
 import ok.backend.team.service.TeamSendingService;
 import ok.backend.team.service.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 
@@ -51,13 +56,13 @@ public class TeamController {
         return ResponseEntity.ok(createdTeam);
     }
 
-    // 그룹 수정
-    @PutMapping("/{id}")
-    @Operation(summary = "특정 그룹 수정 API")
-    public ResponseEntity<Void> updateTeam(@PathVariable Long id, @RequestBody TeamUpdateRequestDto teamUpdateRequestDto) {
-        teamService.updateTeam(id, teamUpdateRequestDto);
-        return ResponseEntity.noContent().build();
-    }
+//    // 그룹 수정
+//    @PutMapping("/{id}")
+//    @Operation(summary = "특정 그룹 수정 API")
+//    public ResponseEntity<Void> updateTeam(@PathVariable Long id, @RequestBody TeamUpdateRequestDto teamUpdateRequestDto) {
+//        teamService.updateTeam(id, teamUpdateRequestDto);
+//        return ResponseEntity.noContent().build();
+//    }
 
 
     // 그룹 삭제
@@ -91,6 +96,16 @@ public class TeamController {
         teamService.leaveTeam(id);
         return ResponseEntity.noContent().build();
     }
+
+    // 그룹 프로필 수정
+    @PutMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "팀 정보 수정 API")
+    public ResponseEntity<TeamResponseDto> updateTeam(@RequestPart("team") TeamUpdateRequestDto teamUpdateRequestDto,
+                                                      @RequestPart("file") MultipartFile file) throws IOException {
+        return ResponseEntity.ok(teamService.updateTeam(TeamUpdateRequestDto, file));
+    }
+
+
 
 
 
