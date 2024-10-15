@@ -36,6 +36,9 @@ public class Team {
     @Column(name = "create_at", nullable = false)
     private LocalDateTime createAt;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamList> teamList = new ArrayList<>();
 
