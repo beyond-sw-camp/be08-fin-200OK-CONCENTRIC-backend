@@ -44,7 +44,17 @@ public class StorageFileService {
             awsFileService.deleteFile(previous);
         }
 
-        String dir = "profiles/" + memberId + "/";
+        String dir = "profiles/user/" + memberId + "/";
+
+        return awsFileService.uploadFile(file, dir);
+    }
+
+    public String saveTeamProfileImage(Long teamId, String previous, MultipartFile file) throws IOException {
+        if(previous != null){
+            awsFileService.deleteFile(previous);
+        }
+
+        String dir = "profiles/team/" + teamId + "/";
 
         return awsFileService.uploadFile(file, dir);
     }
