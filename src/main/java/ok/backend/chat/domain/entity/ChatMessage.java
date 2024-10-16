@@ -29,6 +29,9 @@ public class ChatMessage implements Serializable {
     @Field("user_id")
     private Long memberId;
 
+    @Field("nickname")
+    private String nickname;
+
     @Field("message")
     private String message;
 
@@ -38,10 +41,11 @@ public class ChatMessage implements Serializable {
     @Field("create_at")
     private String createAt;
 
-    public static ChatMessage createMessage(Long chatRoomId, Long memberId, String message, String fileUrl) {
+    public static ChatMessage createMessage(Long chatRoomId, Long memberId, String nickname, String message, String fileUrl) {
         return ChatMessage.builder()
                 .chatRoomId(chatRoomId)
                 .memberId(memberId)
+                .nickname(nickname)
                 .message(message)
                 .fileUrl(fileUrl)
                 .createAt(LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString())

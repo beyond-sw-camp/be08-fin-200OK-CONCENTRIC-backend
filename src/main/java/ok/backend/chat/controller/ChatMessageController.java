@@ -38,10 +38,10 @@ public class ChatMessageController {
     @PostMapping(value = "v1/api/chat/upload", consumes = "multipart/form-data")
     @Operation(summary = "채팅방 파일 업로드")
     public ResponseEntity<List<StorageResponseDto>> sendFileMessage(@DestinationVariable @RequestParam Long chatRoomId,
-                                @RequestParam Long memberId,
+                                ChatMessageRequestDto chatMessageRequestDto,
                                 @RequestParam List<MultipartFile> files) throws IOException {
         List<StorageResponseDto> storageFiles =  storageService.uploadFileToStorage(chatRoomId, StorageType.CHAT, files);
-        chatMessageService.sendFileMessage(chatRoomId, memberId, storageFiles);
+        chatMessageService.sendFileMessage(chatRoomId, chatMessageRequestDto, storageFiles);
         return ResponseEntity.ok(storageFiles);
     }
 
