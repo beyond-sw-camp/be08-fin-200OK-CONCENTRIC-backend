@@ -19,9 +19,15 @@ public class ChatRoomListResponseDto {
 
     private Boolean bookmark;
 
-    public ChatRoomListResponseDto(ChatRoomList chatRoomList) {
+    private String userNickname;
+
+    private String profileImageUrl;
+
+    public ChatRoomListResponseDto(ChatRoomList chatRoomList, String userNickname, String profileImageUrl) {
         this.chatRoomId = chatRoomList.getChatRoom().getId();
         this.nickname = chatRoomList.getNickname();
         this.bookmark = chatRoomList.getBookmark();
+        this.userNickname = userNickname;
+        this.profileImageUrl = profileImageUrl;
     }
 }

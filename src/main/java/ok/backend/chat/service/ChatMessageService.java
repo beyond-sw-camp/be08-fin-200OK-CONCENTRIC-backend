@@ -40,14 +40,14 @@ public class ChatMessageService {
     public void sendMessage(Long chatRoomId, ChatMessageRequestDto chatMessageRequestDto) {
 
         ChatMessage chatMessage = chatMessageRepository.save(ChatMessage.createMessage(
-                chatRoomId, chatMessageRequestDto.getMemberId(), chatMessageRequestDto.getMessage(),
-                chatMessageRequestDto.getFileUrl()));
+                chatRoomId, chatMessageRequestDto.getMemberId(), chatMessageRequestDto.getNickname(),
+                chatMessageRequestDto.getMessage(), chatMessageRequestDto.getFileUrl()));
 
         String topic = chatRoomId.toString();
         kafkaTemplate.send(topic, chatMessage);
     }
 
-    public void sendFileMessage(Long chatRoomId, Long memberId, List<StorageResponseDto> storageFiles) {
+    public void sendFileMessage(Long chatRoomId, ChatMessageRequestDto chatMessageRequestDto, List<StorageResponseDto> storageFiles) {
         for (StorageResponseDto storageResponse : storageFiles) {
             StorageFile storageFile = storageFileService.findByStorageIdAndId(
                     storageResponse.getStorageId(), storageResponse.getStorageFileId());
@@ -55,7 +55,8 @@ public class ChatMessageService {
             String fileUrl = storageFile.getPath();
 
             ChatMessage chatMessage = chatMessageRepository.save(ChatMessage.createMessage(
-                    chatRoomId, memberId, null, fileUrl));
+                    chatRoomId, chatMessageRequestDto.getMemberId(),
+                    chatMessageRequestDto.getNickname(), null, fileUrl));
 
             String topic = chatRoomId.toString();
             kafkaTemplate.send(topic, chatMessage);
@@ -79,6 +80,7 @@ public class ChatMessageService {
                 .map(chatMessage -> new ChatMessageResponseDto(
                         chatMessage.getChatRoomId(),
                         chatMessage.getMemberId(),
+                        chatMessage.getNickname(),
                         chatMessage.getMessage(),
                         chatMessage.getFileUrl(),
                         chatMessage.getCreateAt()

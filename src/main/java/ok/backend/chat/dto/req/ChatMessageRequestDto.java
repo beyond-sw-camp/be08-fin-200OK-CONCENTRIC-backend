@@ -12,6 +12,8 @@ public class ChatMessageRequestDto {
     @NotNull
     private Long memberId;
 
+    private String nickname;
+
     private String message;
 
     private String fileUrl;

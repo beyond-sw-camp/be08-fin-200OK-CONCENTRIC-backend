@@ -25,6 +25,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -108,12 +109,12 @@ public class ChatService {
     }
 
     // 채팅방 이름 수정
-    public void renameChat(Long chatRoomId, ChatRoomListRequestDto chatRoomListRequestDto) {
+    public void renameChat(ChatRoomListRequestDto chatRoomListRequestDto) {
         if (chatRoomListRequestDto.getNickname().isEmpty()) {
             throw new CustomException(EMPTY_INPUT_CHAT);
         }
         ChatRoomList chatRoomList = chatRoomListRepository.findByMemberIdAndChatRoomId(
-                        securityUserDetailService.getLoggedInMember().getId(), chatRoomId)
+                        securityUserDetailService.getLoggedInMember().getId(), chatRoomListRequestDto.getChatRoomId())
                 .orElseThrow(() -> new CustomException(NOT_ACCESS_CHAT));
         chatRoomList.updateNickname(chatRoomListRequestDto);
         chatRoomListRepository.save(chatRoomList);
@@ -191,13 +192,26 @@ public class ChatService {
         List<ChatRoomList> chatRoomLists = chatRoomListRepository.findByMemberIdAndChatRoomIsActiveTrue(
                 securityUserDetailService.getLoggedInMember().getId());
 
-        return chatRoomLists.stream()
-                .map(chatRoomList -> new ChatRoomListResponseDto(
-                        chatRoomList.getChatRoom().getId(),
-                        chatRoomList.getNickname(),
-                        chatRoomList.getBookmark()
-                ))
-                .collect(Collectors.toList());
+        List<ChatRoomListResponseDto> chatRoomListResponseDtos = new ArrayList<>();
+
+        for (ChatRoomList chatRoomList : chatRoomLists) {
+            if (chatRoomList.getChatRoom().getType().equals(Type.T)) {
+                Team team = teamService.findById(chatRoomList.getChatRoom().getTeamId());
+                ChatRoomListResponseDto chatRoomListResponseDto = new ChatRoomListResponseDto(
+                        chatRoomList, team.getName(), team.getImageUrl()
+                );
+                chatRoomListResponseDtos.add(chatRoomListResponseDto);
+            } else {
+                List<ChatRoomList> chatRoomListFriend = chatRoomListRepository
+                        .findByChatRoomIdAndMemberIdNot(chatRoomList.getId(), chatRoomList.getMember().getId());
+                Member friend = memberService.findMemberById(chatRoomListFriend.get(0).getMember().getId());
+                ChatRoomListResponseDto chatRoomListResponseDto = new ChatRoomListResponseDto(
+                        chatRoomList, friend.getNickname(), friend.getImageUrl()
+                );
+                chatRoomListResponseDtos.add(chatRoomListResponseDto);
+            }
+        }
+        return chatRoomListResponseDtos;
     }
 
     // 채팅방 권한 확인

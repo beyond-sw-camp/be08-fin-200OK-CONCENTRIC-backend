@@ -16,6 +16,7 @@ import java.time.ZoneId;
 public class ChatMessageResponseDto {
     private Long chatRoomId;
     private Long memberId;
+    private String nickname;
     private String message;
     private String fileUrl;
     private String createAt;
@@ -23,6 +24,7 @@ public class ChatMessageResponseDto {
     public ChatMessageResponseDto(Long chatRoomId, ChatMessageRequestDto chatMessageRequestDto) {
         this.chatRoomId = chatRoomId;
         this.memberId = chatMessageRequestDto.getMemberId();
+        this.nickname = chatMessageRequestDto.getNickname();
         this.message = chatMessageRequestDto.getMessage();
         this.fileUrl = chatMessageRequestDto.getMessage();
         this.createAt = LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString();
