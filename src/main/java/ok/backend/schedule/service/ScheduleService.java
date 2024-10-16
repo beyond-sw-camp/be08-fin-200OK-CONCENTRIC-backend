@@ -11,6 +11,7 @@ import ok.backend.schedule.domain.repository.ScheduleRepository;
 import ok.backend.schedule.dto.req.ScheduleRequestDto;
 import ok.backend.schedule.dto.res.ScheduleResponseDto;
 import ok.backend.member.service.MemberService;
+import ok.backend.schedule.dto.res.SubScheduleResponseDto;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -123,6 +124,7 @@ public class ScheduleService {
 
         notificationPendingService.saveScheduleToPending(schedule);
 
+        calculateProgress(schedule.getId());
         return new ScheduleResponseDto(schedule);
     }
 
@@ -174,6 +176,8 @@ public class ScheduleService {
         existingSchedule.updateFields(updatedSchedule);
         scheduleRepository.save(existingSchedule);
 
+        calculateProgress(updatedSchedule.getId());
+
         return new ScheduleResponseDto(existingSchedule);
     }
 
@@ -193,46 +197,45 @@ public class ScheduleService {
         scheduleRepository.deleteById(id);
     }
 
-    // 완료율 계산 로직
     @Transactional
-    public double calculateCompletionRate(Long scheduleId) {
-        Schedule schedule = getScheduleEntityById(scheduleId);
+    public void calculateProgress(Long scheduleId) {
+        Schedule schedule = scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
 
-        // SubScheduleService를 통해 하위 일정 목록을 가져옴
-        var subSchedules = subScheduleService.getSubSchedulesByScheduleEntity(scheduleId); // SubSchedule 엔티티 사용하지 않고 서비스 사용
+        List<SubScheduleResponseDto> subSchedules = subScheduleService.getSubSchedulesByScheduleId(scheduleId);
+
+        // 일정이 INACTIVE 상태인 경우 상태를 변경하지 않고 그대로 유지
+        if (schedule.getStatus() == Status.INACTIVE) {
+            return;
+        }
 
         if (subSchedules.isEmpty()) {
-            return schedule.getStatus() == Status.COMPLETED ? 100.0 : 0.0;
+            // 하위 일정이 없고 일정이 완료 상태라면 진행률 100%, 그렇지 않으면 0%
+            schedule = schedule.toBuilder()
+                    .progress(schedule.getStatus() == Status.COMPLETED ? 100 : 0)
+                    .status(schedule.getStatus() == Status.COMPLETED ? Status.COMPLETED : Status.ACTIVE)
+                    .build();
         } else {
-            long completedSubSchedules = subSchedules.stream()
+            // 완료된 하위 일정의 비율 계산
+            long completedCount = subSchedules.stream()
                     .filter(subSchedule -> subSchedule.getStatus() == Status.COMPLETED)
                     .count();
-            return (completedSubSchedules / (double) subSchedules.size()) * 100.0;
-        }
-    }
+            int progress = (int) ((double) completedCount / subSchedules.size() * 100);
 
-    // 완료율 업데이트 로직
-    @Transactional
-    public void updateCompletionRate(Long scheduleId) {
-        Schedule schedule = getScheduleEntityById(scheduleId);
-        double completionRate = calculateCompletionRate(scheduleId);
+            // 모든 하위 일정이 완료되었을 경우 상위 일정의 상태를 COMPLETED로 변경
+            Status newStatus = (completedCount == subSchedules.size()) ? Status.COMPLETED : Status.ACTIVE;
 
-        // 완료율에 따라 상태를 업데이트
-        Status newStatus;
-        if (completionRate == 100.0) {
-            newStatus = Status.COMPLETED;
-        } else if (completionRate > 0.0) {
-            newStatus = Status.ACTIVE;
-        } else {
-            newStatus = Status.INACTIVE;
+            // 기존에 COMPLETED였으나 하위 일정이 추가되면 ACTIVE로 변경
+            if (schedule.getStatus() == Status.COMPLETED && newStatus == Status.ACTIVE) {
+                newStatus = Status.ACTIVE;
+            }
+
+            schedule = schedule.toBuilder()
+                    .progress(progress)
+                    .status(newStatus)
+                    .build();
         }
 
-        // 새로운 상태로 Schedule 엔티티를 빌드하여 업데이트
-        Schedule updatedSchedule = schedule.toBuilder()
-                .status(newStatus)  // 상태 업데이트
-                .build();
-
-        // 업데이트된 객체 저장
-        scheduleRepository.save(updatedSchedule);
+        scheduleRepository.save(schedule);
     }
 }

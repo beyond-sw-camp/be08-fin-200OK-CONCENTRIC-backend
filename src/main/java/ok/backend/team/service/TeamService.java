@@ -7,7 +7,10 @@ import ok.backend.common.exception.CustomException;
 import ok.backend.common.exception.ErrorCode;
 import ok.backend.common.security.util.SecurityUserDetailService;
 import ok.backend.member.domain.entity.Member;
+import ok.backend.member.dto.MemberResponseDto;
+import ok.backend.member.dto.MemberUpdateRequestDto;
 import ok.backend.member.service.MemberService;
+import ok.backend.storage.service.StorageFileService;
 import ok.backend.storage.service.StorageService;
 import ok.backend.team.domain.entity.Team;
 import ok.backend.team.domain.entity.TeamList;
@@ -18,7 +21,9 @@ import ok.backend.team.dto.TeamResponseDto;
 import ok.backend.team.dto.TeamUpdateRequestDto;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,14 +38,16 @@ public class TeamService {
     private final MemberService memberService;
     private final StorageService storageService;
     private final ChatService chatService;
+    private final StorageFileService storageFileService;
 
-    public TeamService(TeamRepository teamRepository, TeamListRepository teamListRepository, SecurityUserDetailService securityUserDetailService, MemberService memberService, StorageService storageService, @Lazy ChatService chatService) {
+    public TeamService(TeamRepository teamRepository, TeamListRepository teamListRepository, SecurityUserDetailService securityUserDetailService, MemberService memberService, StorageService storageService, @Lazy ChatService chatService, StorageFileService storageFileService) {
         this.teamRepository = teamRepository;
         this.teamListRepository = teamListRepository;
         this.securityUserDetailService = securityUserDetailService;
         this.memberService = memberService;
         this.storageService = storageService;
         this.chatService = chatService;
+        this.storageFileService = storageFileService;
     }
 
     // 팀 목록 조회 (로그인한 사람것만 조회가능)
@@ -106,20 +113,20 @@ public class TeamService {
         return new TeamResponseDto(team);
     }
 
-    // 팀 이름 수정 (생성자만 수정 가능)
-    public void updateTeam(Long id, TeamUpdateRequestDto teamUpdateRequestDTO) {
-        Team team = teamRepository.findById(id)
-                .orElseThrow(() -> new CustomException(TEAM_NOT_FOUND));
-
-        Long currentMemberId = securityUserDetailService.getLoggedInMember().getId();
-
-        if (!currentMemberId.equals(team.getCreatorId())) {
-            throw new CustomException(NOT_ACCESS_TEAM);
-        }
-
-        team.updateName(teamUpdateRequestDTO);
-        teamRepository.save(team);
-    }
+//    // 팀 이름 수정 (생성자만 수정 가능)
+//    public void updateTeam(Long id, TeamUpdateRequestDto teamUpdateRequestDTO) {
+//        Team team = teamRepository.findById(id)
+//                .orElseThrow(() -> new CustomException(TEAM_NOT_FOUND));
+//
+//        Long currentMemberId = securityUserDetailService.getLoggedInMember().getId();
+//
+//        if (!currentMemberId.equals(team.getCreatorId())) {
+//            throw new CustomException(NOT_ACCESS_TEAM);
+//        }
+//
+//        team.updateName(teamUpdateRequestDTO);
+//        teamRepository.save(team);
+//    }
 
     // 팀 삭제 (생성자만 삭제 가능)
     public void deleteTeam(Long id) {
@@ -171,10 +178,54 @@ public class TeamService {
         chatService.dropChat(chatRoom.getId());
     }
 
+    // 팀원 강퇴
+    public void removeTeamMember(Long teamId, Long memberIdToRemove) {
+        Long currentMemberId = securityUserDetailService.getLoggedInMember().getId();
+
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new CustomException(TEAM_NOT_FOUND));
+
+        if (!currentMemberId.equals(team.getCreatorId())) {
+            throw new CustomException(NOT_ACCESS_TEAM);
+        }
+        TeamList teamList = teamListRepository.findByMemberIdAndTeamId(memberIdToRemove, teamId)
+                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
+
+        teamListRepository.delete(teamList);
+
+    }
+
+    public TeamResponseDto updateTeam(Long teamId, TeamUpdateRequestDto teamUpdateRequestDto, MultipartFile file) throws IOException {
+        // 로그인한 사용자 정보 가져오기
+        Long currentMemberId = securityUserDetailService.getLoggedInMember().getId();
+
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new CustomException(TEAM_NOT_FOUND));
+
+        if (!currentMemberId.equals(team.getCreatorId())) {
+            throw new CustomException(NOT_ACCESS_TEAM); // 권한이 없으면 예외 발생
+        }
+
+        // 팀 정보 업데이트 (팀 이름 등)
+        team.updateTeam(teamUpdateRequestDto);
+
+        // 파일이 null이 아니면 파일 저장 및 경로 업데이트
+        if (file != null) {
+            String path = storageFileService.saveTeamProfileImage(team.getId(), team.getImageUrl(), file);
+            team.updatePath(path); // 이미지 경로 업데이트
+        }
+
+        // 변경된 팀 정보 저장 후 반환
+        return new TeamResponseDto(teamRepository.save(team));
+    }
+
+
     public Team findById(Long id) {
         return teamRepository.findById(id).orElseThrow(() ->
                 new CustomException(ErrorCode.TEAM_NOT_FOUND));
     }
+
+
 
     public List<TeamList> findByTeamId(Long teamId) {
         return teamListRepository.findByTeamId(teamId);

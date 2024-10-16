@@ -10,18 +10,17 @@ import ok.backend.storage.domain.enums.StorageType;
 import ok.backend.storage.domain.repository.StorageRepository;
 import ok.backend.storage.dto.StorageResponseDto;
 import ok.backend.storage.dto.StorageStatusResponseDto;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -36,8 +35,7 @@ public class StorageService {
 
     private final StorageFileService storageFileService;
 
-    @Value("${spring.servlet.multipart.location}")
-    private String basePath;
+    private final AwsFileService awsFileService;
 
     public Storage findByOwnerIdAndStorageType(Long ownerId, StorageType storageType) {
         return storageRepository.findByOwnerIdAndStorageType(ownerId, storageType).orElseThrow(() ->
@@ -54,8 +52,6 @@ public class StorageService {
 
         storageRepository.save(storage);
 
-        File file = new File(basePath + "/teams/" + storage.getOwnerId());
-        file.mkdir();
     }
 
     public void createPrivateStorage(Long ownerId){
@@ -68,8 +64,6 @@ public class StorageService {
 
         storageRepository.save(storage);
 
-        File file = new File(basePath + "/private/" + storage.getOwnerId());
-        file.mkdir();
     }
 
     public void createChatStorage(Long ownerId){
@@ -82,8 +76,6 @@ public class StorageService {
 
         storageRepository.save(storage);
 
-        File file = new File(basePath + "/chat/" + storage.getOwnerId());
-        file.mkdir();
     }
 
     public List<StorageResponseDto> uploadFileToStorage(Long ownerId, StorageType storageType, List<MultipartFile> files) throws IOException {
@@ -93,8 +85,7 @@ public class StorageService {
         for (MultipartFile file : files) {
             totalSize += file.getSize();
         }
-        System.out.println(files.get(0).getSize());
-//        System.out.println(totalSize + " " + storage.getCapacity());
+
         if(storageType.equals(StorageType.CHAT) && storage.getCapacity() < totalSize){
             throw new CustomException(ErrorCode.STORAGE_CAPACITY_EXCEED);
         } else if(storageType.equals(StorageType.CHAT) && storage.getCapacity() < storage.getCurrentSize() + totalSize){
@@ -110,18 +101,19 @@ public class StorageService {
 
         String additionalPath = null;
         if(storageType.equals(StorageType.TEAM)){
-            additionalPath = "/teams/";
+            additionalPath = "teams/";
         } else if(storageType.equals(StorageType.PRIVATE)){
-            additionalPath = "/private/";
+            additionalPath = "private/";
         }else if(storageType.equals(StorageType.CHAT)){
-            additionalPath = "/chat/";
+            additionalPath = "chat/";
         }
+
         for (MultipartFile file : files) {
             String originalName = file.getOriginalFilename();
             String uuid = UUID.randomUUID().toString();
             String extension = originalName.substring(originalName.lastIndexOf("."));
             String savedName = uuid + extension;
-            String savedPath = basePath + additionalPath + ownerId + "/" + savedName;
+            String savedPath = additionalPath + ownerId + "/" + savedName;
             Long size = file.getSize();
 
             StorageFile storageFile = StorageFile.builder()
@@ -136,22 +128,22 @@ public class StorageService {
             storageFiles.add(storageFileService.save(storageFile));
             storage.updateStorageCurrentSize(size);
 
-            file.transferTo(new File(savedPath));
+            awsFileService.uploadFileByPath(file, savedPath);
         }
 
         return storageFiles;
     }
 
-    public ResponseEntity<Resource> downloadFileFromStorage(Long ownerId, StorageType storageType, Long storageFileId) throws MalformedURLException {
+    public ResponseEntity<ByteArrayResource> downloadFileFromStorage(Long ownerId, StorageType storageType, Long storageFileId) throws MalformedURLException {
         Storage storage = this.findByOwnerIdAndStorageType(ownerId, storageType);
 
         StorageFile storageFile = storageFileService.findByStorageIdAndId(storage.getId(), storageFileId);
 
-        UrlResource resource = new UrlResource("file:" + storageFile.getPath());
+        ByteArrayResource resource = new ByteArrayResource(awsFileService.downloadFile(storageFile.getPath()));
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + storageFile.getOriginalName() + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + URLEncoder.encode(storageFile.getOriginalName(), StandardCharsets.UTF_8) + "\"")
                 .body(resource);
     }
 
