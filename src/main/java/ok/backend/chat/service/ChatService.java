@@ -203,7 +203,7 @@ public class ChatService {
                 chatRoomListResponseDtos.add(chatRoomListResponseDto);
             } else {
                 List<ChatRoomList> chatRoomListFriend = chatRoomListRepository
-                        .findByChatRoomIdAndMemberIdNot(chatRoomList.getId(), chatRoomList.getMember().getId());
+                        .findByChatRoomIdAndMemberIdNot(chatRoomList.getChatRoom().getId(), chatRoomList.getMember().getId());
                 Member friend = memberService.findMemberById(chatRoomListFriend.get(0).getMember().getId());
                 ChatRoomListResponseDto chatRoomListResponseDto = new ChatRoomListResponseDto(
                         chatRoomList, friend.getNickname(), friend.getImageUrl()
