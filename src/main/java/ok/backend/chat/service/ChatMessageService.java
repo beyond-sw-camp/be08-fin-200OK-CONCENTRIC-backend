@@ -47,7 +47,7 @@ public class ChatMessageService {
         kafkaTemplate.send(topic, chatMessage);
     }
 
-    public void sendFileMessage(Long chatRoomId, ChatMessageRequestDto chatMessageRequestDto, List<StorageResponseDto> storageFiles) {
+    public void sendFileMessage(Long chatRoomId, Long memberId, String nickname, List<StorageResponseDto> storageFiles) {
         for (StorageResponseDto storageResponse : storageFiles) {
             StorageFile storageFile = storageFileService.findByStorageIdAndId(
                     storageResponse.getStorageId(), storageResponse.getStorageFileId());
@@ -55,8 +55,7 @@ public class ChatMessageService {
             String fileUrl = storageFile.getPath();
 
             ChatMessage chatMessage = chatMessageRepository.save(ChatMessage.createMessage(
-                    chatRoomId, chatMessageRequestDto.getMemberId(),
-                    chatMessageRequestDto.getNickname(), null, fileUrl));
+                    chatRoomId, memberId, nickname, null, fileUrl));
 
             String topic = chatRoomId.toString();
             kafkaTemplate.send(topic, chatMessage);
