@@ -44,7 +44,17 @@ public class StorageFileService {
             awsFileService.deleteFile(previous);
         }
 
-        String dir = "profiles/user/" + memberId + "/";
+        String dir = "images/profile/" + memberId + "/";
+
+        return awsFileService.uploadFile(file, dir);
+    }
+
+    public String saveBackgroundImage(Long memberId, String previous, MultipartFile file) throws IOException {
+        if(previous != null){
+            awsFileService.deleteFile(previous);
+        }
+
+        String dir = "images/background/" + memberId + "/";
 
         return awsFileService.uploadFile(file, dir);
     }
@@ -54,7 +64,7 @@ public class StorageFileService {
             awsFileService.deleteFile(previous);
         }
 
-        String dir = "profiles/team/" + teamId + "/";
+        String dir = "images/team/" + teamId + "/";
 
         return awsFileService.uploadFile(file, dir);
     }
@@ -129,5 +139,10 @@ public class StorageFileService {
         storageFileRepository.save(storageFile);
 
         return storageFile.getSize();
+    }
+
+    public byte[] getImage(String path) throws MalformedURLException {
+
+        return awsFileService.downloadFile(path);
     }
 }

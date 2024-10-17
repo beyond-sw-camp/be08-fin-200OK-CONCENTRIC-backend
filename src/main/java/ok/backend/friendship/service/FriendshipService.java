@@ -14,8 +14,12 @@ import ok.backend.friendship.domain.repository.FriendshipRequestRepository;
 import ok.backend.friendship.dto.*;
 import ok.backend.member.domain.entity.Member;
 import ok.backend.member.service.MemberService;
+import ok.backend.storage.service.StorageFileService;
 import org.springframework.stereotype.Service;
 
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +33,8 @@ public class FriendshipService {
     private final FriendshipRepository friendshipRepository;
 
     private final MemberService memberService;
+
+    private final StorageFileService storageFileService;
 
     private final FriendshipCustomRepositoryImpl friendshipCustomRepositoryImpl;
 
@@ -93,11 +99,35 @@ public class FriendshipService {
 
     }
 
-    public List<FriendshipResponseDto> getFriendshipMembers() {
-        return friendshipCustomRepositoryImpl
-                .findMembersByMemberId(securityUserDetailService.getLoggedInMember().getId()).stream()
-                .map(FriendshipResponseDto::new)
-                .collect(Collectors.toList());
+    public List<FriendshipResponseDto> getFriendshipMembers() throws MalformedURLException {
+        List<Member> memberList = friendshipCustomRepositoryImpl
+                .findMembersByMemberId(securityUserDetailService.getLoggedInMember().getId());
+        List<FriendshipResponseDto> friendshipResponseDtos = new ArrayList<>();
+
+        for(Member member : memberList){
+            String backgroundImage = null;
+            String profileImage = null;
+
+            if(member.getBackground() != null){
+                backgroundImage = Base64.getEncoder().encodeToString(storageFileService.getImage(member.getBackground()));
+            }
+
+            if(member.getImageUrl() != null){
+                profileImage = Base64.getEncoder().encodeToString(storageFileService.getImage(member.getImageUrl()));
+            }
+
+            FriendshipResponseDto dto = FriendshipResponseDto.builder()
+                    .id(member.getId())
+                    .nickname(member.getNickname())
+                    .createDate(member.getCreateDate())
+                    .backgroundImage(backgroundImage)
+                    .profileImage(profileImage)
+                    .content(member.getContent())
+                    .build();
+
+            friendshipResponseDtos.add(dto);
+        }
+        return friendshipResponseDtos;
     }
 
     public void deleteFriendship(FriendshipDeleteRequestDto friendshipDeleteRequestDto){

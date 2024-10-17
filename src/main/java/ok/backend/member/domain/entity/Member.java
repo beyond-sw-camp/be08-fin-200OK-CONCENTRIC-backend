@@ -53,6 +53,9 @@ public class Member {
     @Column(name = "profile_content")
     private String content;
 
+    @Column(name = "background")
+    private String background;
+
 //    @OneToMany(mappedBy = "users")
 //    private List<Notification> notifications = new ArrayList<>();
 
@@ -92,7 +95,11 @@ public class Member {
         this.password = password;
     }
 
-    public void updatePath(String path){
+    public void updateProfileImage(String path){
         this.imageUrl = path;
+    }
+
+    public void updateBackgroundImage(String path){
+        this.background = path;
     }
 }

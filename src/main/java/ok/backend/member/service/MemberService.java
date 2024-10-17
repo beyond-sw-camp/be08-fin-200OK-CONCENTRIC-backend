@@ -11,10 +11,7 @@ import ok.backend.common.security.util.SecurityUserDetailService;
 import ok.backend.member.domain.entity.Member;
 import ok.backend.member.domain.entity.RefreshToken;
 import ok.backend.member.domain.repository.MemberRepository;
-import ok.backend.member.dto.MemberLoginRequestDto;
-import ok.backend.member.dto.MemberRegisterRequestDto;
-import ok.backend.member.dto.MemberResponseDto;
-import ok.backend.member.dto.MemberUpdateRequestDto;
+import ok.backend.member.dto.*;
 import ok.backend.storage.service.StorageFileService;
 import ok.backend.storage.service.StorageService;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,8 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.Optional;
+import java.net.MalformedURLException;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -150,15 +147,20 @@ public class MemberService {
         SecurityContextHolder.clearContext();
     }
 
-    public MemberResponseDto updateMember(MemberUpdateRequestDto memberUpdateRequestDto, MultipartFile file) throws IOException {
+    public MemberResponseDto updateMember(MemberUpdateRequestDto memberUpdateRequestDto, MultipartFile profile, MultipartFile background) throws IOException {
         Member loggedInMember = securityUserDetailService.getLoggedInMember();
         Member member = this.findMemberById(loggedInMember.getId());
 
         member.updateMember(memberUpdateRequestDto);
 
-        if(file != null){
-            String path = storageFileService.saveProfileImage(member.getId(), member.getImageUrl(), file);
-            member.updatePath(path);
+        if(profile != null){
+            String path = storageFileService.saveProfileImage(member.getId(), member.getImageUrl(), profile);
+            member.updateProfileImage(path);
+        }
+
+        if(background != null){
+            String path = storageFileService.saveBackgroundImage(member.getId(), member.getBackground(), background);
+            member.updateBackgroundImage(path);
         }
 
         return new MemberResponseDto(memberRepository.save(member));
@@ -184,5 +186,36 @@ public class MemberService {
 
         member.updatePassword(newPassword);
         memberRepository.save(member);
+    }
+
+    public List<MemberProfileResponseDto> getMemberProfiles(List<Long> memberIdList) throws MalformedURLException {
+        List<Member> memberList = memberRepository.findByIdAndIsActiveTrue(memberIdList);
+        List<MemberProfileResponseDto> memberProfileResponseDtoList = new ArrayList<>();
+
+        for(Member member : memberList){
+            String backgroundImage = null;
+            String profileImage = null;
+
+            if(member.getBackground() != null){
+                backgroundImage = Base64.getEncoder().encodeToString(storageFileService.getImage(member.getBackground()));
+            }
+
+            if(member.getImageUrl() != null){
+                profileImage = Base64.getEncoder().encodeToString(storageFileService.getImage(member.getImageUrl()));
+            }
+
+            MemberProfileResponseDto dto = MemberProfileResponseDto.builder()
+                    .id(member.getId())
+                    .nickname(member.getNickname())
+                    .createDate(member.getCreateDate())
+                    .backgroundImage(backgroundImage)
+                    .profileImage(profileImage)
+                    .content(member.getContent())
+                    .build();
+
+            memberProfileResponseDtoList.add(dto);
+        }
+
+        return memberProfileResponseDtoList;
     }
 }

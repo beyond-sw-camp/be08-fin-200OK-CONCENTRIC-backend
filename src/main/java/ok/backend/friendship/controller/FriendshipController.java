@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.MalformedURLException;
 import java.util.List;
 
 @Tag(name = "Friendship", description = "친구 관리")
@@ -47,8 +48,8 @@ public class FriendshipController {
     }
 
     @Operation(description = "친구 목록 조회 API")
-    @GetMapping("/list/accept")
-    public ResponseEntity<List<FriendshipResponseDto>> getFriendsAcceptedList(){
+    @GetMapping("/list")
+    public ResponseEntity<List<FriendshipResponseDto>> getFriendsAcceptedList() throws MalformedURLException {
         List<FriendshipResponseDto> members = friendshipService.getFriendshipMembers();
 
         return ResponseEntity.ok(members);
