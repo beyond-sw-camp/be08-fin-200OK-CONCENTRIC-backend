@@ -18,7 +18,8 @@ public class ChatMessageResponseDto {
     private Long memberId;
     private String nickname;
     private String message;
-    private String fileUrl;
+    private Long fileId;
+    private String fileName;
     private String createAt;
 
     public ChatMessageResponseDto(Long chatRoomId, ChatMessageRequestDto chatMessageRequestDto) {
@@ -26,7 +27,8 @@ public class ChatMessageResponseDto {
         this.memberId = chatMessageRequestDto.getMemberId();
         this.nickname = chatMessageRequestDto.getNickname();
         this.message = chatMessageRequestDto.getMessage();
-        this.fileUrl = chatMessageRequestDto.getMessage();
+        this.fileId = chatMessageRequestDto.getFileId();
+        this.fileName = chatMessageRequestDto.getFileName();
         this.createAt = LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString();
     }
 }

@@ -76,6 +76,26 @@ public class StorageFileService {
         return ResponseEntity.notFound().build();
     }
 
+    public ResponseEntity<ByteArrayResource> getProfileImage(Long storageFileId) throws MalformedURLException {
+        StorageFile storageFile = storageFileRepository.findById(storageFileId).orElseThrow(() ->
+                new CustomException(ErrorCode.STORAGE_FILE_NOT_FOUND));
+        String path = storageFile.getPath();
+        ByteArrayResource resource = new ByteArrayResource(awsFileService.downloadFile(path));
+        String extension = path.substring(path.lastIndexOf("."));
+
+        if(".jpg".equals(extension) || ".jpeg".equals(extension)){
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType("image/jpeg"))
+                    .body(resource);
+        } else if(".png".equals(extension)){
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType("image/png"))
+                    .body(resource);
+        }
+
+        return ResponseEntity.notFound().build();
+    }
+
     public void deleteAllStorageFiles(Long storageId) {
         List<StorageFile> storageFiles = this.findAllStorageFilesByStorageId(storageId);
 

@@ -52,6 +52,12 @@ public class StorageController {
         return storageFileService.getProfileImage(path);
     }
 
+    @Operation(summary = "사진 요청 API", description = "사진을 요청하고 반환합니다.")
+    @PostMapping(value = "/image")
+    public ResponseEntity<ByteArrayResource> getProfileImage(@RequestParam Long storageFileId) throws MalformedURLException {
+        return storageFileService.getProfileImage(storageFileId);
+    }
+
     @Operation(summary = "파일함을 조회하는 API")
     @GetMapping(value = "/")
     public ResponseEntity<StorageStatusResponseDto> getStorage(@RequestParam Long ownerId,
@@ -69,7 +75,7 @@ public class StorageController {
     }
 
     @Operation(summary = "파일함의 파일 삭제 API", description = "파일함에서 파일을 삭제합니다.")
-    @PutMapping(value = "/delete/file")
+    @PostMapping(value = "/delete/file")
     public ResponseEntity<StorageStatusResponseDto> deleteStorageFile(@RequestParam Long ownerId,
                                                                       @RequestParam StorageType storageType,
                                                                       @RequestParam Long storageFileId) {

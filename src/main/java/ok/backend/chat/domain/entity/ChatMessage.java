@@ -36,18 +36,22 @@ public class ChatMessage implements Serializable {
     private String message;
 
     @Field("file_url")
-    private String fileUrl;
+    private Long fileId;
+
+    @Field("file_name")
+    private String fileName;
 
     @Field("create_at")
     private String createAt;
 
-    public static ChatMessage createMessage(Long chatRoomId, Long memberId, String nickname, String message, String fileUrl) {
+    public static ChatMessage createMessage(Long chatRoomId, Long memberId, String nickname, String message, Long fileId, String fileName) {
         return ChatMessage.builder()
                 .chatRoomId(chatRoomId)
                 .memberId(memberId)
                 .nickname(nickname)
                 .message(message)
-                .fileUrl(fileUrl)
+                .fileId(fileId)
+                .fileName(fileName)
                 .createAt(LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString())
                 .build();
     }
