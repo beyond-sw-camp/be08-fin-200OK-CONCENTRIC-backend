@@ -75,4 +75,10 @@ public class MemberController {
     public ResponseEntity<List<MemberProfileResponseDto>> getMemberProfiles(@RequestParam List<Long> memberIdList) throws MalformedURLException {
         return ResponseEntity.ok(memberService.getMemberProfiles(memberIdList));
     }
+
+    @Operation(summary = "특정 회원의 정보를 반환하는 API")
+    @GetMapping("/{memberId}")
+    public ResponseEntity<MemberResponseDto> getMemberById(@PathVariable Long memberId){
+        return ResponseEntity.ok(new MemberResponseDto(memberService.findMemberById(memberId)));
+    }
 }

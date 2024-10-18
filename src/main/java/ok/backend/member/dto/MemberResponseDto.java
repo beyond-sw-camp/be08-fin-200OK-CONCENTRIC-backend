@@ -13,6 +13,9 @@ public class MemberResponseDto {
     private Long id;
 
     @JsonProperty
+    private String email;
+
+    @JsonProperty
     private String name;
 
     @JsonProperty
@@ -33,6 +36,7 @@ public class MemberResponseDto {
 
     public MemberResponseDto(Member member) {
         this.id = member.getId();
+        this.email = member.getEmail();
         this.name = member.getName();
         this.nickname = member.getNickname();
         this.createDate = member.getCreateDate();
