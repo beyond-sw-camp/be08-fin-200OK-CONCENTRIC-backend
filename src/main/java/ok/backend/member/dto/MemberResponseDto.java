@@ -27,6 +27,10 @@ public class MemberResponseDto {
     @JsonProperty
     private String content;
 
+    @JsonProperty
+    private String background;
+
+
     public MemberResponseDto(Member member) {
         this.id = member.getId();
         this.name = member.getName();
@@ -34,5 +38,6 @@ public class MemberResponseDto {
         this.createDate = member.getCreateDate();
         this.imageUrl = member.getImageUrl();
         this.content = member.getContent();
+        this.background = member.getBackground();
     }
 }

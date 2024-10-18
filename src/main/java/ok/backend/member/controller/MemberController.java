@@ -5,10 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import ok.backend.member.domain.entity.Member;
-import ok.backend.member.dto.MemberLoginRequestDto;
-import ok.backend.member.dto.MemberRegisterRequestDto;
-import ok.backend.member.dto.MemberResponseDto;
-import ok.backend.member.dto.MemberUpdateRequestDto;
+import ok.backend.member.dto.*;
 import ok.backend.member.service.MemberService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.List;
 
 @Tag(name = "User", description = "회원 관리")
 @RequiredArgsConstructor
@@ -57,9 +56,10 @@ public class MemberController {
     @Operation(summary = "회원 정보 수정 API")
     @PutMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MemberResponseDto> updateMember(@RequestPart("user") MemberUpdateRequestDto memberUpdateRequestDto,
-                                                          @RequestPart("file") MultipartFile file) throws IOException {
+                                                          @RequestPart("profile") MultipartFile profile,
+                                                          @RequestPart("background") MultipartFile background) throws IOException {
 
-        return ResponseEntity.ok(memberService.updateMember(memberUpdateRequestDto, file));
+        return ResponseEntity.ok(memberService.updateMember(memberUpdateRequestDto, profile, background));
     }
 
     @Operation(summary = "회원 탈퇴 API")
@@ -70,5 +70,9 @@ public class MemberController {
         return ResponseEntity.ok().build();
     }
 
-
+    @Operation(summary = "특정 회원들의 프로필 정보를 반환하는 API")
+    @GetMapping("/list")
+    public ResponseEntity<List<MemberProfileResponseDto>> getMemberProfiles(@RequestParam List<Long> memberIdList) throws MalformedURLException {
+        return ResponseEntity.ok(memberService.getMemberProfiles(memberIdList));
+    }
 }

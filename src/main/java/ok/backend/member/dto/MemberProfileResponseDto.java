@@ -1,4 +1,4 @@
-package ok.backend.friendship.dto;
+package ok.backend.member.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @Builder
 @Getter
-public class FriendshipResponseDto {
+public class MemberProfileResponseDto {
 
     @JsonProperty
     private Long id;
@@ -27,4 +27,5 @@ public class FriendshipResponseDto {
 
     @JsonProperty
     private String content;
+
 }
