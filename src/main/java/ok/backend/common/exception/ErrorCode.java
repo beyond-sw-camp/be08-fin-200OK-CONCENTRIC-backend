@@ -27,6 +27,7 @@ public enum ErrorCode {
     INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "USER_007", "사용자의 패스워드가 일치하지 않습니다."),
     EMPTY_INPUT_MEMBER(HttpStatus.BAD_REQUEST, "USER_008", "공백을 사용할 수 없습니다."),
     MEMBER_DELETED(HttpStatus.FORBIDDEN, "USER_009", "탈퇴한 사용자입니다."),
+    DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "USER_010", "중복된 닉네임입니다."),
 
     DUPLICATE_SOCIAL(HttpStatus.CONFLICT, "SOCIAL_001", "이미 등록된 사용자입니다."),
     DUPLICATE_SOCIAL_REQUEST(HttpStatus.BAD_REQUEST, "SOCIAL_002", "이미 요청한 내역입니다."),
