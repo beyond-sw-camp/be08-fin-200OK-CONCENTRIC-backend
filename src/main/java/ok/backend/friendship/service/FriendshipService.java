@@ -109,11 +109,17 @@ public class FriendshipService {
             String profileImage = null;
 
             if(member.getBackground() != null){
-                backgroundImage = Base64.getEncoder().encodeToString(storageFileService.getImage(member.getBackground()));
+                byte[] background = storageFileService.getImage(member.getBackground());
+                if(background != null ){
+                    backgroundImage = Base64.getEncoder().encodeToString(background);
+                }
             }
 
             if(member.getImageUrl() != null){
-                profileImage = Base64.getEncoder().encodeToString(storageFileService.getImage(member.getImageUrl()));
+                byte[] profile = storageFileService.getImage(member.getImageUrl());
+                if(profile != null ){
+                    profileImage = Base64.getEncoder().encodeToString(profile);
+                }
             }
 
             FriendshipResponseDto dto = FriendshipResponseDto.builder()
