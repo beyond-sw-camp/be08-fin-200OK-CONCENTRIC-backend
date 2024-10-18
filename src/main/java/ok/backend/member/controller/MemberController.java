@@ -55,9 +55,9 @@ public class MemberController {
 
     @Operation(summary = "회원 정보 수정 API")
     @PutMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<MemberResponseDto> updateMember(@RequestPart("user") MemberUpdateRequestDto memberUpdateRequestDto,
-                                                          @RequestPart("profile") MultipartFile profile,
-                                                          @RequestPart("background") MultipartFile background) throws IOException {
+    public ResponseEntity<MemberResponseDto> updateMember(@RequestPart(value = "user") MemberUpdateRequestDto memberUpdateRequestDto,
+                                                          @RequestPart(value = "profile", required = false) MultipartFile profile,
+                                                          @RequestPart(value = "background", required = false) MultipartFile background) throws IOException {
 
         return ResponseEntity.ok(memberService.updateMember(memberUpdateRequestDto, profile, background));
     }
@@ -80,5 +80,29 @@ public class MemberController {
     @GetMapping("/{memberId}")
     public ResponseEntity<MemberResponseDto> getMemberById(@PathVariable Long memberId){
         return ResponseEntity.ok(new MemberResponseDto(memberService.findMemberById(memberId)));
+    }
+
+    @Operation(summary = "회원 계정 패스워드 변경 API")
+    @PostMapping("/password")
+    public ResponseEntity<String> updatePassword(@RequestParam String previous, @RequestParam String current){
+        memberService.updatePasswordByPrevious(previous, current);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "이메일 중복 검사 API")
+    @PostMapping("/check/email")
+    public ResponseEntity<String> checkEmailExist(@RequestParam String email){
+        memberService.checkEmailExist(email);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "닉네임 중복 검사 API")
+    @PostMapping("/check/nickname")
+    public ResponseEntity<String> checkNickNameExist(@RequestParam String nickName){
+        memberService.checkNickNameExist(nickName);
+
+        return ResponseEntity.ok().build();
     }
 }

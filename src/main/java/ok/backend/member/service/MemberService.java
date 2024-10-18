@@ -188,6 +188,19 @@ public class MemberService {
         memberRepository.save(member);
     }
 
+    public void updatePasswordByPrevious(String previous, String current){
+        Member loggedInMember = securityUserDetailService.getLoggedInMember();
+        Member member = this.findMemberById(loggedInMember.getId());
+
+        if(!passwordEncoder.matches(member.getPassword(), previous)) {
+            throw new CustomException(ErrorCode.INVALID_PASSWORD);
+        }
+
+        String currentPassword = passwordEncoder.encode(current);
+
+        member.updatePassword(currentPassword);
+    }
+
     public List<MemberProfileResponseDto> getMemberProfiles(List<Long> memberIdList) throws MalformedURLException {
         List<Member> memberList = memberRepository.findByIdAndIsActiveTrue(memberIdList);
         List<MemberProfileResponseDto> memberProfileResponseDtoList = new ArrayList<>();
@@ -259,5 +272,19 @@ public class MemberService {
         }
 
         return memberProfileResponseDtoList;
+    }
+
+    public void checkEmailExist(String email){
+        Optional<Member> member = memberRepository.findByEmail(email);
+        member.ifPresent(member1 -> {
+            throw new CustomException(ErrorCode.DUPLICATE_SIGNUP_ID);
+        });
+    }
+
+    public void checkNickNameExist(String nickname){
+        Optional<Member> member = memberRepository.findByNickname(nickname);
+        member.ifPresent(member1 -> {
+            throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
+        });
     }
 }

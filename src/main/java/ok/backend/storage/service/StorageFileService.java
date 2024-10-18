@@ -70,7 +70,11 @@ public class StorageFileService {
     }
 
     public ResponseEntity<ByteArrayResource> getProfileImage(String path) throws MalformedURLException {
-        ByteArrayResource resource = new ByteArrayResource(awsFileService.downloadFile(path));
+        byte[] bytes = awsFileService.downloadFile(path);
+        if(bytes == null){
+            return ResponseEntity.notFound().build();
+        }
+        ByteArrayResource resource = new ByteArrayResource(bytes);
         String extension = path.substring(path.lastIndexOf("."));
 
         if(".jpg".equals(extension) || ".jpeg".equals(extension)){
