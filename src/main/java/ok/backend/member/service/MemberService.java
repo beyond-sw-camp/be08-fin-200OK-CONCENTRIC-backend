@@ -218,4 +218,34 @@ public class MemberService {
 
         return memberProfileResponseDtoList;
     }
+
+    public List<MemberProfileResponseDto> getMemberProfilesByMemberList(List<Member> memberList) throws MalformedURLException {
+        List<MemberProfileResponseDto> memberProfileResponseDtoList = new ArrayList<>();
+
+        for(Member member : memberList){
+            String backgroundImage = null;
+            String profileImage = null;
+
+            if(member.getBackground() != null){
+                backgroundImage = Base64.getEncoder().encodeToString(storageFileService.getImage(member.getBackground()));
+            }
+
+            if(member.getImageUrl() != null){
+                profileImage = Base64.getEncoder().encodeToString(storageFileService.getImage(member.getImageUrl()));
+            }
+
+            MemberProfileResponseDto dto = MemberProfileResponseDto.builder()
+                    .id(member.getId())
+                    .nickname(member.getNickname())
+                    .createDate(member.getCreateDate())
+                    .backgroundImage(backgroundImage)
+                    .profileImage(profileImage)
+                    .content(member.getContent())
+                    .build();
+
+            memberProfileResponseDtoList.add(dto);
+        }
+
+        return memberProfileResponseDtoList;
+    }
 }

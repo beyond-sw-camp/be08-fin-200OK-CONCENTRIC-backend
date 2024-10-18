@@ -4,8 +4,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import ok.backend.member.dto.MemberProfileResponseDto;
 import ok.backend.member.dto.MemberResponseDto;
 import ok.backend.member.dto.MemberUpdateRequestDto;
+import ok.backend.team.dto.TeamMemberResponseDto;
 import ok.backend.team.dto.TeamRequestDto;
 import ok.backend.team.dto.TeamResponseDto;
 import ok.backend.team.dto.TeamUpdateRequestDto;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.List;
 
 
@@ -116,8 +119,11 @@ public class TeamController {
         return ResponseEntity.noContent().build();
     }
 
-
-
+    @GetMapping("list/member")
+    @Operation(summary = "팀원들의 정보를 반환하는 API")
+    public ResponseEntity<List<MemberProfileResponseDto>> getTeamMembers(Long teamId) throws MalformedURLException {
+        return ResponseEntity.ok(teamService.getTeamMembers(teamId));
+    }
 
 
 
