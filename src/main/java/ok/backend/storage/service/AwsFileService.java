@@ -47,14 +47,16 @@ public class AwsFileService {
     }
 
     public byte[] downloadFile(String fileName) {
-        S3Object s3Object = amazonS3Client.getObject(bucket, fileName);
-        log.info(s3Object.getKey());
-        S3ObjectInputStream inputStream = s3Object.getObjectContent();
         try {
+            S3Object s3Object = amazonS3Client.getObject(bucket, fileName);
+            log.info(s3Object.getKey());
+            S3ObjectInputStream inputStream = s3Object.getObjectContent();
             byte[] content = IOUtils.toByteArray(inputStream);
             return content;
-        } catch (IOException e){
-            throw new IllegalStateException("Cannot download file", e);
+        } catch (Exception e){
+//            throw new IllegalStateException("Cannot download file", e);
+            log.error(e.getMessage());
+            return null;
         }
     }
 
