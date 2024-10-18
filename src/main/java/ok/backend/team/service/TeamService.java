@@ -7,6 +7,7 @@ import ok.backend.common.exception.CustomException;
 import ok.backend.common.exception.ErrorCode;
 import ok.backend.common.security.util.SecurityUserDetailService;
 import ok.backend.member.domain.entity.Member;
+import ok.backend.member.dto.MemberProfileResponseDto;
 import ok.backend.member.dto.MemberResponseDto;
 import ok.backend.member.dto.MemberUpdateRequestDto;
 import ok.backend.member.service.MemberService;
@@ -16,6 +17,7 @@ import ok.backend.team.domain.entity.Team;
 import ok.backend.team.domain.entity.TeamList;
 import ok.backend.team.domain.repository.TeamListRepository;
 import ok.backend.team.domain.repository.TeamRepository;
+import ok.backend.team.dto.TeamMemberResponseDto;
 import ok.backend.team.dto.TeamRequestDto;
 import ok.backend.team.dto.TeamResponseDto;
 import ok.backend.team.dto.TeamUpdateRequestDto;
@@ -24,6 +26,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -231,5 +235,8 @@ public class TeamService {
         return teamListRepository.findByTeamId(teamId);
     }
 
-
+    public List<MemberProfileResponseDto> getTeamMembers(Long teamId) throws MalformedURLException {
+        List<Member> memberList = teamRepository.getTeamMembers(teamId);
+        return memberService.getMemberProfilesByMemberList(memberList);
+    }
 }
