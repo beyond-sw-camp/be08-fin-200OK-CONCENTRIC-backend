@@ -8,6 +8,8 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import ok.backend.common.exception.CustomException;
+import ok.backend.common.exception.ErrorCode;
 import ok.backend.member.domain.entity.RefreshToken;
 import ok.backend.member.service.RefreshTokenService;
 import org.springframework.beans.factory.annotation.Value;
@@ -115,9 +117,10 @@ public class JwtProvider {
     }
 
     public String reIssueAccessToken(String accessToken) {
-        RefreshToken refreshToken = refreshTokenService.findByAccessToken(accessToken).orElse(null);
-
-        if(refreshToken != null) {
+//        RefreshToken refreshToken = refreshTokenService.findByAccessToken(accessToken).orElse(null);
+        RefreshToken refreshToken = refreshTokenService.findByAccessToken(accessToken).orElseThrow(() ->
+                new CustomException(ErrorCode.REFRESH_TOKEN_NOT_EXIST));
+//        if(refreshToken != null) {
             String userId = refreshToken.getUsername();
             String newAccessToken = createAccessToken(userId);
 
@@ -131,9 +134,9 @@ public class JwtProvider {
             System.out.println(SecurityContextHolder.getContext().getAuthentication().toString());
 
             return newAccessToken;
-        }
+//        }
 
-        return null;
+//        return null;
     }
 
 

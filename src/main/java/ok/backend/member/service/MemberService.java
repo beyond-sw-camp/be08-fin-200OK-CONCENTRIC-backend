@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.swing.text.html.Option;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
@@ -105,6 +106,9 @@ public class MemberService {
 
     public String createToken(Member member) {
 
+        Optional<RefreshToken> exist = refreshTokenService.findByUsername(member.getEmail());
+        exist.ifPresent(refreshTokenService::delete);
+
         String accessToken = jwtProvider.createAccessToken(member.getEmail());
         String refreshToken = jwtProvider.createRefreshToken(member.getEmail());
 
@@ -150,6 +154,13 @@ public class MemberService {
     public MemberResponseDto updateMember(MemberUpdateRequestDto memberUpdateRequestDto, MultipartFile profile, MultipartFile background) throws IOException {
         Member loggedInMember = securityUserDetailService.getLoggedInMember();
         Member member = this.findMemberById(loggedInMember.getId());
+
+        if(!member.getNickname().equals(memberUpdateRequestDto.getNickname())){
+            Optional<Member> foundMember = memberRepository.findByNickname(memberUpdateRequestDto.getNickname());
+            foundMember.ifPresent(member1 -> {
+                throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
+            });
+        }
 
         member.updateMember(memberUpdateRequestDto);
 
