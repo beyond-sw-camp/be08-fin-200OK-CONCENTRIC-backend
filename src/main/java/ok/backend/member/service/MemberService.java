@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.swing.text.html.Option;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
@@ -105,6 +106,9 @@ public class MemberService {
 
     public String createToken(Member member) {
 
+        Optional<RefreshToken> exist = refreshTokenService.findByUsername(member.getEmail());
+        exist.ifPresent(refreshTokenService::delete);
+
         String accessToken = jwtProvider.createAccessToken(member.getEmail());
         String refreshToken = jwtProvider.createRefreshToken(member.getEmail());
 
@@ -151,6 +155,13 @@ public class MemberService {
         Member loggedInMember = securityUserDetailService.getLoggedInMember();
         Member member = this.findMemberById(loggedInMember.getId());
 
+        if(!member.getNickname().equals(memberUpdateRequestDto.getNickname())){
+            Optional<Member> foundMember = memberRepository.findByNickname(memberUpdateRequestDto.getNickname());
+            foundMember.ifPresent(member1 -> {
+                throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
+            });
+        }
+
         member.updateMember(memberUpdateRequestDto);
 
         if(profile != null){
@@ -186,6 +197,19 @@ public class MemberService {
 
         member.updatePassword(newPassword);
         memberRepository.save(member);
+    }
+
+    public void updatePasswordByPrevious(String previous, String current){
+        Member loggedInMember = securityUserDetailService.getLoggedInMember();
+        Member member = this.findMemberById(loggedInMember.getId());
+
+        if(!passwordEncoder.matches(member.getPassword(), previous)) {
+            throw new CustomException(ErrorCode.INVALID_PASSWORD);
+        }
+
+        String currentPassword = passwordEncoder.encode(current);
+
+        member.updatePassword(currentPassword);
     }
 
     public List<MemberProfileResponseDto> getMemberProfiles(List<Long> memberIdList) throws MalformedURLException {
@@ -259,5 +283,19 @@ public class MemberService {
         }
 
         return memberProfileResponseDtoList;
+    }
+
+    public void checkEmailExist(String email){
+        Optional<Member> member = memberRepository.findByEmail(email);
+        member.ifPresent(member1 -> {
+            throw new CustomException(ErrorCode.DUPLICATE_SIGNUP_ID);
+        });
+    }
+
+    public void checkNickNameExist(String nickname){
+        Optional<Member> member = memberRepository.findByNickname(nickname);
+        member.ifPresent(member1 -> {
+            throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
+        });
     }
 }

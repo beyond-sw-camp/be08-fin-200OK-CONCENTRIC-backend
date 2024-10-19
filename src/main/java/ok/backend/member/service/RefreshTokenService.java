@@ -16,6 +16,10 @@ public class RefreshTokenService {
         return refreshTokenRepository.findByAccessToken(accessToken);
     }
 
+    public Optional<RefreshToken> findByUsername(String username) {
+        return refreshTokenRepository.findByUsername(username);
+    }
+
     public void updateAccessToken(RefreshToken refreshToken, String newAccessToken) {
         refreshToken.updateAccessToken(newAccessToken);
         refreshTokenRepository.save(refreshToken);
