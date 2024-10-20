@@ -8,6 +8,7 @@ import ok.backend.chat.dto.req.ChatRoomListRequestDto;
 import ok.backend.chat.dto.req.ChatRoomRequestDto;
 import ok.backend.chat.dto.res.ChatRoomMemberResponseDto;
 import ok.backend.chat.dto.res.ChatRoomListResponseDto;
+import ok.backend.chat.dto.res.ChatRoomResponseDto;
 import ok.backend.chat.service.ChatService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,10 +26,11 @@ public class ChatController {
 
     @PostMapping("/create")
     @Operation(summary = "채팅방 생성")
-    public ResponseEntity<ChatRoomListResponseDto> createChat(@RequestParam("friendId") Long friendId,
-                                                              @RequestBody @Valid ChatRoomRequestDto chatRoomRequestDto) {
-        chatService.createChat(friendId, chatRoomRequestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<ChatRoomResponseDto> createChat(@RequestParam("friendId") Long friendId,
+                                                          @RequestBody @Valid ChatRoomRequestDto chatRoomRequestDto) {
+        ChatRoomResponseDto chatRoomResponseDto = chatService.createChat(friendId, chatRoomRequestDto);
+        return ResponseEntity.ok(chatRoomResponseDto);
+//        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
 //    @PostMapping("/create/team")

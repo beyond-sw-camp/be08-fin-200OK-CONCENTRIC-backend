@@ -73,7 +73,10 @@ public class ChatService {
 
         storageService.createChatStorage(chatRoom.getId());
 
-        return new ChatRoomResponseDto(savedChatRoom);
+        ChatRoomResponseDto responseDto = new ChatRoomResponseDto(savedChatRoom);
+        System.out.println("Response DTO: " + responseDto);
+        return responseDto;
+//        return new ChatRoomResponseDto(savedChatRoom);
     }
 
     // 단체 채팅방 생성(팀 서비스)
