@@ -1,16 +1,21 @@
 package ok.backend.chat.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 
+@Slf4j
 @Controller
-public class WebsocketController {
+@RequiredArgsConstructor
+public class WebSocketController {
 
     @MessageMapping("/ping")
     @SendTo("/sub/pong")
     public String handlePing(String message) {
-        // 클라이언트에서 받은 ping 메시지에 응답하는 pong 메시지
         return "pong";
     }
+
 }
