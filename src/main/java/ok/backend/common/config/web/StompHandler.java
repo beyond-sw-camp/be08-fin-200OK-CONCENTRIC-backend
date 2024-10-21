@@ -1,7 +1,9 @@
 package ok.backend.common.config.web;
 
 import lombok.RequiredArgsConstructor;
+import ok.backend.chat.service.WebSocketService;
 import ok.backend.common.security.util.JwtProvider;
+import ok.backend.common.security.util.SecurityUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
@@ -11,6 +13,8 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -18,7 +22,7 @@ import org.springframework.stereotype.Component;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class StompHandler implements ChannelInterceptor {
 
-    // WebSocket 연결 시 헤더에서 JWT token 유효성 검증
+    private final WebSocketService webSocketService;
     private final JwtProvider jwtProvider;
     private static final Logger logger = LoggerFactory.getLogger(StompHandler.class);
 
@@ -44,12 +48,35 @@ public class StompHandler implements ChannelInterceptor {
 //                return message;
             }
 
+            // 수동으로 Authentication 설정
+            Authentication authentication = jwtProvider.getAuthentication(token);
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
+            Long memberId = Long.valueOf(securityUser.getUsername());
+            String sessionId = stompHeaderAccessor.getSessionId();
+            webSocketService.saveWebSocketConnection(memberId, sessionId);
+
+        }
+
+        else if (StompCommand.DISCONNECT.equals(stompHeaderAccessor.getCommand())) {
+            String sessionId = stompHeaderAccessor.getSessionId();
+            webSocketService.handleWebSocketDisconnection(sessionId);
+            logger.info("WebSocket disconnected: sessionId = {}", sessionId);
+        }
+
+        else if (StompCommand.SEND.equals(stompHeaderAccessor.getCommand())) {
+            if ("/pub/ping".equals(stompHeaderAccessor.getDestination())) {
+                String sessionId = stompHeaderAccessor.getSessionId();
+                webSocketService.updateLastConnectTime(sessionId);
+            }
         }
         return message;
     }
 
-    // STOMP 헤더에서 Authorization 값 추출
     public String extractJwt(final StompHeaderAccessor accessor) {
         return accessor.getFirstNativeHeader("Authorization");
     }
+
 }

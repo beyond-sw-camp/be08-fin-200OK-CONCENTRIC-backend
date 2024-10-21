@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ok.backend.chat.dto.req.ChatMessageRequestDto;
 import ok.backend.chat.dto.res.ChatMessageResponseDto;
+import ok.backend.chat.dto.res.LastChatMessageResponseDto;
 import ok.backend.chat.service.ChatMessageService;
 import ok.backend.storage.domain.enums.StorageType;
 import ok.backend.storage.dto.StorageResponseDto;
@@ -50,6 +51,13 @@ public class ChatMessageController {
     public ResponseEntity<List<ChatMessageResponseDto>> findAllChatMessage(@PathVariable Long chatRoomId) {
         List<ChatMessageResponseDto> chatMessageResponseDto =  chatMessageService.findAllChatMessage(chatRoomId);
         return ResponseEntity.ok(chatMessageResponseDto);
+    }
+
+    @GetMapping(value = "v1/api/chat/last/message")
+    @Operation(summary = "채팅방별 마지막 메세지 시간 조회")
+    public ResponseEntity<List<LastChatMessageResponseDto>> findLastChatMessage() {
+        List<LastChatMessageResponseDto> lastChatMessageResponseDto =  chatMessageService.findLastChatMessage();
+        return ResponseEntity.ok(lastChatMessageResponseDto);
     }
 
 }
