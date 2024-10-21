@@ -30,6 +30,7 @@ public class WebSocketService extends TextWebSocketHandler {
         List<WebSocket> webSocketList = webSocketRepository.findByMemberIdOrderByLastConnectDesc(memberId);
         if (webSocketList.isEmpty()) {
             throw new CustomException(CONNECTION_NOT_FOUND);
+//            saveWebSocketConnection(memberId, null);
         }
         WebSocket mostRecentWebSocket = webSocketList.get(0);
 

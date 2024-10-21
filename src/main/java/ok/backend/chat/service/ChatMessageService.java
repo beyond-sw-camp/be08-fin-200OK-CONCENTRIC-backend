@@ -7,17 +7,24 @@ import ok.backend.chat.domain.repository.ChatMessageRepository;
 import ok.backend.chat.domain.repository.ChatRoomListRepository;
 import ok.backend.chat.dto.req.ChatMessageRequestDto;
 import ok.backend.chat.dto.res.ChatMessageResponseDto;
+import ok.backend.chat.dto.res.LastChatMessageResponseDto;
 import ok.backend.common.exception.CustomException;
 import ok.backend.common.security.util.SecurityUserDetailService;
 import ok.backend.storage.domain.entity.StorageFile;
 import ok.backend.storage.dto.StorageResponseDto;
 import ok.backend.storage.service.StorageFileService;
 import ok.backend.storage.service.StorageService;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,6 +42,7 @@ public class ChatMessageService {
     private final StorageFileService storageFileService;
     private final ChatRoomListRepository chatRoomListRepository;
     private final SecurityUserDetailService securityUserDetailService;
+    private final MongoTemplate mongoTemplate;
 
     // producer
     public void sendMessage(Long chatRoomId, ChatMessageRequestDto chatMessageRequestDto) {
@@ -87,5 +95,24 @@ public class ChatMessageService {
                         chatMessage.getCreateAt()
                 ))
                 .collect(Collectors.toList());
+    }
+
+
+    public List<LastChatMessageResponseDto> findLastChatMessage() {
+        // Aggregation 파이프라인
+        Aggregation result = Aggregation.newAggregation(
+                Aggregation.sort(Sort.by(Sort.Direction.DESC, "create_at")),
+                Aggregation.group("chat_room_id")
+                        .first("$$ROOT").as("latestMessage"),
+                Aggregation.project()
+                        .andExclude("_id")
+                        .and("_id").as("chatRoomId")
+                        .and("latestMessage.user_id").as("memberId")
+                        .and("latestMessage.create_at").as("createAt")
+        );
+
+        AggregationResults<LastChatMessageResponseDto> lastChatMessageResponseDto = mongoTemplate.aggregate(
+                result, "chat_messages", LastChatMessageResponseDto.class);
+        return lastChatMessageResponseDto.getMappedResults();
     }
 }

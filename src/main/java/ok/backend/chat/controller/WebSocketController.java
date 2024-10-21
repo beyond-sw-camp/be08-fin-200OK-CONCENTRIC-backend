@@ -27,7 +27,7 @@ public class WebSocketController {
         return "pong";
     }
 
-    @GetMapping(value = "v1/api/chat/last")
+    @GetMapping(value = "v1/api/chat/last/connect")
     @Operation(summary = "마지막 웹소켓 연결 내역 조회")
     public ResponseEntity<WebSocketResponseDto> findLastWebsocket(@RequestParam("memberId") Long memberId) {
         WebSocketResponseDto webSocketResponseDto = webSocketService.findLastWebsocket(memberId);
