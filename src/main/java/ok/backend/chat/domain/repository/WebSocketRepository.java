@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface WebSocketRepository extends MongoRepository<WebSocket, Long> {
     List<WebSocket> findBySessionIdOrderByLastConnectDesc(String sessionId);
+    List<WebSocket> findByMemberIdOrderByLastConnectDesc(Long memberId);
 }
