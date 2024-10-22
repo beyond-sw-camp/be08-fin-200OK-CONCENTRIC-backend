@@ -47,8 +47,8 @@ public class MemberController {
 
     @Operation(summary = "로그아웃 API")
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(HttpServletRequest request){
-        memberService.logout(request);
+    public ResponseEntity<String> logout(){
+        memberService.logout();
 
         return ResponseEntity.ok().build();
     }
@@ -64,8 +64,8 @@ public class MemberController {
 
     @Operation(summary = "회원 탈퇴 API")
     @PutMapping("/delete")
-    public ResponseEntity<String> deleteMember(HttpServletRequest request){
-        memberService.deleteMember(request);
+    public ResponseEntity<String> deleteMember(@RequestBody MemberLoginRequestDto memberLoginRequestDto){
+        memberService.deleteMember(memberLoginRequestDto);
 
         return ResponseEntity.ok().build();
     }
