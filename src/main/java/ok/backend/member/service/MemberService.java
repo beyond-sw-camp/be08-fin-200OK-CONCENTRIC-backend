@@ -128,22 +128,10 @@ public class MemberService {
         return accessToken;
     }
 
-    public void logout(HttpServletRequest request){
-        String accessToken = jwtProvider.resolveAccessToken(request);
+    public void logout(){
+        Member loggedInMember = securityUserDetailService.getLoggedInMember();
 
-        if(accessToken == null){
-            throw  new CustomException(ErrorCode.TOKEN_NOT_EXIST);
-        }
-
-        if(!jwtProvider.validateToken(accessToken)){
-            throw new CustomException(ErrorCode.EXPIRED_VERIFICATION_TOKEN);
-        }
-
-        if(!jwtProvider.getUserPK(accessToken).equals(securityUserDetailService.getLoggedInMember().getEmail())){
-            throw new CustomException(ErrorCode.BAD_REQUEST);
-        }
-
-        RefreshToken refreshToken = refreshTokenService.findByAccessToken(accessToken).orElseThrow(() ->
+        RefreshToken refreshToken = refreshTokenService.findByUsername(loggedInMember.getEmail()).orElseThrow(() ->
                 new CustomException(ErrorCode.REFRESH_TOKEN_NOT_EXIST));
 
         refreshTokenService.delete(refreshToken);
@@ -177,16 +165,25 @@ public class MemberService {
         return new MemberResponseDto(memberRepository.save(member));
     }
 
-    public void deleteMember(HttpServletRequest request){
+    public void deleteMember(MemberLoginRequestDto memberLoginRequestDto){
         Member loggedInMember = securityUserDetailService.getLoggedInMember();
-        Member member = this.findMemberById(loggedInMember.getId());
+        Member member = this.findMemberByEmailAndPassword(memberLoginRequestDto);
+
+        if(!member.getId().equals(loggedInMember.getId())){
+            throw new CustomException(ErrorCode.BAD_REQUEST);
+        }
 
         member.updateStatus();
         memberRepository.save(member);
 
+        SecurityContextHolder.clearContext();
+
         storageService.deletePrivateStorage(member.getId());
 
-        logout(request);
+        RefreshToken refreshToken = refreshTokenService.findByUsername(member.getEmail()).orElseThrow(() ->
+                new CustomException(ErrorCode.REFRESH_TOKEN_NOT_EXIST));
+
+        refreshTokenService.delete(refreshToken);
     }
 
     public void updatePassword(String email, String code){
@@ -203,7 +200,7 @@ public class MemberService {
         Member loggedInMember = securityUserDetailService.getLoggedInMember();
         Member member = this.findMemberById(loggedInMember.getId());
 
-        if(!passwordEncoder.matches(member.getPassword(), previous)) {
+        if(!passwordEncoder.matches(previous, member.getPassword())) {
             throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
 
