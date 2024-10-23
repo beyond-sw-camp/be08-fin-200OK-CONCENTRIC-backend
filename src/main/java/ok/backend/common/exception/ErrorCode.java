@@ -56,7 +56,7 @@ public enum ErrorCode {
     UNSUPPORTED_MEDIA_TYPE_CHAT(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "CHAT_006", "지원하지 않는 미디어 유형입니다."),
     MESSAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "CHAT_007", "메세지를 찾을 수 없습니다."),
     INVALID_DELETE_REQUEST(HttpStatus.BAD_REQUEST, "CHAT_009", "그룹 생성자는 채팅방을 탈퇴할 수 없습니다."),
-    CONNECTION_NOT_FOUND(HttpStatus.NOT_FOUND, "CHAT_010", "마지막 연결 내역을 없습니다."),
+    CONNECTION_NOT_FOUND(HttpStatus.NOT_FOUND, "CHAT_010", "마지막 연결 내역을 찾을 수 없습니다."),
 
     // 알림
     NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTIFICATION_001", "알림을 찾을 수 없습니다."),
