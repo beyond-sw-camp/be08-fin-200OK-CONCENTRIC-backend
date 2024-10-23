@@ -31,7 +31,7 @@ public class StorageFileService {
     }
 
     public List<StorageFile> findAllStorageFilesByStorageId(Long storageId) {
-        return storageFileRepository.findAllStorageFilesByStorageIdAndIsActiveTrue(storageId);
+        return storageFileRepository.findAllStorageFilesByStorageIdAndIsActiveTrueOrderByCreateDateDesc(storageId);
     }
 
     public StorageFile findByStorageIdAndId(Long storageId, Long storageFileId) {

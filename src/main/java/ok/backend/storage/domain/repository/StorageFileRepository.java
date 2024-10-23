@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public interface StorageFileRepository extends JpaRepository<StorageFile, Long> {
 
-    List<StorageFile> findAllStorageFilesByStorageIdAndIsActiveTrue(Long storageId);
+    List<StorageFile> findAllStorageFilesByStorageIdAndIsActiveTrueOrderByCreateDateDesc(Long storageId);
 
     Optional<StorageFile> findByStorageIdAndIdAndIsActiveTrue(Long storageId, Long storageFileId);
 
