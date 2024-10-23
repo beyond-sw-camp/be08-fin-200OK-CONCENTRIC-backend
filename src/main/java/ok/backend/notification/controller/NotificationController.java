@@ -41,4 +41,12 @@ public class NotificationController {
 
         return ResponseEntity.ok(notification);
     }
+
+    @Operation(summary = "읽은 알림 삭제 API", description = "읽음 상태의 알림들을 모두 삭제한다.")
+    @DeleteMapping("/read/delete")
+    public ResponseEntity<String> deleteNotifications() {
+        notificationService.deleteNotifications();
+
+        return ResponseEntity.ok("delete success");
+    }
 }
