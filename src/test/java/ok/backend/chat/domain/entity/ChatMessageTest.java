@@ -5,8 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
-
-import static org.junit.jupiter.api.Assertions.*;
+import java.time.ZoneId;
 
 class ChatMessageTest {
     @Test
@@ -16,9 +15,11 @@ class ChatMessageTest {
         ChatMessage message = ChatMessage.builder()
                 .chatRoomId(1L)
                 .memberId(1L)
-                .message("테스트 메시지")
-                .fileUrl(null)
-                .createAt(LocalDateTime.now().toString())
+                .nickname("hj")
+                .message("test message")
+                .fileId(1L)
+                .fileName("filename")
+                .createAt(LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString())
                 .build();
 
         // 직렬화 테스트
