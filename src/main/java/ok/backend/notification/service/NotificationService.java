@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import ok.backend.common.exception.CustomException;
 import ok.backend.common.exception.ErrorCode;
 import ok.backend.common.security.util.SecurityUserDetailService;
+import ok.backend.member.domain.entity.Member;
 import ok.backend.notification.domain.entity.Notification;
 import ok.backend.notification.domain.entity.NotificationPending;
 import ok.backend.notification.domain.repository.NotificationRepository;
@@ -57,5 +58,13 @@ public class NotificationService {
 
         notification.updateRead();
         return new NotificationResponseDto(notificationRepository.save(notification));
+    }
+
+    public void deleteNotifications() {
+        Long memberId = securityUserDetailService.getLoggedInMember().getId();
+
+        List<Notification> notifications = notificationRepository.findAllByReceiverIdAndIsReadTrue(memberId);
+
+        notificationRepository.deleteAll(notifications);
     }
 }
