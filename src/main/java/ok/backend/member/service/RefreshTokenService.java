@@ -13,6 +13,7 @@ public class RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
 
     public Optional<RefreshToken> findByAccessToken(String accessToken) {
+        System.out.println("findByAccessToken accessToken = " + accessToken);
         return refreshTokenRepository.findByAccessToken(accessToken);
     }
 
