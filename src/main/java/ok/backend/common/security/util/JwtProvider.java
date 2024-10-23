@@ -118,9 +118,11 @@ public class JwtProvider {
 
     public String reIssueAccessToken(String accessToken) {
 //        RefreshToken refreshToken = refreshTokenService.findByAccessToken(accessToken).orElse(null);
+        System.out.println("try to re issue access token...");
         RefreshToken refreshToken = refreshTokenService.findByAccessToken(accessToken).orElseThrow(() ->
                 new CustomException(ErrorCode.REFRESH_TOKEN_NOT_EXIST));
-//        if(refreshToken != null) {
+        if(refreshToken != null) {
+        System.out.println("refresh token: " + refreshToken.getId());
             String userId = refreshToken.getUsername();
             String newAccessToken = createAccessToken(userId);
 
@@ -134,9 +136,9 @@ public class JwtProvider {
             System.out.println(SecurityContextHolder.getContext().getAuthentication().toString());
 
             return newAccessToken;
-//        }
+        }
 
-//        return null;
+        return null;
     }
 
 
