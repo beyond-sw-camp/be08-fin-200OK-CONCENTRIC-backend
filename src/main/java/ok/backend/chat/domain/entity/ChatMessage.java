@@ -21,7 +21,7 @@ public class ChatMessage implements Serializable {
 
     @Id
     @Field(value = "chat_messages_id", targetType = FieldType.OBJECT_ID)
-    private Long id;
+    private String id;
 
     @Field("chat_room_id")
     private Long chatRoomId;
@@ -35,7 +35,7 @@ public class ChatMessage implements Serializable {
     @Field("message")
     private String message;
 
-    @Field("file_url")
+    @Field("file_id")
     private Long fileId;
 
     @Field("file_name")
