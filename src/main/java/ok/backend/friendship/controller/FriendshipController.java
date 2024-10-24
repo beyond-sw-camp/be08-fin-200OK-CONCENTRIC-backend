@@ -24,8 +24,8 @@ public class FriendshipController {
 
     @Operation(description = "친구 요청 생성 API")
     @PostMapping("/request/create")
-    public ResponseEntity<String> createFriendshipRequest(@RequestBody FriendshipRequestDto friendshipRequestDto) {
-        friendshipService.createFriendshipRequest(friendshipRequestDto);
+    public ResponseEntity<String> createFriendshipRequest(@RequestParam String nickname) {
+        friendshipService.createFriendshipRequest(nickname);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -41,7 +41,6 @@ public class FriendshipController {
     @Operation(description = "친구 요청 수락/거절 API")
     @PutMapping("/request/update")
     public ResponseEntity<String> updateFriendshipRequest(@RequestBody FriendshipRequestUpdateDto friendshipRequestUpdateDto) {
-        log.info(friendshipRequestUpdateDto.toString());
         friendshipService.updateFriendshipRequest(friendshipRequestUpdateDto);
 
         return ResponseEntity.ok().build();
@@ -56,9 +55,9 @@ public class FriendshipController {
     }
 
     @Operation(summary = "친구 삭제 API")
-    @DeleteMapping("/delete")
-    public ResponseEntity<String> deleteFriendship(@RequestBody FriendshipDeleteRequestDto friendshipDeleteRequestDto) {
-        friendshipService.deleteFriendship(friendshipDeleteRequestDto);
+    @DeleteMapping("/delete/{otherId}")
+    public ResponseEntity<String> deleteFriendship(@PathVariable Long otherId) {
+        friendshipService.deleteFriendship(otherId);
 
         return ResponseEntity.ok().build();
     }

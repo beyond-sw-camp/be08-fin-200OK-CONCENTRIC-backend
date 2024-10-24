@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @Getter
 public class FriendshipRequestUpdateDto {
 
-    @NotNull
-    private Long id;
+//    @NotNull
+//    private Long id;
 
 //    @NotNull
 //    private Long receiverId;
