@@ -2,7 +2,6 @@ package ok.backend.member.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import ok.backend.member.domain.entity.Member;
 import ok.backend.member.dto.*;
@@ -42,7 +41,7 @@ public class MemberController {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.AUTHORIZATION , "Bearer " + memberService.createToken(member))
-                .body(new MemberResponseDto(member));
+                .body(memberService.convertToDto(member));
     }
 
     @Operation(summary = "로그아웃 API")
@@ -74,12 +73,6 @@ public class MemberController {
     @GetMapping("/list")
     public ResponseEntity<List<MemberProfileResponseDto>> getMemberProfiles(@RequestParam List<Long> memberIdList) throws MalformedURLException {
         return ResponseEntity.ok(memberService.getMemberProfiles(memberIdList));
-    }
-
-    @Operation(summary = "특정 회원의 정보를 반환하는 API")
-    @GetMapping("/{memberId}")
-    public ResponseEntity<MemberResponseDto> getMemberById(@PathVariable Long memberId){
-        return ResponseEntity.ok(new MemberResponseDto(memberService.findMemberById(memberId)));
     }
 
     @Operation(summary = "회원 계정 패스워드 변경 API")

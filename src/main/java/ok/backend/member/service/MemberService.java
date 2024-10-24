@@ -1,6 +1,5 @@
 package ok.backend.member.service;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +11,7 @@ import ok.backend.member.domain.entity.Member;
 import ok.backend.member.domain.entity.RefreshToken;
 import ok.backend.member.domain.repository.MemberRepository;
 import ok.backend.member.dto.*;
+import ok.backend.storage.service.AwsFileService;
 import ok.backend.storage.service.StorageFileService;
 import ok.backend.storage.service.StorageService;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,10 +19,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.swing.text.html.Option;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -44,6 +46,8 @@ public class MemberService {
 
     private final StorageFileService storageFileService;
 
+    private final AwsFileService awsFileService;
+
     public MemberResponseDto registerMember(MemberRegisterRequestDto memberRegisterRequestDto) {
         Optional<Member> exist = memberRepository.findByEmail(memberRegisterRequestDto.getEmail());
         if (exist.isPresent()) {
@@ -64,7 +68,7 @@ public class MemberService {
 
         storageService.createPrivateStorage(savedMember.getId());
 
-        return new MemberResponseDto(savedMember);
+        return this.convertToDto(savedMember);
     }
 
     public Member findMemberByEmail(String email) {
@@ -102,6 +106,32 @@ public class MemberService {
         }
 
         return member;
+    }
+
+    public MemberResponseDto convertToDto(Member member) {
+        String backgroundImage = null;
+        String profileImage = null;
+
+        if(member.getBackground() != null){
+            backgroundImage = awsFileService.getUrl(member.getBackground());
+        }
+
+        if(member.getImageUrl() != null){
+            profileImage = awsFileService.getUrl(member.getImageUrl());
+        }
+
+
+
+        return MemberResponseDto.builder()
+                .id(member.getId())
+                .email(member.getEmail())
+                .name(member.getName())
+                .nickname(member.getNickname())
+                .createDate(member.getCreateDate())
+                .content(member.getContent())
+                .imageUrl(profileImage)
+                .background(backgroundImage)
+                .build();
     }
 
     public String createToken(Member member) {
@@ -162,7 +192,7 @@ public class MemberService {
             member.updateBackgroundImage(path);
         }
 
-        return new MemberResponseDto(memberRepository.save(member));
+        return this.convertToDto(memberRepository.save(member));
     }
 
     public void deleteMember(MemberLoginRequestDto memberLoginRequestDto){
@@ -211,39 +241,8 @@ public class MemberService {
 
     public List<MemberProfileResponseDto> getMemberProfiles(List<Long> memberIdList) throws MalformedURLException {
         List<Member> memberList = memberRepository.findByIdAndIsActiveTrue(memberIdList);
-        List<MemberProfileResponseDto> memberProfileResponseDtoList = new ArrayList<>();
 
-        for(Member member : memberList){
-            String backgroundImage = null;
-            String profileImage = null;
-
-            if(member.getBackground() != null){
-                byte[] background = storageFileService.getImage(member.getBackground());
-                if(background != null ){
-                    backgroundImage = Base64.getEncoder().encodeToString(background);
-                }
-            }
-
-            if(member.getImageUrl() != null){
-                byte[] profile = storageFileService.getImage(member.getImageUrl());
-                if(profile != null ){
-                    profileImage = Base64.getEncoder().encodeToString(profile);
-                }
-            }
-
-            MemberProfileResponseDto dto = MemberProfileResponseDto.builder()
-                    .id(member.getId())
-                    .nickname(member.getNickname())
-                    .createDate(member.getCreateDate())
-                    .backgroundImage(backgroundImage)
-                    .profileImage(profileImage)
-                    .content(member.getContent())
-                    .build();
-
-            memberProfileResponseDtoList.add(dto);
-        }
-
-        return memberProfileResponseDtoList;
+        return this.getMemberProfilesByMemberList(memberList);
     }
 
     public List<MemberProfileResponseDto> getMemberProfilesByMemberList(List<Member> memberList) throws MalformedURLException {
@@ -254,17 +253,11 @@ public class MemberService {
             String profileImage = null;
 
             if(member.getBackground() != null){
-                byte[] background = storageFileService.getImage(member.getBackground());
-                if(background != null ){
-                    backgroundImage = Base64.getEncoder().encodeToString(background);
-                }
+                backgroundImage = awsFileService.getUrl(member.getBackground());
             }
 
             if(member.getImageUrl() != null){
-                byte[] profile = storageFileService.getImage(member.getImageUrl());
-                if(profile != null ){
-                    profileImage = Base64.getEncoder().encodeToString(profile);
-                }
+                profileImage = awsFileService.getUrl(member.getImageUrl());
             }
 
             MemberProfileResponseDto dto = MemberProfileResponseDto.builder()
