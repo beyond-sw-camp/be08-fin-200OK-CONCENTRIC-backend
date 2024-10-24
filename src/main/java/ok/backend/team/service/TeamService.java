@@ -11,6 +11,7 @@ import ok.backend.member.dto.MemberProfileResponseDto;
 import ok.backend.member.dto.MemberResponseDto;
 import ok.backend.member.dto.MemberUpdateRequestDto;
 import ok.backend.member.service.MemberService;
+import ok.backend.storage.service.AwsFileService;
 import ok.backend.storage.service.StorageFileService;
 import ok.backend.storage.service.StorageService;
 import ok.backend.team.domain.entity.Team;
@@ -43,8 +44,11 @@ public class TeamService {
     private final StorageService storageService;
     private final ChatService chatService;
     private final StorageFileService storageFileService;
+    private final AwsFileService awsFileService;
 
-    public TeamService(TeamRepository teamRepository, TeamListRepository teamListRepository, SecurityUserDetailService securityUserDetailService, MemberService memberService, StorageService storageService, @Lazy ChatService chatService, StorageFileService storageFileService) {
+    public TeamService(TeamRepository teamRepository, TeamListRepository teamListRepository, SecurityUserDetailService securityUserDetailService,
+                       MemberService memberService, StorageService storageService, @Lazy ChatService chatService,
+                       StorageFileService storageFileService, AwsFileService awsFileService) {
         this.teamRepository = teamRepository;
         this.teamListRepository = teamListRepository;
         this.securityUserDetailService = securityUserDetailService;
@@ -52,6 +56,7 @@ public class TeamService {
         this.storageService = storageService;
         this.chatService = chatService;
         this.storageFileService = storageFileService;
+        this.awsFileService = awsFileService;
     }
 
     // 팀 목록 조회 (로그인한 사람것만 조회가능)
@@ -84,7 +89,8 @@ public class TeamService {
         if (!isMemberOfTeam) {
             throw new CustomException(NOT_ACCESS_TEAM);
         }
-        return new TeamResponseDto(team);
+
+        return this.convertToDto(team);
     }
 
     // 팀 생성
@@ -238,5 +244,21 @@ public class TeamService {
     public List<MemberProfileResponseDto> getTeamMembers(Long teamId) throws MalformedURLException {
         List<Member> memberList = teamRepository.getTeamMembers(teamId);
         return memberService.getMemberProfilesByMemberList(memberList);
+    }
+
+    public TeamResponseDto convertToDto(Team team) {
+        String imageUrl = null;
+
+        if(team.getImageUrl() != null) {
+            imageUrl = awsFileService.getUrl(team.getImageUrl());
+        }
+
+        return TeamResponseDto.builder()
+                .id(team.getId())
+                .name(team.getName())
+                .creatorId(team.getCreatorId())
+                .imageUrl(imageUrl)
+                .createAt(team.getCreateAt())
+                .build();
     }
 }
