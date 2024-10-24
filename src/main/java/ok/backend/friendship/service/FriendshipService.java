@@ -14,12 +14,12 @@ import ok.backend.friendship.domain.repository.FriendshipRequestRepository;
 import ok.backend.friendship.dto.*;
 import ok.backend.member.domain.entity.Member;
 import ok.backend.member.service.MemberService;
+import ok.backend.storage.service.AwsFileService;
 import ok.backend.storage.service.StorageFileService;
 import org.springframework.stereotype.Service;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,6 +39,8 @@ public class FriendshipService {
     private final FriendshipCustomRepositoryImpl friendshipCustomRepositoryImpl;
 
     private final SecurityUserDetailService securityUserDetailService;
+
+    private final AwsFileService awsFileService;
 
     public Member createFriendshipRequest(FriendshipRequestDto friendshipRequestDto) {
         Member member = memberService.findMemberById(securityUserDetailService.getLoggedInMember().getId());
@@ -109,17 +111,11 @@ public class FriendshipService {
             String profileImage = null;
 
             if(member.getBackground() != null){
-                byte[] background = storageFileService.getImage(member.getBackground());
-                if(background != null ){
-                    backgroundImage = Base64.getEncoder().encodeToString(background);
-                }
+                backgroundImage = awsFileService.getUrl(member.getBackground());
             }
 
             if(member.getImageUrl() != null){
-                byte[] profile = storageFileService.getImage(member.getImageUrl());
-                if(profile != null ){
-                    profileImage = Base64.getEncoder().encodeToString(profile);
-                }
+                profileImage = awsFileService.getUrl(member.getImageUrl());
             }
 
             FriendshipResponseDto dto = FriendshipResponseDto.builder()

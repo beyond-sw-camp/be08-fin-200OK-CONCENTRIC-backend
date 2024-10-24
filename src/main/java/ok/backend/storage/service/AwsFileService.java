@@ -25,6 +25,9 @@ public class AwsFileService {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
+    @Value("${cloud.region.static}")
+    private String region;
+
     public String uploadFile(MultipartFile file, String dirName) {
         File fileObj = convertFile(file);
         String originalName = file.getOriginalFilename();
@@ -74,5 +77,9 @@ public class AwsFileService {
         }
 
         return convertedFile;
+    }
+
+    public String getUrl(String fileName) {
+        return "https://" + bucket + ".s3." + region + ".amazonaws.com/" + fileName;
     }
 }
