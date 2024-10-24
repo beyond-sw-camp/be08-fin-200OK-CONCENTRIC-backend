@@ -1,5 +1,6 @@
 package ok.backend.team.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,14 +10,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @Data
+@AllArgsConstructor
 public class TeamRequestDto {
-    // private Long id;
-
-    // private Long chatroom_id;
 
     private String name;
-
-    // private Long creatorId;
-
-    // private LocalDateTime createAt;
+    
 }
