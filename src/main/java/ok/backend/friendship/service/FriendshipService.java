@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,10 +43,24 @@ public class FriendshipService {
 
     private final AwsFileService awsFileService;
 
-    public Member createFriendshipRequest(FriendshipRequestDto friendshipRequestDto) {
+    public Member createFriendshipRequest(String nickname) {
         Member member = memberService.findMemberById(securityUserDetailService.getLoggedInMember().getId());
 
-        Member toMember = memberService.findMemberById(friendshipRequestDto.getReceiverId());
+        Member toMember = memberService.findMemberByNickname(nickname);
+
+        Optional<Friendship> existingFriendship = friendshipRepository.findByMemberIdAndOtherId(member.getId(), toMember.getId());
+
+        existingFriendship.ifPresent((friendship) -> {
+            throw new CustomException(ErrorCode.DUPLICATE_SOCIAL);
+        });
+
+        Optional<FriendshipRequest> existingRequest = friendshipRequestRepository.findByMemberIdAndReceiverIdAndStatus(
+                member.getId(), toMember.getId(), FriendshipRequestStatus.WAITING
+        );
+
+        existingRequest.ifPresent((friendshipRequest) -> {
+            throw new CustomException(ErrorCode.DUPLICATE_SOCIAL);
+        });
 
         FriendshipRequest friendshipRequest = FriendshipRequest.builder()
                 .member(member)
@@ -59,11 +74,37 @@ public class FriendshipService {
     }
 
     public List<FriendshipRequestResponseDto> getFriendshipRequest() {
-        return friendshipCustomRepositoryImpl
-                .findFriendshipRequestsByReceiverId(securityUserDetailService.getLoggedInMember().getId())
-                .stream()
-                .map(FriendshipRequestResponseDto::new)
-                .collect(Collectors.toList());
+        List<FriendshipRequest> friendshipRequests = friendshipCustomRepositoryImpl
+                .findFriendshipRequestsByReceiverId(securityUserDetailService.getLoggedInMember().getId());
+
+        List<FriendshipRequestResponseDto> friendshipRequestResponseDtos = new ArrayList<>();
+
+        for(FriendshipRequest friendshipRequest : friendshipRequests){
+            String backgroundImage = null;
+            String profileImage = null;
+
+            if(friendshipRequest.getMember().getBackground() != null){
+                backgroundImage = awsFileService.getUrl(friendshipRequest.getMember().getBackground());
+            }
+
+            if(friendshipRequest.getMember().getImageUrl() != null){
+                profileImage = awsFileService.getUrl(friendshipRequest.getMember().getImageUrl());
+            }
+
+            FriendshipRequestResponseDto dto = FriendshipRequestResponseDto.builder()
+                    .id(friendshipRequest.getId())
+                    .memberId(friendshipRequest.getMember().getId())
+                    .nickname(friendshipRequest.getMember().getNickname())
+                    .createDate(friendshipRequest.getMember().getCreateDate())
+                    .backgroundImage(backgroundImage)
+                    .profileImage(profileImage)
+                    .content(friendshipRequest.getMember().getContent())
+                    .build();
+
+            friendshipRequestResponseDtos.add(dto);
+        }
+
+        return friendshipRequestResponseDtos;
     }
 
     public void updateFriendshipRequest(FriendshipRequestUpdateDto friendshipRequestUpdateDto) {
@@ -132,9 +173,8 @@ public class FriendshipService {
         return friendshipResponseDtos;
     }
 
-    public void deleteFriendship(FriendshipDeleteRequestDto friendshipDeleteRequestDto){
+    public void deleteFriendship(Long otherId){
         Long memberId = securityUserDetailService.getLoggedInMember().getId();
-        Long otherId = friendshipDeleteRequestDto.getOtherId();
 
         friendshipCustomRepositoryImpl.deleteFriendshipByMemberIdAndOtherId(memberId, otherId);
     }

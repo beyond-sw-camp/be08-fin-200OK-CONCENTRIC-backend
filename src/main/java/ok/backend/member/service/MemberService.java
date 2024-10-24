@@ -108,6 +108,11 @@ public class MemberService {
         return member;
     }
 
+    public Member findMemberByNickname(String nickname) {
+        return memberRepository.findByNicknameAndIsActiveTrue(nickname).orElseThrow(() ->
+                new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+    }
+
     public MemberResponseDto convertToDto(Member member) {
         String backgroundImage = null;
         String profileImage = null;

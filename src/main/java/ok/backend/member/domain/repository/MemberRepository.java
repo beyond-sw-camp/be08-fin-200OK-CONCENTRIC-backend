@@ -16,6 +16,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Optional<Member> findByNickname(String nickname);
 
+    Optional<Member> findByNicknameAndIsActiveTrue(String nickname);
+
     @Query("select m from Member m where m.id in :memberIdList and m.isActive = true")
     List<Member> findByIdAndIsActiveTrue(@Param("memberIdList") List<Long> memberIdList);
 }
