@@ -328,7 +328,7 @@ public class ChatServiceTest {
     }
 
     @Test
-    @DisplayName("채팅방 나가기 - 채팅방 없음")
+    @DisplayName("채팅방 삭제 - 채팅방 없음")
     void deleteChat_chatRoomNotFound() {
         // given
         Mockito.when(chatRoomRepository.findByTeamId(anyLong())).thenReturn(Optional.empty());
@@ -458,7 +458,7 @@ public class ChatServiceTest {
 
     @Test
     @DisplayName("채팅방 참여자 조회 - 실패 (접근 권한 없음)")
-    void findChatParticipant_noAccess() {
+    void findChatParticipant_notAccess() {
         // given
         Mockito.when(chatRoomListRepository.findByMemberIdAndChatRoomId(existedMember.getId(), 2L))
                 .thenReturn(Optional.empty());
@@ -496,7 +496,7 @@ public class ChatServiceTest {
 
     @Test
     @DisplayName("채팅방 목록 조회 - 실패 (참여중인 채팅방 없음)")
-    void findChatRooms_noChatRooms() {
+    void findChatRooms_chatRoomNotFound() {
         // given
         Mockito.when(chatRoomListRepository.findByMemberId(existedMember.getId()))
                 .thenReturn(Collections.emptyList());
