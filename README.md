@@ -44,6 +44,7 @@
   <img src="https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white">
   <img src="https://img.shields.io/badge/jenkins-D24939.svg?style=for-the-badge&logo=jenkins&logoColor=white"> 
   <img src="https://img.shields.io/badge/kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white">
+  <img src="https://img.shields.io/badge/argo-EF7B4D?style=for-the-badge&logo=argo&logoColor=white">
   
 </p>
 
@@ -126,10 +127,20 @@
 
 <details>
   <summary>📑 단위 테스트 결과서</summary>
+    <ul>
+      <li>
+        <a href="https://docs.google.com/spreadsheets/d/1I9NTIEf78iupBykQbElSe1u6AqR_ePbRZP8Z9JJtxlo/edit?gid=1044602541#gid=1044602541">단위 테스트 명세서</a>
+      </li>
+    </ul> 
 </details>
 
 <details>
   <summary>📑 UI/UX 단위 테스트 결과서</summary>
+    <ul>
+      <li>
+        <a href="https://docs.google.com/spreadsheets/d/1I9NTIEf78iupBykQbElSe1u6AqR_ePbRZP8Z9JJtxlo/edit?gid=1081403099#gid=1081403099">UI/UX 테스트 명세서</a>
+      </li>
+    </ul> 
 </details>
 
 <details>
@@ -142,11 +153,16 @@
 </details>
 
 <details>
-  <summary>📑 통합 테스트 결과서</summary>
+  <summary>📑 CI/CD 계획서</summary>
+    <ul>
+      <li>
+        <a href="https://github.com/beyond-sw-camp/be08-fin-200OK-CONCENTRIC-backend/blob/d76acbece62b3c095df76c79d2af518248b2473b/.github/cicd/README.md">CI/CD 계획서</a>
+      </li>
+    </ul> 
 </details>
 
 <details>
-  <summary>📑 CI/CD 계획서</summary>
+  <summary>📑 통합 테스트 결과서</summary>
 </details>
 
 <details>
