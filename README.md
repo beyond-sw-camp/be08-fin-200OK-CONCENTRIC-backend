@@ -126,10 +126,20 @@
 
 <details>
   <summary>📑 단위 테스트 결과서</summary>
+    <ul>
+      <li>
+        <a href="https://docs.google.com/spreadsheets/d/1I9NTIEf78iupBykQbElSe1u6AqR_ePbRZP8Z9JJtxlo/edit?gid=1044602541#gid=1044602541">단위 테스트 명세서</a>
+      </li>
+    </ul> 
 </details>
 
 <details>
   <summary>📑 UI/UX 단위 테스트 결과서</summary>
+        <ul>
+      <li>
+        <a href="https://docs.google.com/spreadsheets/d/1I9NTIEf78iupBykQbElSe1u6AqR_ePbRZP8Z9JJtxlo/edit?gid=1081403099#gid=1081403099">UI/UX 테스트 명세서</a>
+      </li>
+    </ul> 
 </details>
 
 <details>
