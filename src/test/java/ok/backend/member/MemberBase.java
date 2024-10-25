@@ -6,7 +6,8 @@ import ok.backend.member.domain.entity.Email;
 import ok.backend.member.domain.entity.Member;
 import ok.backend.member.domain.entity.RefreshToken;
 import ok.backend.member.domain.repository.MemberRepository;
-import ok.backend.member.dto.*;
+import ok.backend.member.dto.MemberRegisterRequestDto;
+import ok.backend.member.dto.MemberUpdateRequestDto;
 import ok.backend.member.service.MemberService;
 import ok.backend.member.service.RefreshTokenService;
 import ok.backend.storage.service.AwsFileService;
@@ -22,7 +23,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public abstract class MemberBase {
 
@@ -60,12 +60,16 @@ public abstract class MemberBase {
     protected MemberRegisterRequestDto memberRegisterRequestDto;
     protected MemberUpdateRequestDto memberUpdateRequestDto;
     protected MultipartFile multipartFile;
+    protected Member loggedInMember;
 
     @BeforeEach
     public void setUp(){
         MockitoAnnotations.openMocks(this);
 
         member = mock(Member.class);
+        existMember = mock(Member.class);
+//        loggedInMember = mock(Member.class);
+
         refreshToken = mock(RefreshToken.class);
         email = mock(Email.class);
         passwordEncoder = new BCryptPasswordEncoder();
@@ -75,33 +79,23 @@ public abstract class MemberBase {
         memberRegisterRequestDto = mock(MemberRegisterRequestDto.class);
         memberUpdateRequestDto = mock(MemberUpdateRequestDto.class);
 
-
-        when(member.getId()).thenReturn(1L);
-        when(member.getEmail()).thenReturn("test@test.com");
-        when(member.getName()).thenReturn("test");
-        when(member.getNickname()).thenReturn("nickname");
-        when(member.getPassword()).thenReturn(passwordEncoder.encode("password"));
-        when(member.getIsActive()).thenReturn(true);
-        when(member.getContent()).thenReturn("content");
-        when(member.getImageUrl()).thenReturn("imageUrl");
-        when(member.getBackground()).thenReturn("background");
-//        when(memberRepository.save(member)).thenReturn(member);
-
-//        when(existMember.getId()).thenReturn(2L);
-//        when(existMember.getEmail()).thenReturn("duplicate@test.com");
-//        when(existMember.getName()).thenReturn("test2");
-//        when(existMember.getNickname()).thenReturn("duplicate");
-//        when(existMember.getPassword()).thenReturn(passwordEncoder.encode("password2"));
-//        when(existMember.getIsActive()).thenReturn(true);
-//        when(existMember.getContent()).thenReturn("content2");
-//        when(existMember.getImageUrl()).thenReturn("imageUrl2");
-//        when(existMember.getBackground()).thenReturn("background2");
+        member = Member.builder()
+                .id(1L)
+                .email("test@test.com")
+                .name("test")
+                .nickname("nickname")
+                .password(passwordEncoder.encode("password"))
+                .isActive(true)
+                .content("content")
+                .imageUrl("imageUrl")
+                .background("background")
+                .build();
 
         existMember = Member.builder()
                 .id(2L)
                 .email("duplicate@test.com")
                 .name("test2")
-                .nickname("duplicate")
+                .nickname("nickname")
                 .password(passwordEncoder.encode("password2"))
                 .isActive(true)
                 .content("content2")
@@ -109,13 +103,11 @@ public abstract class MemberBase {
                 .background("background2")
                 .build();
 
-        when(memberRegisterRequestDto.getEmail()).thenReturn("test@test.com");
-        when(memberRegisterRequestDto.getPassword()).thenReturn("password");
-        when(memberRegisterRequestDto.getNickname()).thenReturn("nickname");
-        when(memberRegisterRequestDto.getName()).thenReturn("test");
+        memberRegisterRequestDto = new MemberRegisterRequestDto("test@test.com", "password", "test", "nickname");
 
-        when(memberUpdateRequestDto.getNickname()).thenReturn("duplicate");
-        when(memberUpdateRequestDto.getContent()).thenReturn("content");
+        memberUpdateRequestDto = new MemberUpdateRequestDto("nickname", "content");
+
+//        when(securityUserDetailService.getLoggedInMember()).thenReturn(loggedInMember);
     }
 
 }

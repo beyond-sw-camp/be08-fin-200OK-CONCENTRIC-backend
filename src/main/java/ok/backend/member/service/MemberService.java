@@ -178,6 +178,7 @@ public class MemberService {
         Member loggedInMember = securityUserDetailService.getLoggedInMember();
         Member member = this.findMemberById(loggedInMember.getId());
 
+
         if(!member.getNickname().equals(memberUpdateRequestDto.getNickname())){
             Optional<Member> foundMember = memberRepository.findByNickname(memberUpdateRequestDto.getNickname());
             foundMember.ifPresent(member1 -> {
