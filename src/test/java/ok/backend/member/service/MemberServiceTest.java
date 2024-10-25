@@ -71,6 +71,7 @@ public class MemberServiceTest {
     private RefreshToken refreshToken;
     private Email email;
     private Member existMember;
+    private Member deletedMember;
     private MemberRegisterRequestDto memberRegisterRequestDto;
     private MemberUpdateRequestDto memberUpdateRequestDto;
     private MemberLoginRequestDto memberLoginRequestDto;
@@ -81,6 +82,7 @@ public class MemberServiceTest {
 
         member = mock(Member.class);
         existMember = mock(Member.class);
+        deletedMember = mock(Member.class);
 
         refreshToken = mock(RefreshToken.class);
         email = mock(Email.class);
@@ -114,6 +116,11 @@ public class MemberServiceTest {
                 .content("content2")
                 .imageUrl("imageUrl2")
                 .background("background2")
+                .build();
+
+        deletedMember = Member.builder()
+                .id(3L)
+                .isActive(false)
                 .build();
 
         refreshToken = RefreshToken.builder()
@@ -364,4 +371,70 @@ public class MemberServiceTest {
         assertEquals(ErrorCode.INVALID_PASSWORD, exception.getErrorCode());
     }
 
+    @Test
+    @DisplayName("로그인 - 성공")
+    void login_success() {
+        // given
+        MemberLoginRequestDto requestDto = memberLoginRequestDto;
+
+        when(memberRepository.findByEmail(requestDto.getEmail())).thenReturn(Optional.of(member));
+
+        // when
+        Member found = memberRepository.findByEmail(requestDto.getEmail()).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        // then
+        assertEquals(requestDto.getEmail(), found.getEmail());
+        assertTrue(passwordEncoder.matches(requestDto.getPassword(), found.getPassword()));
+    }
+
+    @Test
+    @DisplayName("로그인- - 실패 (계정 없음)")
+    void login_fail_email_not_exist() {
+        // given
+        MemberLoginRequestDto requestDto = memberLoginRequestDto;
+
+        when(memberRepository.findByEmail(requestDto.getEmail())).thenReturn(Optional.empty());
+
+        // when
+        CustomException exception = assertThrows(CustomException.class, () -> {
+           memberService.findMemberByEmailAndPassword(memberLoginRequestDto);
+        });
+
+        // then
+        assertEquals(ErrorCode.MEMBER_NOT_FOUND, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("로그인 - 실패 (잘못된 비밀번호)")
+    void login_fail_password_invalid() {
+        // given
+        MemberLoginRequestDto requestDto = memberLoginRequestDto;
+
+        when(memberRepository.findByEmail(requestDto.getEmail())).thenReturn(Optional.of(existMember));
+
+        // when
+        CustomException exception = assertThrows(CustomException.class, () -> {
+           memberService.findMemberByEmailAndPassword(memberLoginRequestDto);
+        });
+
+        // then
+        assertEquals(ErrorCode.INVALID_PASSWORD, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("로그인 - 실패 (탈퇴한 계정)")
+    void login_fail_deactivated() {
+        // given
+        MemberLoginRequestDto requestDto = memberLoginRequestDto;
+
+        when(memberRepository.findByEmail(requestDto.getEmail())).thenReturn(Optional.of(deletedMember));
+
+        // when
+        CustomException exception = assertThrows(CustomException.class, () -> {
+           memberService.findMemberByEmailAndPassword(memberLoginRequestDto);
+        });
+
+        // then
+        assertEquals(ErrorCode.MEMBER_DELETED, exception.getErrorCode());
+    }
 }
