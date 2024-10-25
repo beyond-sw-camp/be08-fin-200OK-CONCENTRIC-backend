@@ -189,7 +189,7 @@ public class ChatService {
 
     // 채팅방 목록 조회
     public List<ChatRoomListResponseDto> findChatRooms() {
-        if (chatRoomListRepository.findByMemberId(securityUserDetailService.getLoggedInMember().getId()).isEmpty()) {
+        if (securityUserDetailService.getLoggedInMember().getId() == null) {
             throw new CustomException(UNAUTHORIZED);
         }
         List<ChatRoomList> chatRoomLists = chatRoomListRepository.findByMemberIdAndChatRoomIsActiveTrue(
