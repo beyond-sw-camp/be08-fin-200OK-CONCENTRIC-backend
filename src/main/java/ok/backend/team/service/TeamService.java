@@ -226,7 +226,7 @@ public class TeamService {
         }
 
         // 변경된 팀 정보 저장 후 반환
-        return new TeamResponseDto(teamRepository.save(team));
+        return this.convertToDto(teamRepository.save(team));
     }
 
 
