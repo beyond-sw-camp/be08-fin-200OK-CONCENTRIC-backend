@@ -119,10 +119,16 @@
       </li>
     </ul>
 </details>
+<details>
+  <summary>📑 git convention</summary>
+    <ul>
+      <li>
+        <a href="https://github.com/beyond-sw-camp/be08-fin-2team/blob/main/.github/pull_request_template.md">git convention</a>
+      </li>
+    </ul>
+</details>
     </blockquote>
 </details>
-
-
 <details>
     <summary>🔗 프로그램 사양서</summary>
     <blockquote>
@@ -141,14 +147,7 @@
   ![fin_architecture_1st](https://github.com/user-attachments/assets/fa939cdd-d118-4b72-a3c1-1d11a31f58c6)
   
 </details>
-<details>
-  <summary>📑 git convention</summary>
-    <ul>
-      <li>
-        <a href="https://github.com/beyond-sw-camp/be08-fin-2team/blob/main/.github/pull_request_template.md">git convention</a>
-      </li>
-    </ul>
-</details>
+
 <details>
   <summary>📑 api 명세서</summary>
     <ul>
@@ -187,6 +186,8 @@
     <ul>
       <li>
         <a href="https://docs.google.com/spreadsheets/d/1I9NTIEf78iupBykQbElSe1u6AqR_ePbRZP8Z9JJtxlo/edit?gid=1081403099#gid=1081403099">UI/UX 테스트 명세서</a>
+        <br>
+        <a href="https://github.com/beyond-sw-camp/be08-fin-200OK-CONCENTRIC-backend/tree/4999820ef6db9603938d1facc9a678cb39cdf232/.github/uiux">UI/UX 테스트 결과</a>
       </li>
     </ul> 
 </details>
