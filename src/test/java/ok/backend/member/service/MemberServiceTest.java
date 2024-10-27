@@ -92,6 +92,7 @@ public class MemberServiceTest {
 
         memberRegisterRequestDto = mock(MemberRegisterRequestDto.class);
         memberUpdateRequestDto = mock(MemberUpdateRequestDto.class);
+        memberLoginRequestDto = mock(MemberLoginRequestDto.class);
 
 
         member = Member.builder()
@@ -110,7 +111,7 @@ public class MemberServiceTest {
                 .id(2L)
                 .email("duplicate@test.com")
                 .name("test2")
-                .nickname("nickname")
+                .nickname("nickname2")
                 .password(passwordEncoder.encode("password2"))
                 .isActive(true)
                 .content("content2")
@@ -120,7 +121,9 @@ public class MemberServiceTest {
 
         deletedMember = Member.builder()
                 .id(3L)
+                .email("test@test.com")
                 .isActive(false)
+                .password(passwordEncoder.encode("password"))
                 .build();
 
         refreshToken = RefreshToken.builder()
@@ -132,7 +135,7 @@ public class MemberServiceTest {
 
         memberRegisterRequestDto = new MemberRegisterRequestDto("test@test.com", "password", "test", "nickname");
 
-        memberUpdateRequestDto = new MemberUpdateRequestDto("nickname", "content");
+        memberUpdateRequestDto = new MemberUpdateRequestDto("nickname2", "content");
 
         memberLoginRequestDto = new MemberLoginRequestDto("test@test.com", "password");
 
@@ -179,17 +182,12 @@ public class MemberServiceTest {
     void registerMember_fail_duplicate_nickname(){
         // given
         MemberRegisterRequestDto requestDto = memberRegisterRequestDto;
-        System.out.println(requestDto.getNickname());
-        System.out.println(existMember.getNickname());
         when(memberRepository.findByNickname(requestDto.getNickname())).thenReturn(Optional.of(existMember));
 
         // when
         CustomException exception = assertThrows(CustomException.class, () -> {
            memberService.checkNickNameExist(requestDto.getNickname());
         });
-        Member found = memberRepository.findByNickname(requestDto.getNickname()).get();
-        System.out.println(requestDto.getNickname());
-        System.out.println(found.getNickname());
 
         // then
         assertEquals(ErrorCode.DUPLICATE_NICKNAME, exception.getErrorCode());
@@ -232,27 +230,16 @@ public class MemberServiceTest {
     @MockMember
     void updateMember_fail_duplicate_nickname(){
         // given
-        SecurityUser securityUser = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Member loggedInMember = securityUser.getMember();
-
         MemberUpdateRequestDto requestDto = memberUpdateRequestDto;
-        System.out.println(securityUserDetailService.getLoggedInMember().getId());
-
-        when(memberRepository.findById(loggedInMember.getId())).thenReturn(Optional.of(member));
+        when(memberRepository.findById(1L)).thenReturn(Optional.of(member));
         when(memberRepository.findByNickname(requestDto.getNickname())).thenReturn(Optional.of(existMember));
 
         // when
-        Member found = memberRepository.findById(loggedInMember.getId()).orElseThrow(() ->
-                new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
         CustomException exception = assertThrows(CustomException.class, () -> {
            memberService.updateMember(requestDto, multipartFile, multipartFile);
         });
 
         // then
-        assertNotNull(loggedInMember);
-        assertNotNull(found);
-        assertEquals(loggedInMember.getId(), found.getId());
         assertEquals(ErrorCode.DUPLICATE_NICKNAME, exception.getErrorCode());
     }
 
@@ -287,7 +274,7 @@ public class MemberServiceTest {
     }
 
     @Test
-    @DisplayName("회원 탈퇴- 실패 (토큰 없음)")
+    @DisplayName("회원 탈퇴 - 실패 (토큰 없음)")
     @MockMember
     void deleteMember_fail_token_not_exist() {
         // given
@@ -431,10 +418,110 @@ public class MemberServiceTest {
 
         // when
         CustomException exception = assertThrows(CustomException.class, () -> {
-           memberService.findMemberByEmailAndPassword(memberLoginRequestDto);
+           memberService.findMemberByEmailAndPassword(requestDto);
         });
 
         // then
         assertEquals(ErrorCode.MEMBER_DELETED, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("로그아웃 - 성공")
+    @MockMember
+    void logout_success() {
+        // given
+        when(refreshTokenService.findByUsername(member.getEmail())).thenReturn(Optional.of(refreshToken));
+
+        // when
+        assertDoesNotThrow(() -> memberService.logout());
+
+    }
+
+    @Test
+    @DisplayName("로그아웃 - 실패")
+    @MockMember
+    void logout_fail() {
+        // given
+        when(refreshTokenService.findByUsername(member.getEmail())).thenReturn(Optional.empty());
+
+        // when
+        CustomException exception = assertThrows(CustomException.class, () -> {
+            memberService.logout();
+        });
+
+        // then
+        assertEquals(ErrorCode.REFRESH_TOKEN_NOT_EXIST, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("액세스 토큰 발급")
+    void issue_access_token() {
+        // given
+        when(jwtProvider.createAccessToken(member.getEmail())).thenReturn("access_token");
+        when(jwtProvider.createRefreshToken(member.getEmail())).thenReturn("refresh_token");
+
+        // when
+        String token = memberService.createToken(member);
+
+        // then
+        assertEquals(token, "access_token");
+    }
+
+    @Test
+    @DisplayName("리프레시 토큰 발급")
+    void issue_refresh_token() {
+        // given
+        when(jwtProvider.createAccessToken(member.getEmail())).thenReturn("access_token");
+        when(jwtProvider.createRefreshToken(member.getEmail())).thenReturn("refresh_token");
+
+        // when
+        String token = memberService.createToken(member);
+
+        // then
+        assertEquals(token, "access_token");
+        assertEquals(refreshToken.getAccessToken(), token);
+        assertEquals(refreshToken.getRefreshToken(), "refresh_token");
+        assertEquals(refreshToken.getUsername(), member.getEmail());
+    }
+
+    @Test
+    @DisplayName("액세스 토큰 만료시 재발급 - 성공")
+    @MockMember
+    void reissue_access_token_success() {
+        // given
+        String accessToken = "access_token";
+        String newAccessToken = "new_access_token";
+
+        when(jwtProvider.validateToken(accessToken)).thenReturn(false);
+        when(jwtProvider.validateToken(newAccessToken)).thenReturn(true);
+        when(jwtProvider.reIssueAccessToken(accessToken)).thenReturn(newAccessToken);
+
+        // when
+        String token = jwtProvider.reIssueAccessToken(accessToken);
+        refreshToken.updateAccessToken(token);
+
+        // then
+        assertFalse(jwtProvider.validateToken(accessToken));
+        assertTrue(jwtProvider.validateToken(newAccessToken));
+        assertEquals(refreshToken.getAccessToken(), newAccessToken);
+    }
+
+    @Test
+    @DisplayName("액세스 토큰 만료시 재발급 - 실패")
+    @MockMember
+    void reissue_access_token_fail() {
+        // given
+        String accessToken = "access_token";
+
+        when(jwtProvider.validateToken(accessToken)).thenReturn(false);
+        when(refreshTokenService.findByAccessToken(accessToken)).thenThrow(new CustomException(ErrorCode.REFRESH_TOKEN_NOT_EXIST));
+
+        // when
+        CustomException exception = assertThrows(CustomException.class, () ->
+                refreshTokenService.findByAccessToken(accessToken));
+
+        // then
+        assertFalse(jwtProvider.validateToken(accessToken));
+        assertEquals(ErrorCode.REFRESH_TOKEN_NOT_EXIST, exception.getErrorCode());
     }
 }
