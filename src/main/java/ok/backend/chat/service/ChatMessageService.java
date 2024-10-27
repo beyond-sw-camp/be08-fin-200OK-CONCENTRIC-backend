@@ -20,6 +20,7 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.annotation.TopicPartition;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -51,8 +52,11 @@ public class ChatMessageService {
                 chatRoomId, chatMessageRequestDto.getMemberId(), chatMessageRequestDto.getNickname(),
                 chatMessageRequestDto.getMessage(), null, null));
 
-        String topic = chatRoomId.toString();
-        kafkaTemplate.send(topic, chatMessage);
+        try {
+            kafkaTemplate.send("chat", chatRoomId.intValue() % 3, null, chatMessage);
+        } catch (Exception e) {
+            log.error("Failed to send message", e);
+        }
     }
 
     public void sendFileMessage(Long chatRoomId, Long memberId, String nickname, List<StorageResponseDto> storageFiles) {
@@ -66,17 +70,45 @@ public class ChatMessageService {
             ChatMessage chatMessage = chatMessageRepository.save(ChatMessage.createMessage(
                     chatRoomId, memberId, nickname, null, fileId, fileName));
 
-            String topic = chatRoomId.toString();
-            kafkaTemplate.send(topic, chatMessage);
+            try {
+                kafkaTemplate.send("chat", chatRoomId.intValue() % 3, null, chatMessage);
+//                log.info("Sent message to topic {} on partition {}", chatRoomId, chatRoomId.intValue() % 3);
+            } catch (Exception e) {
+                log.error("Failed to send message", e);
+            }
+        }
+    }
+
+    @KafkaListener(groupId = "chat-group", topicPartitions = @TopicPartition(topic = "chat", partitions = {"0"}))
+    public void consumeMessagePartition0(ChatMessage chatMessage) {
+        consumeMessage(chatMessage, 0);
+    }
+
+    @KafkaListener(groupId = "chat-group", topicPartitions = @TopicPartition(topic = "chat", partitions = {"1"}))
+    public void consumeMessagePartition1(ChatMessage chatMessage) {
+        consumeMessage(chatMessage, 1);
+    }
+
+    @KafkaListener(groupId = "chat-group", topicPartitions = @TopicPartition(topic = "chat", partitions = {"2"}))
+    public void consumeMessagePartition2(ChatMessage chatMessage) {
+        consumeMessage(chatMessage, 2);
+    }
+
+    private void consumeMessage(ChatMessage chatMessage, int partition) {
+        try {
+            simpMessagingTemplate.convertAndSend("/sub/chat/"+chatMessage.getChatRoomId().toString(), chatMessage);
+            log.info("Received message from partition {}: {}", partition, chatMessage);
+        } catch (Exception e) {
+            log.error("Failed to process message from partition {}: {}", partition, chatMessage, e);
         }
     }
 
     // consumer
-    @KafkaListener(topicPattern = ".*")
-    public void consumeMessage(ChatMessage chatMessage) {
-        simpMessagingTemplate.convertAndSend("/sub/chat/"+chatMessage.getChatRoomId().toString(), chatMessage);
-    }
-
+//    @KafkaListener(topicPattern = ".*")
+//    public void consumeMessage(ChatMessage chatMessage) {
+//        simpMessagingTemplate.convertAndSend("/sub/chat/"+chatMessage.getChatRoomId().toString(), chatMessage);
+//    }
+//
     public List<ChatMessageResponseDto> findAllChatMessage(Long chatRoomId) {
         if (chatRoomListRepository.findByMemberId(securityUserDetailService.getLoggedInMember().getId()).isEmpty()) {
             throw new CustomException(NOT_ACCESS_CHAT);
