@@ -189,8 +189,8 @@ public class ChatService {
 
     // 채팅방 목록 조회
     public List<ChatRoomListResponseDto> findChatRooms() {
-        if (chatRoomListRepository.findByMemberId(securityUserDetailService.getLoggedInMember().getId()).isEmpty()) {
-            throw new CustomException(NOT_ACCESS_CHAT);
+        if (securityUserDetailService.getLoggedInMember().getId() == null) {
+            throw new CustomException(UNAUTHORIZED);
         }
         List<ChatRoomList> chatRoomLists = chatRoomListRepository.findByMemberIdAndChatRoomIsActiveTrue(
                 securityUserDetailService.getLoggedInMember().getId());

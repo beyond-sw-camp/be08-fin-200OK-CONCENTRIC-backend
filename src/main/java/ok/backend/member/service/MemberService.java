@@ -98,11 +98,12 @@ public class MemberService {
         Member member = memberRepository.findByEmail(memberLoginRequestDto.getEmail()).orElseThrow(() ->
                 new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        if(!passwordEncoder.matches(memberLoginRequestDto.getPassword(), member.getPassword())) {
-            throw new CustomException(ErrorCode.INVALID_PASSWORD);
-        }
         if(!member.getIsActive()) {
             throw new CustomException(ErrorCode.MEMBER_DELETED);
+        }
+
+        if(!passwordEncoder.matches(memberLoginRequestDto.getPassword(), member.getPassword())) {
+            throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
 
         return member;
@@ -177,6 +178,7 @@ public class MemberService {
     public MemberResponseDto updateMember(MemberUpdateRequestDto memberUpdateRequestDto, MultipartFile profile, MultipartFile background) throws IOException {
         Member loggedInMember = securityUserDetailService.getLoggedInMember();
         Member member = this.findMemberById(loggedInMember.getId());
+
 
         if(!member.getNickname().equals(memberUpdateRequestDto.getNickname())){
             Optional<Member> foundMember = memberRepository.findByNickname(memberUpdateRequestDto.getNickname());

@@ -61,37 +61,37 @@
 <br><br>
 
 <h2 align="left">🎬 프로젝트 소개</h2>
-<b>:zap: 한화시스템 BEYOND SW캠프 8기 final 프로젝트 :zap:</b></br></div>
-일정 관리 시스템
+
+### :zap: 한화시스템 BEYOND SW캠프 8기 final 프로젝트: CONCENTRIC :zap:
+
+#### 개요
+- COVID-19 팬데믹 이후 재택근무 및 하이브리드 근무 보편화로 인한 협업 툴 수요가 증대됨
+- 기업규모별 협업 툴 사용 현황에 따르면, 대기업에서 활용률이 가장 높으며, 중소기업 및 스타트업 기업에서도 다양하게 활용되는 것으로 확인됨
+- 시공간에 구애받지 않는 협업, 업무 최적화 툴에 대한 높은 수요 전망
+
+#### 목표
+- 웹 기반 사내 프로젝트 및 개인 단체 프로젝트 관리 프로그램 개발을 통한 일정 관리의 효율성을 제고하고자 함
+- 개인 혹은 팀 단위 프로젝트와 업무 절차의 혼선 방지 및 관리 지원
+- WBS, 캘린더, 리스트 형식의 관리 방법 제공을 통한 가독성 증대
+- 실시간 업무 공유로 업무 최적화
+
 <br><br>
 
 <h2 align="left">📁 프로젝트 문서 </h2>
-<details>
-  <summary>📑 프로젝트 기획서</summary>
-    <ul>
-      <li>
-        <a href="https://docs.google.com/document/d/1QYzzU392lXxGFpqOtsZZRXI3J4UEJtxRVHURwr0FV6c/edit">프로젝트 기획서</a>
-      </li>
-    </ul>
-</details>
+
 
 <details>
-  <summary>📑 요구사항 정의서</summary>
-    <ul>
-      <li>
-        <a href="https://docs.google.com/spreadsheets/d/1I9NTIEf78iupBykQbElSe1u6AqR_ePbRZP8Z9JJtxlo/edit?gid=629016324#gid=629016324">요구사항 정의서</a>
-      </li>
-    </ul>
-</details>
-
-<details>
-  <summary>📑 시스템 아키텍처</summary>
-  
-  ![fin_architecture_1st](https://github.com/user-attachments/assets/fa939cdd-d118-4b72-a3c1-1d11a31f58c6)
-  
-</details>
-
-<details>
+    <summary>🔗 프로젝트 기획</summary>
+    <blockquote>
+        <details>
+          <summary>📑 프로젝트 기획서</summary>
+            <ul>
+              <li>
+                <a href="https://docs.google.com/document/d/1QYzzU392lXxGFpqOtsZZRXI3J4UEJtxRVHURwr0FV6c/edit">프로젝트 기획서</a>
+              </li>
+            </ul>
+        </details>
+      <details>
   <summary>📑 WBS</summary>
     <ul>
       <li>
@@ -99,7 +99,7 @@
       </li>
     </ul>
 </details>
-
+      
 <details>
   <summary>📑 ERD</summary>
 
@@ -119,19 +119,6 @@
       </li>
     </ul>
 </details>
-
-<details>
-  <summary>📑 프로그램 사양서</summary>
-</details>
-
-<details>
-  <summary>📑 단위 테스트 결과서</summary>
-</details>
-
-<details>
-  <summary>📑 UI/UX 단위 테스트 결과서</summary>
-</details>
-
 <details>
   <summary>📑 git convention</summary>
     <ul>
@@ -140,18 +127,99 @@
       </li>
     </ul>
 </details>
-
+    </blockquote>
+</details>
 <details>
-  <summary>📑 통합 테스트 결과서</summary>
+    <summary>🔗 프로그램 사양서</summary>
+    <blockquote>
+<details>
+  <summary>📑 요구사항 정의서</summary>
+    <ul>
+      <li>
+        <a href="https://docs.google.com/spreadsheets/d/1I9NTIEf78iupBykQbElSe1u6AqR_ePbRZP8Z9JJtxlo/edit?gid=629016324#gid=629016324">요구사항 정의서</a>
+      </li>
+    </ul>
 </details>
 
+<details>
+  <summary>📑 시스템 아키텍처</summary>
+  
+  ![fin_architecture_1st](https://github.com/user-attachments/assets/fa939cdd-d118-4b72-a3c1-1d11a31f58c6)
+  
+</details>
+
+<details>
+  <summary>📑 api 명세서</summary>
+    <ul>
+      <li>
+        <a href="https://docs.google.com/spreadsheets/d/1I9NTIEf78iupBykQbElSe1u6AqR_ePbRZP8Z9JJtxlo/edit?gid=1291004409#gid=1291004409">api 명세서</a>
+      </li>
+    </ul>
+</details>
+<details>
+  <summary>📑 배포 및 운영 전략</summary>
+    <ul>
+      <li>
+        <a href="https://github.com/beyond-sw-camp/be08-fin-200OK-CONCENTRIC-backend/blob/d76acbece62b3c095df76c79d2af518248b2473b/.github/cicd/README.md">CI/CD 계획서</a>
+      </li>
+    </ul> 
+</details>
+    </blockquote>
+</details>
+
+<details>
+    <summary>🔗 백엔드, 프론트엔드 테스트</summary>
+    <blockquote>
+<details>
+  <summary>📑 단위 테스트 결과서</summary>
+    <ul>
+      <li>
+        <a href="https://docs.google.com/spreadsheets/d/1I9NTIEf78iupBykQbElSe1u6AqR_ePbRZP8Z9JJtxlo/edit?gid=1044602541#gid=1044602541">단위 테스트 명세서</a>
+        <br>
+        <a href="https://github.com/beyond-sw-camp/be08-fin-200OK-CONCENTRIC-backend/tree/9ef406611094e436dff8057bc538b624a3ccfd60/src/test/java">단위 테스트 코드</a>
+      </li>
+    </ul> 
+</details>
+
+<details>
+  <summary>📑 UI/UX 단위 테스트 결과서</summary>
+    <ul>
+      <li>
+        <a href="https://docs.google.com/spreadsheets/d/1I9NTIEf78iupBykQbElSe1u6AqR_ePbRZP8Z9JJtxlo/edit?gid=1081403099#gid=1081403099">UI/UX 테스트 명세서</a>
+        <br>
+        <a href="https://github.com/beyond-sw-camp/be08-fin-200OK-CONCENTRIC-backend/tree/4999820ef6db9603938d1facc9a678cb39cdf232/.github/uiux">UI/UX 테스트 결과</a>
+      </li>
+    </ul> 
+</details>
+    </blockquote>
+</details>
+
+
+<details>
+    <summary>🔗 시스템 통합</summary>
+    <blockquote>
 <details>
   <summary>📑 CI/CD 계획서</summary>
+    <ul>
+      <li>
+        <a href="https://github.com/beyond-sw-camp/be08-fin-200OK-CONCENTRIC-backend/blob/d76acbece62b3c095df76c79d2af518248b2473b/.github/cicd/README.md">CI/CD 계획서</a>
+      </li>
+    </ul> 
+</details>
+  <summary>📑 통합 테스트 결과서</summary>
+</details>
+    </blockquote>
 </details>
 
+<details>
+    <summary>🔗 발표 자료</summary>
+    <blockquote>
 <details>
   <summary>📑 발표 자료</summary>
 </details>
+    </blockquote>
+</details>
+
 
 <br><br>
 
@@ -165,3 +233,5 @@
 |조혜인|<br><br>&nbsp;|
 
 <br><br>
+
+
