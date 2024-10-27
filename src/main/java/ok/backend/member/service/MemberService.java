@@ -98,11 +98,12 @@ public class MemberService {
         Member member = memberRepository.findByEmail(memberLoginRequestDto.getEmail()).orElseThrow(() ->
                 new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        if(!passwordEncoder.matches(memberLoginRequestDto.getPassword(), member.getPassword())) {
-            throw new CustomException(ErrorCode.INVALID_PASSWORD);
-        }
         if(!member.getIsActive()) {
             throw new CustomException(ErrorCode.MEMBER_DELETED);
+        }
+
+        if(!passwordEncoder.matches(memberLoginRequestDto.getPassword(), member.getPassword())) {
+            throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
 
         return member;
