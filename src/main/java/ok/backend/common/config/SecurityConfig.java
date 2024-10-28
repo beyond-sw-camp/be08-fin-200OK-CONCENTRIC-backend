@@ -55,10 +55,12 @@ public class SecurityConfig {
                 }))
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(requests -> requests
+                        .requestMatchers("swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
                         .requestMatchers("v1/api/member/login", "v1/api/member/register").permitAll()
                         .requestMatchers("v1/api/email/**").permitAll()
                         .requestMatchers("ws/**").permitAll()
                         .anyRequest().authenticated())
+
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable);
 
