@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import ok.backend.chat.domain.entity.ChatMessage;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -18,6 +19,10 @@ import java.util.Map;
 @Configuration
 public class KafkaProducerConfig {
     // Kafka Producer 생성에 사용(초기화)
+
+    @Value("${spring.kafka.bootstrap-servers}")
+    private String broker;
+
     @Bean
     public ProducerFactory<String, ChatMessage> producerFactory() {
         return new DefaultKafkaProducerFactory<>(kafkaProducerConfiguration());
@@ -27,7 +32,8 @@ public class KafkaProducerConfig {
     @Bean
     public Map<String, Object> kafkaProducerConfiguration() {
         return ImmutableMap.<String, Object>builder()
-                .put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaConstants.BROKER)
+//                .put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaConstants.BROKER)
+                .put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, broker)
                 .put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class)
                 .put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class)
                 .build();
