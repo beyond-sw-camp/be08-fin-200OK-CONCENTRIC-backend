@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/be08-fin-200OK-CONCENTRIC-backend.main.iml" filepath="$PROJECT_DIR$/.idea/modules/be08-fin-200OK-CONCENTRIC-backend.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/backend.main.iml" filepath="$PROJECT_DIR$/.idea/modules/backend.main.iml" />
     </modules>
   </component>
 </project>
