@@ -23,7 +23,7 @@ public class TeamSendingService {
     // 초대 URL 생성
     public String generateInviteUrl(Long teamId) {
         // 링크는 나중에 수정
-        return "http://localhost:8080/invite?" + teamId;
+        return "http://localhost:3000/team/invite/" + teamId;
     }
 
     // 초대 이메일 전송
