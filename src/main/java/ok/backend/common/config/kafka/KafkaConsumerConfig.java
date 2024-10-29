@@ -5,6 +5,7 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -18,6 +19,10 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 @Configuration
 public class KafkaConsumerConfig {
     // ConsumerFactory를 지정하여 Kafka 컨슈머의 설정을 제공
+
+    @Value("${spring.kafka.bootstrap-servers}")
+    private String broker;
+
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, ChatMessage> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, ChatMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
@@ -33,7 +38,8 @@ public class KafkaConsumerConfig {
         deserializer.setUseTypeMapperForKey(true); // 메시지 키에 타입 정보 추가
 
         ImmutableMap<String, Object> config = ImmutableMap.<String, Object>builder()
-                .put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaConstants.BROKER)
+//                .put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaConstants.BROKER)
+                .put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, broker)
                 .put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class)
                 .put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, deserializer)
                 .put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest") // 가장 최신 메세지부터 읽음
