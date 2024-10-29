@@ -96,7 +96,7 @@ public class TeamController {
     }
 
     // 팀 참여
-    @GetMapping("/invite")
+    @PostMapping("/invite")
     @Operation(summary = "팀 초대 수락 API")
     public ResponseEntity<String> joinTeam(@RequestParam Long teamId) {
         teamService.joinTeam(teamId);

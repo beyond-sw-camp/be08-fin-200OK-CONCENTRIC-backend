@@ -197,14 +197,90 @@ public class EmailService {
     }
 
     public void sendInviteEmail(String recipientEmail, String inviteUrl) throws MessagingException {
-
         MimeMessage message = javaMailSender.createMimeMessage();
         message.addRecipients(MimeMessage.RecipientType.TO, recipientEmail);
 
-        message.setSubject("그룹에 초대합니다.");
+        message.setSubject("당신을 그룹에 초대합니다.");
         message.setFrom(senderEmail);
-        message.setText("링크를 클릭하여 그룹에 참여하세요:  " + inviteUrl);
 
+        // HTML 콘텐츠 생성
+        String htmlContent = "<!DOCTYPE html>\n" +
+                "<html lang=\"ko\">\n" +
+                "<head>\n" +
+                "    <meta charset=\"UTF-8\">\n" +
+                "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
+                "    <title>CONCENTRIC</title>\n" +
+                "    <style>\n" +
+                "        body {\n" +
+                "            font-family: Arial, sans-serif;\n" +
+                "            margin: 0;\n" +
+                "            padding: 0;\n" +
+                "        }\n" +
+                "        .container {\n" +
+                "            max-width: 600px;\n" +
+                "            margin: 0 auto;\n" +
+                "            background: #ffffff;\n" +
+                "            border-radius: 8px;\n" +
+                "            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);\n" +
+                "        }\n" +
+                "        .header {\n" +
+                "            font-size: 30px;\n" +
+                "            color: white;\n" +
+                "            padding: 20px;\n" +
+                "            text-align: center;\n" +
+                "            border-radius: 8px 8px 0 0;\n" +
+                "            background: linear-gradient(to right, #8A9BF9, #86EDDA);\n" +
+                "        }\n" +
+                "        .content {\n" +
+                "            padding: 20px;\n" +
+                "            line-height: 1.6;\n" +
+                "        }\n" +
+                "        .invite-link {\n" +
+                "            font-size: 20px;\n" +
+                "            color: #000000;\n" +
+                "            text-align: center;\n" +
+                "            padding: 10px;\n" +
+                "            background-color: #F5F5F5;\n" +
+                "            border-radius: 5px;\n" +
+                "            margin: 20px 0;\n" +
+                "            display: inline-block;\n" +
+                "            text-decoration: none;\n" +
+                "            border: 1px solid #8A9BF9;\n" +
+                "        }\n" +
+                "        .footer {\n" +
+                "            text-align: center;\n" +
+                "            padding: 10px;\n" +
+                "            font-size: 12px;\n" +
+                "            color: #888;\n" +
+                "            border-top: 1px solid #e0e0e0;\n" +
+                "        }\n" +
+                "    </style>\n" +
+                "</head>\n" +
+                "<body>\n" +
+                "<div class=\"container\">\n" +
+                "    <div class=\"header\">\n" +
+                "        CONCENTRIC\n" +
+                "    </div>\n" +
+                "    <div class=\"content\">\n" +
+                "        <p>안녕하세요!</p>\n" +
+                "        <p>당신은 새로운 그룹에 초대되었습니다.</p>\n" +
+                "        <p>아래 링크를 클릭하여 그룹에 참여하세요:</p>\n" +
+                "        <a href=\"" + inviteUrl + "\" class=\"invite-link\">그룹 참여하기</a>\n" +
+                "        <p>이 요청을 하지 않으셨다면 이 이메일을 무시하시기 바랍니다.</p>\n" +
+                "    </div>\n" +
+                "    <div class=\"footer\">\n" +
+                "        <p>저희와 함께해 주셔서 감사합니다!</p>\n" +
+                "        <p>회사 이름 | <a href=\"#\">개인정보 처리방침</a></p>\n" +
+                "    </div>\n" +
+                "</div>\n" +
+                "</body>\n" +
+                "</html>\n";
+
+        // HTML 메시지로 설정
+        message.setContent(htmlContent, "text/html; charset=UTF-8");
+
+        // 메일 전송
         javaMailSender.send(message);
     }
+
 }
