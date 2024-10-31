@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import ok.backend.schedule.domain.enums.Status;
+import ok.backend.schedule.dto.req.SubScheduleRequestDto;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
@@ -39,11 +40,13 @@ public class SubSchedule {
     @Column(nullable = false)
     private Status status;
 
-    // 시작일
-    @Column(name = "start_date", nullable = false)
-    private LocalDateTime startDate;
+    public void updateSubSchedule(SubScheduleRequestDto subScheduleRequestDto) {
+        this.title = subScheduleRequestDto.getTitle();
+        this.description = subScheduleRequestDto.getDescription();
+        this.status = subScheduleRequestDto.getStatus();
+    }
 
-    // 종료일
-    @Column(name = "end_date", nullable = false)
-    private LocalDateTime endDate;
+    public void updateSubScheduleStatus(Status status) {
+        this.status = status;
+    }
 }

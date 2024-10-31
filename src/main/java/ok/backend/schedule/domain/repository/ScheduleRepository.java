@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
-    @EntityGraph(attributePaths = {"routine", "teamSchedule"})
     List<Schedule> findByMemberId(Long memberId);
+
+    List<Schedule> findByTeamId(Long teamId);
 }

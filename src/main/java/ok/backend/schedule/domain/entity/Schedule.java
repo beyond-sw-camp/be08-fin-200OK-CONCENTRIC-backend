@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import ok.backend.member.domain.entity.Member;
 import ok.backend.schedule.domain.enums.Status;
+import ok.backend.schedule.domain.enums.Type;
+import ok.backend.schedule.dto.req.ScheduleRequestDto;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
@@ -36,7 +38,7 @@ public class Schedule {
     @Column
     private String description;
 
-    // 상태 ( ACTIVE(진행 중), INACTIVE(중지), COMPLETED(완료) )
+    // 상태 ( ACTIVE(진행 중), COMPLETED(완료) )
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status;
@@ -56,7 +58,7 @@ public class Schedule {
 
     // 수정일
     @UpdateTimestamp
-    @Column(name = "update_at", nullable = false)
+    @Column(name = "update_at")
     private LocalDateTime updateAt;
 
     // 중요도 (0~5)
@@ -64,20 +66,12 @@ public class Schedule {
     private Integer importance;
 
     // 반복 일정 (1:1)
-    @OneToOne(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Routine routine;
+//    @OneToOne(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private Routine routine;
 
     // 팀 일정 (1:1)
-    @OneToOne(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
-    private TeamSchedule teamSchedule;
-
-    // 시작 알림 수신 여부
-    @Column(name = "start_notification", nullable = false)
-    private Boolean startNotification;
-
-    // 종료 알림 수신 여부
-    @Column(name = "end_notification", nullable = false)
-    private Boolean endNotification;
+//    @OneToOne(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private TeamSchedule teamSchedule;
 
     // 하위 일정 (1:many)
     @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -87,14 +81,35 @@ public class Schedule {
     @Column(name = "progress")
     private Integer progress;
 
-    public void updateFields(Schedule updatedSchedule) {
-        this.title = updatedSchedule.getTitle();
-        this.description = updatedSchedule.getDescription();
-        this.status = updatedSchedule.getStatus();
-        this.startDate = updatedSchedule.getStartDate();
-        this.endDate = updatedSchedule.getEndDate();
-        this.importance = updatedSchedule.getImportance();
-        this.startNotification = updatedSchedule.getStartNotification();
-        this.endNotification = updatedSchedule.getEndNotification();
+    // 구분(팀, 개인)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false)
+    private Type type;
+
+    // 팀ID
+    @Column(name = "team_id")
+    private Long teamId;
+
+    public void updateSchedule(ScheduleRequestDto scheduleRequestDto) {
+        this.title = scheduleRequestDto.getTitle();
+        this.description = scheduleRequestDto.getDescription();
+        this.status = scheduleRequestDto.getStatus();
+        this.startDate = scheduleRequestDto.getStartDate();
+        this.endDate = scheduleRequestDto.getEndDate();
+        this.importance = scheduleRequestDto.getImportance();
+        this.type = scheduleRequestDto.getType();
+        this.teamId = scheduleRequestDto.getTeamId();
+    }
+
+    public void updateScheduleUpdateAt() {
+        this.updateAt = LocalDateTime.now();
+    }
+
+    public void updateScheduleStatus(Status status) {
+        this.status = status;
+    }
+
+    public void updateScheduleProgress(Integer progress) {
+        this.progress = progress;
     }
 }

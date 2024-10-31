@@ -16,37 +16,37 @@ import java.util.List;
 @RequestMapping("v1/api/notification")
 public class NotificationController {
 
-    private final NotificationService notificationService;
-
-    @Operation(summary = "알림 조회 API", description = "회원이 받은 알림을 전부 조회한다.")
-    @GetMapping("/list")
-    public ResponseEntity<List<NotificationResponseDto>> getAllNotifications() {
-        List<NotificationResponseDto> notifications = notificationService.getAllNotifications();
-
-        return ResponseEntity.ok(notifications);
-    }
-
-    @Operation(summary = "읽지 않은 알림 조회 API", description = "회원이 받은 알림 중 읽지 않은 알림을 전부 조회한다.")
-    @GetMapping("/list/read")
-    public ResponseEntity<List<NotificationResponseDto>> getNotReadNotifications() {
-        List<NotificationResponseDto> notifications = notificationService.getNotReadNotifications();
-
-        return ResponseEntity.ok(notifications);
-    }
-
-    @Operation(summary = "알림 읽음 처리 API", description = "알림의 읽음 상태를 변경한다.")
-    @PutMapping("/read/{notificationId}")
-    public ResponseEntity<NotificationResponseDto> updateNotificationRead(@PathVariable Long notificationId) {
-        NotificationResponseDto notification = notificationService.updateNotificationReadById(notificationId);
-
-        return ResponseEntity.ok(notification);
-    }
-
-    @Operation(summary = "읽은 알림 삭제 API", description = "읽음 상태의 알림들을 모두 삭제한다.")
-    @DeleteMapping("/read/delete")
-    public ResponseEntity<String> deleteNotifications() {
-        notificationService.deleteNotifications();
-
-        return ResponseEntity.ok("delete success");
-    }
+//    private final NotificationService notificationService;
+//
+//    @Operation(summary = "알림 조회 API", description = "회원이 받은 알림을 전부 조회한다.")
+//    @GetMapping("/list")
+//    public ResponseEntity<List<NotificationResponseDto>> getAllNotifications() {
+//        List<NotificationResponseDto> notifications = notificationService.getAllNotifications();
+//
+//        return ResponseEntity.ok(notifications);
+//    }
+//
+//    @Operation(summary = "읽지 않은 알림 조회 API", description = "회원이 받은 알림 중 읽지 않은 알림을 전부 조회한다.")
+//    @GetMapping("/list/read")
+//    public ResponseEntity<List<NotificationResponseDto>> getNotReadNotifications() {
+//        List<NotificationResponseDto> notifications = notificationService.getNotReadNotifications();
+//
+//        return ResponseEntity.ok(notifications);
+//    }
+//
+//    @Operation(summary = "알림 읽음 처리 API", description = "알림의 읽음 상태를 변경한다.")
+//    @PutMapping("/read/{notificationId}")
+//    public ResponseEntity<NotificationResponseDto> updateNotificationRead(@PathVariable Long notificationId) {
+//        NotificationResponseDto notification = notificationService.updateNotificationReadById(notificationId);
+//
+//        return ResponseEntity.ok(notification);
+//    }
+//
+//    @Operation(summary = "읽은 알림 삭제 API", description = "읽음 상태의 알림들을 모두 삭제한다.")
+//    @DeleteMapping("/read/delete")
+//    public ResponseEntity<String> deleteNotifications() {
+//        notificationService.deleteNotifications();
+//
+//        return ResponseEntity.ok("delete success");
+//    }
 }

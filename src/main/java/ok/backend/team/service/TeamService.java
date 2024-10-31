@@ -183,9 +183,10 @@ public class TeamService {
         TeamList teamList = teamListRepository.findByMemberIdAndTeamId(currentMemberId, id)
                 .orElseThrow(() -> new CustomException(NOT_ACCESS_TEAM));
 
-        teamListRepository.delete(teamList);
         ChatRoom chatRoom = chatService.findByTeamId(teamList.getTeam().getId());
         chatService.dropChat(chatRoom.getId());
+
+        teamListRepository.delete(teamList);
     }
 
     // 팀원 강퇴
@@ -200,6 +201,9 @@ public class TeamService {
         }
         TeamList teamList = teamListRepository.findByMemberIdAndTeamId(memberIdToRemove, teamId)
                 .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
+
+        ChatRoom chatRoom = chatService.findByTeamId(teamList.getTeam().getId());
+        chatService.dropTeamChat(memberIdToRemove, chatRoom.getId());
 
         teamListRepository.delete(teamList);
 
@@ -235,7 +239,9 @@ public class TeamService {
                 new CustomException(ErrorCode.TEAM_NOT_FOUND));
     }
 
-
+    public List<TeamList> findByMemberId(Long memberId) {
+        return teamListRepository.findByMemberId(memberId);
+    }
 
     public List<TeamList> findByTeamId(Long teamId) {
         return teamListRepository.findByTeamId(teamId);
