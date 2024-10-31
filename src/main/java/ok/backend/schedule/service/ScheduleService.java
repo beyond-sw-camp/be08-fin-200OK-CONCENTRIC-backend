@@ -94,7 +94,7 @@ public class ScheduleService {
         schedule.updateScheduleUpdateAt();
 
         Schedule updatedSchedule = scheduleRepository.save(schedule);
-
+        calculateProgress(updatedSchedule.getId());
 //        notificationPendingService.updateScheduleToPending(schedule, updatedSchedule);
 
         return new ScheduleResponseDto(updatedSchedule);

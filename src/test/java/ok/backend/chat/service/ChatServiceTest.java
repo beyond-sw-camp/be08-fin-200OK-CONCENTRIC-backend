@@ -502,11 +502,9 @@ public class ChatServiceTest {
                 .thenReturn(Collections.emptyList());
 
         // when
-        CustomException exception = assertThrows(CustomException.class, () -> {
-            chatService.findChatRooms();
-        });
+        List<ChatRoomListResponseDto> chatRooms = chatService.findChatRooms();
 
         // then
-        assertEquals(NOT_ACCESS_CHAT, exception.getErrorCode());
+        assertEquals(0, chatRooms.size());
     }
 }
