@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import ok.backend.schedule.domain.entity.Schedule;
 import ok.backend.schedule.domain.enums.Status;
+import ok.backend.schedule.domain.enums.Type;
+
+import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
@@ -14,29 +17,29 @@ public class ScheduleResponseDto {
     private Long userId;
     private String title;
     private String description;
-    private Status status;
-    private String startDate;
-    private String endDate;
+    private String status;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
+    private LocalDateTime createAt;
+    private LocalDateTime updateAt;
     private Integer importance;
-    private String createAt;
-    private String updateAt;
-    private Boolean startNotification;
-    private Boolean endNotification;
     private Integer progress;
+    private String type;
+    private Long teamId;
 
     public ScheduleResponseDto(Schedule schedule) {
         this.id = schedule.getId();
         this.userId = schedule.getMember().getId();
         this.title = schedule.getTitle();
         this.description = schedule.getDescription();
-        this.status = schedule.getStatus();
-        this.startDate = schedule.getStartDate().toString();
-        this.endDate = schedule.getEndDate().toString();
+        this.status = schedule.getStatus().toString();
+        this.startDate = schedule.getStartDate();
+        this.endDate = schedule.getEndDate();
         this.importance = schedule.getImportance();
-        this.createAt = schedule.getCreateAt().toString();
-        this.updateAt = schedule.getUpdateAt().toString();
-        this.startNotification = schedule.getStartNotification();
-        this.endNotification = schedule.getEndNotification();
+        this.createAt = schedule.getCreateAt();
+        this.updateAt = schedule.getUpdateAt();
         this.progress = schedule.getProgress();
+        this.type = schedule.getType().toString();
+        this.teamId = schedule.getTeamId();
     }
 }

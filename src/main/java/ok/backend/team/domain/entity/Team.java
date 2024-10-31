@@ -2,9 +2,6 @@ package ok.backend.team.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import ok.backend.chat.domain.entity.ChatRoom;
-import ok.backend.member.dto.MemberUpdateRequestDto;
-import ok.backend.schedule.domain.entity.TeamSchedule;
 import ok.backend.team.dto.TeamUpdateRequestDto;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -23,10 +20,6 @@ public class Team {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @OneToOne
-//    @JoinColumn(name = "chat_room_id")
-//    private ChatRoom chatroom;
-
     @Column(nullable = false, length = 10)
     private String name;
 
@@ -42,10 +35,6 @@ public class Team {
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamList> teamList = new ArrayList<>();
-
-    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TeamSchedule> teamSchedules = new ArrayList<>();
-
 
     public void updateTeam(TeamUpdateRequestDto teamUpdateRequestDto) {
         this.name = teamUpdateRequestDto.getName();
