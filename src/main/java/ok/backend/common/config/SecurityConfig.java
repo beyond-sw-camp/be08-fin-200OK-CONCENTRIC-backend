@@ -51,7 +51,6 @@ public class SecurityConfig {
                         config.setAllowedHeaders(List.of("*"));
                         config.setExposedHeaders(List.of("*"));
 //                        config.setAllowedOriginPatterns(Collections.singletonList("*"));
-//                        config.setAllowedOriginPatterns(Arrays.asList("http://200concentric.com", "http://www.200concentric.com"));
 //                        config.setAllowedMethods(Collections.singletonList("*"));
 //                        config.setAllowCredentials(true);
 //                        config.setAllowedHeaders(Collections.singletonList("*"));
