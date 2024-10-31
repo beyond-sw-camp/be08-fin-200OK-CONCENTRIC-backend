@@ -1,203 +1,158 @@
 package ok.backend.schedule.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import ok.backend.common.exception.CustomException;
 import ok.backend.common.exception.ErrorCode;
 import ok.backend.common.security.util.SecurityUserDetailService;
+import ok.backend.member.domain.entity.Member;
 import ok.backend.notification.service.NotificationPendingService;
 import ok.backend.notification.service.NotificationService;
 import ok.backend.schedule.domain.entity.Schedule;
 import ok.backend.schedule.domain.enums.Status;
+import ok.backend.schedule.domain.enums.Type;
 import ok.backend.schedule.domain.repository.ScheduleRepository;
 import ok.backend.schedule.dto.req.ScheduleRequestDto;
 import ok.backend.schedule.dto.res.ScheduleResponseDto;
 import ok.backend.member.service.MemberService;
 import ok.backend.schedule.dto.res.SubScheduleResponseDto;
-import org.springframework.context.annotation.Lazy;
+import ok.backend.team.domain.entity.TeamList;
+import ok.backend.team.service.TeamService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
+@RequiredArgsConstructor
+@Transactional
 public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
     private final NotificationService notificationService;
     private final MemberService memberService;
-    private final RoutineService routineService;
     private final SubScheduleService subScheduleService;
     private final SecurityUserDetailService securityUserDetailService;
     private final NotificationPendingService notificationPendingService;
-
-    public ScheduleService(ScheduleRepository scheduleRepository,
-                           NotificationService notificationService,
-                           @Lazy SubScheduleService subScheduleService,
-                           RoutineService routineService,
-                           MemberService memberService,
-                           SecurityUserDetailService securityUserDetailService,
-                           NotificationPendingService notificationPendingService) {
-        this.scheduleRepository = scheduleRepository;
-        this.notificationService = notificationService;
-        this.subScheduleService = subScheduleService;
-        this.routineService = routineService;
-        this.memberService = memberService;
-        this.securityUserDetailService = securityUserDetailService;
-        this.notificationPendingService = notificationPendingService;
-    }
-
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-
-    // 스케줄 ID로 스케줄 엔티티 조회
-    @Transactional(readOnly = true)
-    public Schedule getScheduleEntityById(Long scheduleId) {
-        Long loggedInUserId = securityUserDetailService.getLoggedInMember().getId();
-        memberService.findMemberById(loggedInUserId); // 존재 및 활성화된 사용자 확인
-
-        // 스케줄 조회
-        Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
-
-        // 스케줄의 소유자가 로그인한 사용자인지 확인 (권한 확인)
-        if (!schedule.getMember().getId().equals(loggedInUserId)) {
-            throw new CustomException(ErrorCode.NOT_ACCESS_SCHEDULE);
-        }
-
-        return schedule;
-    }
-
-    // 특정 일정 조회
-    @Transactional(readOnly = true)
-    public ScheduleResponseDto getScheduleById(Long scheduleId) {
-        Long loggedInUserId = securityUserDetailService.getLoggedInMember().getId();
-        memberService.findMemberById(loggedInUserId); // 존재 및 활성화된 사용자 확인
-
-        Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
-
-        if (!schedule.getMember().getId().equals(loggedInUserId)) {
-            throw new CustomException(ErrorCode.NOT_ACCESS_SCHEDULE);
-        }
-
-        return new ScheduleResponseDto(schedule);
-    }
-
-    // 모든 일정 조회
-    public List<ScheduleResponseDto> getSchedulesForLoggedInUser() {
-        Long loggedInUserId = securityUserDetailService.getLoggedInMember().getId();
-        memberService.findMemberById(loggedInUserId); // 존재 및 활성화된 사용자 확인
-
-        List<Schedule> schedules = scheduleRepository.findByMemberId(loggedInUserId);
-        return schedules.stream().map(ScheduleResponseDto::new).collect(Collectors.toList());
-    }
+    private final TeamService teamService;
 
     // 일정 생성
-    @Transactional
     public ScheduleResponseDto createSchedule(ScheduleRequestDto scheduleRequestDto) {
-        Long loggedInUserId = securityUserDetailService.getLoggedInMember().getId();
-        memberService.findMemberById(loggedInUserId); // 존재 및 활성화된 사용자 확인
-
-        LocalDateTime startDate;
-        LocalDateTime endDate;
-        try {
-            startDate = LocalDateTime.parse(scheduleRequestDto.getStartDate(), FORMATTER);
-            endDate = LocalDateTime.parse(scheduleRequestDto.getEndDate(), FORMATTER);
-        } catch (Exception e) {
-            throw new CustomException(ErrorCode.INVALID_SCHEDULE_REQUEST);
-        }
+        Member member = memberService.findMemberById(securityUserDetailService.getLoggedInMember().getId());
 
         Schedule schedule = Schedule.builder()
-                .member(securityUserDetailService.getLoggedInMember())  // SecurityUserDetailService에서 회원 정보 가져오기
+                .member(member)  // SecurityUserDetailService에서 회원 정보 가져오기
                 .title(scheduleRequestDto.getTitle())
                 .description(scheduleRequestDto.getDescription())
                 .status(scheduleRequestDto.getStatus())
-                .startDate(startDate)
-                .endDate(endDate)
+                .startDate(scheduleRequestDto.getStartDate())
+                .endDate(scheduleRequestDto.getEndDate())
                 .importance(scheduleRequestDto.getImportance())
-                .startNotification(scheduleRequestDto.getStartNotification())
-                .endNotification(scheduleRequestDto.getEndNotification())
+                .type(scheduleRequestDto.getType())
+                .teamId(scheduleRequestDto.getTeamId())
                 .build();
 
+        // 팀 일정일 경우 팀 가입 여부 확인
+        if (schedule.getType().equals(Type.TEAM)) {
+            List<TeamList> teamList = teamService.findByTeamId(schedule.getTeamId());
+            boolean memberExists = teamList.stream()
+                    .anyMatch(team -> team.getMember().equals(member));
+
+            if (!memberExists) {
+                throw new CustomException(ErrorCode.TEAM_NOT_FOUND);
+            }
+        }
         scheduleRepository.save(schedule);
 
-        notificationPendingService.saveScheduleToPending(schedule);
+//        notificationPendingService.saveScheduleToPending(schedule);
 
-        calculateProgress(schedule.getId());
         return new ScheduleResponseDto(schedule);
     }
 
     // 일정 수정
-    @Transactional
-    public ScheduleResponseDto updateSchedule(Long id, ScheduleRequestDto scheduleRequestDto) {
-        Long loggedInUserId = securityUserDetailService.getLoggedInMember().getId();
-        memberService.findMemberById(loggedInUserId); // 존재 및 활성화된 사용자 확인
+    public ScheduleResponseDto updateSchedule(ScheduleRequestDto scheduleRequestDto) {
+        Member member = memberService.findMemberById(securityUserDetailService.getLoggedInMember().getId());
 
-        Schedule existingSchedule = scheduleRepository.findById(id)
+        Schedule schedule = scheduleRepository.findById(member.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
 
-        if (!existingSchedule.getMember().getId().equals(loggedInUserId)) {
+        if (!schedule.getMember().getId().equals(member.getId())) {
             throw new CustomException(ErrorCode.NOT_ACCESS_SCHEDULE);
         }
 
-        // 해당 일정에 반복 일정이 있는지 확인
-        boolean hasRoutine = routineService.existsByScheduleId(existingSchedule.getId());
-        if (hasRoutine) {
-            // 반복 일정이 있으면 시작일과 종료일이 수정되지 않도록 방지
-            if (!existingSchedule.getStartDate().equals(LocalDateTime.parse(scheduleRequestDto.getStartDate())) ||
-                    !existingSchedule.getEndDate().equals(LocalDateTime.parse(scheduleRequestDto.getEndDate()))) {
-                throw new CustomException(ErrorCode.INVALID_SCHEDULE_REQUEST);
-            }
+        schedule.updateSchedule(scheduleRequestDto);
+        schedule.updateScheduleUpdateAt();
+
+        Schedule updatedSchedule = scheduleRepository.save(schedule);
+
+//        notificationPendingService.updateScheduleToPending(schedule, updatedSchedule);
+
+        return new ScheduleResponseDto(updatedSchedule);
+    }
+
+    // 모든 일정 조회(전체 일정)
+    public List<ScheduleResponseDto> findAllSchedules() {
+        Member member = memberService.findMemberById(securityUserDetailService.getLoggedInMember().getId());
+
+        // 개인 일정 조회
+        List<Schedule> privateSchedules = scheduleRepository.findByMemberId(member.getId())
+                .stream()
+                .filter(schedule -> schedule.getType().equals(Type.PRIVATE))
+                .toList();
+        List<Schedule> allSchedules = new ArrayList<>(privateSchedules);
+
+        // 가입한 팀 일정 조회
+        List<TeamList> teamList = teamService.findByMemberId(member.getId());
+        for (TeamList team : teamList) {
+            List<Schedule> teamSchedules = scheduleRepository.findByTeamId(team.getId());
+            allSchedules.addAll(teamSchedules);
         }
 
-        LocalDateTime startDate;
-        LocalDateTime endDate;
-        try {
-            startDate = LocalDateTime.parse(scheduleRequestDto.getStartDate(), FORMATTER);
-            endDate = LocalDateTime.parse(scheduleRequestDto.getEndDate(), FORMATTER);
-        } catch (Exception e) {
-            throw new CustomException(ErrorCode.INVALID_SCHEDULE_REQUEST);
-        }
+        return allSchedules.stream().map(ScheduleResponseDto::new).collect(Collectors.toList());
+    }
 
-        Schedule updatedSchedule = existingSchedule.toBuilder()
-                .title(scheduleRequestDto.getTitle())
-                .description(scheduleRequestDto.getDescription())
-                .status(scheduleRequestDto.getStatus())
-                .startDate(startDate)
-                .endDate(endDate)
-                .importance(scheduleRequestDto.getImportance())
-                .startNotification(scheduleRequestDto.getStartNotification())
-                .endNotification(scheduleRequestDto.getEndNotification())
-                .build();
+    // 특정 팀 일정 조회
+    public List<ScheduleResponseDto> findAllTeamSchedules(Long teamId) {
+        List<Schedule> teamSchedules = scheduleRepository.findByTeamId(teamId);
+        return teamSchedules.stream().map(ScheduleResponseDto::new).collect(Collectors.toList());
+    }
 
-        notificationPendingService.updateScheduleToPending(existingSchedule, updatedSchedule);
-
-        existingSchedule.updateFields(updatedSchedule);
-        scheduleRepository.save(existingSchedule);
-
-        calculateProgress(updatedSchedule.getId());
-
-        return new ScheduleResponseDto(existingSchedule);
+    // 일정 상세 조회
+    public ScheduleResponseDto findScheduleById(Long scheduleId) {
+        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(()
+                -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
+        return new ScheduleResponseDto(schedule);
     }
 
     // 일정 삭제
-    @Transactional
-    public void deleteSchedule(Long id) {
-        Long loggedInUserId = securityUserDetailService.getLoggedInMember().getId();
-        memberService.findMemberById(loggedInUserId); // 존재 및 활성화된 사용자 확인
-
-        Schedule existingSchedule = scheduleRepository.findById(id)
+    public void deleteSchdule(Long scheduleId) {
+        Member member = memberService.findMemberById(securityUserDetailService.getLoggedInMember().getId());
+        Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
 
-        if (!existingSchedule.getMember().getId().equals(loggedInUserId)) {
+        if (!schedule.getMember().getId().equals(member.getId())) {
             throw new CustomException(ErrorCode.NOT_ACCESS_SCHEDULE);
         }
-
-        scheduleRepository.deleteById(id);
+        scheduleRepository.delete(schedule);
     }
 
-    @Transactional
+    // 상태 업데이트
+    public void updateScheduleStatus(Long scheduleId, Status status) {
+        Member member = memberService.findMemberById(securityUserDetailService.getLoggedInMember().getId());
+        Schedule schedule = scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
+
+        if (!schedule.getMember().getId().equals(member.getId())) {
+            throw new CustomException(ErrorCode.NOT_ACCESS_SCHEDULE);
+        }
+        schedule.updateScheduleStatus(status);
+        scheduleRepository.save(schedule);
+    }
+
+    // 진도율 계산
     public void calculateProgress(Long scheduleId) {
         Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));

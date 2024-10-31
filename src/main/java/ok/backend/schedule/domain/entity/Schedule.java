@@ -91,7 +91,7 @@ public class Schedule {
     private Long teamId;
 
 
-    public void updateFields(ScheduleRequestDto scheduleRequestDto) {
+    public void updateSchedule(ScheduleRequestDto scheduleRequestDto) {
         this.title = scheduleRequestDto.getTitle();
         this.description = scheduleRequestDto.getDescription();
         this.status = scheduleRequestDto.getStatus();
@@ -102,11 +102,15 @@ public class Schedule {
         this.teamId = scheduleRequestDto.getTeamId();
     }
 
-    public void updateStatus(Status status) {
+    public void updateScheduleUpdateAt() {
+        this.updateAt = LocalDateTime.now();
+    }
+
+    public void updateScheduleStatus(Status status) {
         this.status = status;
     }
 
-    public void updateProgress(Integer progress) {
+    public void updateScheduleProgress(Integer progress) {
         this.progress = progress;
     }
 }

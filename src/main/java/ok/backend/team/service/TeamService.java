@@ -235,7 +235,9 @@ public class TeamService {
                 new CustomException(ErrorCode.TEAM_NOT_FOUND));
     }
 
-
+    public List<TeamList> findByMemberId(Long memberId) {
+        return teamListRepository.findByMemberId(memberId);
+    }
 
     public List<TeamList> findByTeamId(Long teamId) {
         return teamListRepository.findByTeamId(teamId);
