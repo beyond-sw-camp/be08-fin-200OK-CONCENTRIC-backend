@@ -171,6 +171,19 @@ public class ChatService {
         }
     }
 
+    // 채팅방 나가기(팀 탈퇴 시: 리스트 삭제, 회원 탈퇴 시: 비활성화)
+    public void dropTeamChat(Long memberId, Long chatRoomId) {
+
+        ChatRoomList chatRoomList = chatRoomListRepository.findByMemberIdAndChatRoomId(memberId, chatRoomId)
+                .orElseThrow(() -> new CustomException(NOT_ACCESS_CHAT));
+
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(()
+                -> new CustomException(CHAT_NOT_FOUND));
+
+        Team team = teamService.findById(chatRoom.getTeamId());
+        chatRoomListRepository.delete(chatRoomList);
+    }
+
     // 채팅방 참여자 조회
     public List<ChatRoomMemberResponseDto> findChatParticipant(Long chatRoomId) {
         if (chatRoomListRepository.findByMemberIdAndChatRoomId(
