@@ -54,6 +54,9 @@ class TeamServiceTest {
     private ChatService chatService;
 
     @Mock
+    private AwsFileService awsFileService;
+
+    @Mock
     private StorageFileService storageFileService;
 
     @Mock
@@ -66,6 +69,7 @@ class TeamServiceTest {
     private Member member;
     private Member currentMember;
     private TeamList teamList;
+    private ChatRoom chatRoom;
 
     @BeforeEach
     void setUp() {
@@ -76,6 +80,7 @@ class TeamServiceTest {
         member = mock(Member.class);
         currentMember = mock(Member.class);
         teamList = mock(TeamList.class);
+        chatRoom = mock(ChatRoom.class);
 
         // 공통 모킹 설정
         when(team.getId()).thenReturn(1L);
@@ -91,6 +96,8 @@ class TeamServiceTest {
         when(teamListRepository.findByMemberIdAndTeamId(1L, 1L)).thenReturn(Optional.of(teamList));
         when(teamRepository.findAllByMemberId(1L)).thenReturn(Collections.singletonList(team));
         when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+        when(chatService.findByTeamId(teamList.getTeam().getId())).thenReturn(chatRoom);
+        when(awsFileService.getUrl(team.getImageUrl())).thenReturn("current/path/to/image");
     }
 
     // 팀 생성 테스트
