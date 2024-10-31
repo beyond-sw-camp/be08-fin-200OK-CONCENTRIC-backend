@@ -40,13 +40,13 @@ public class SubSchedule {
     @Column(nullable = false)
     private Status status;
 
-    public void updateFields(SubScheduleRequestDto subScheduleRequestDto) {
+    public void updateSubSchedule(SubScheduleRequestDto subScheduleRequestDto) {
         this.title = subScheduleRequestDto.getTitle();
         this.description = subScheduleRequestDto.getDescription();
         this.status = subScheduleRequestDto.getStatus();
     }
 
-    public void updateStatus(Status status) {
+    public void updateSubScheduleStatus(Status status) {
         this.status = status;
     }
 }

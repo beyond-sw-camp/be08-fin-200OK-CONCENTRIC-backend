@@ -28,100 +28,100 @@ public class NotificationPendingService {
 
     private final EmailService emailService;
 
-    public void saveScheduleToPending(Schedule schedule) {
-
-        if(schedule.getStartNotification()){
-            NotificationPending notificationPending = NotificationPending.builder()
-                    .schedule(schedule)
-                    .isSent(false)
-                    .sendDate(schedule.getStartDate().minusHours(1L))
-                    .notificationType(NotificationType.BEFORE_START_SCHEDULE)
-                    .build();
-
-            notificationPendingRepository.save(notificationPending);
-        }
-
-        if(schedule.getEndNotification()){
-            NotificationPending notificationPending = NotificationPending.builder()
-                    .schedule(schedule)
-                    .isSent(false)
-                    .sendDate(schedule.getEndDate().minusDays(1L))
-                    .notificationType(NotificationType.BEFORE_END_SCHEDULE)
-                    .build();
-
-            notificationPendingRepository.save(notificationPending);
-        }
-    }
-
-    public void updateScheduleToPending(Schedule existingSchedule, Schedule updatedSchedule) {
-
-        // check start notification
-        if(!existingSchedule.getStartNotification() && updatedSchedule.getStartNotification()){
-            NotificationPending notificationPending = NotificationPending.builder()
-                    .schedule(updatedSchedule)
-                    .isSent(false)
-                    .sendDate(updatedSchedule.getStartDate().minusHours(1L))
-                    .notificationType(NotificationType.BEFORE_START_SCHEDULE)
-                    .build();
-
-            notificationPendingRepository.save(notificationPending);
-
-        }else if(existingSchedule.getStartNotification() && !updatedSchedule.getStartNotification()){
-            Optional<NotificationPending> foundNotificationPending = notificationPendingRepository
-                    .findByScheduleIdAndNotificationTypeAndIsSentFalse(existingSchedule.getId(), NotificationType.BEFORE_START_SCHEDULE);
-
-            foundNotificationPending.ifPresent(notificationPendingRepository::delete);
-
-        }else if(!existingSchedule.getStartDate().isEqual(updatedSchedule.getStartDate()) && updatedSchedule.getStartNotification()){
-            Optional<NotificationPending> foundNotificationPending = notificationPendingRepository
-                    .findByScheduleIdAndNotificationTypeAndIsSentFalse(existingSchedule.getId(), NotificationType.BEFORE_START_SCHEDULE);
-
-            foundNotificationPending.ifPresent(notificationPendingRepository::delete);
-
-            NotificationPending notificationPending = NotificationPending.builder()
-                    .schedule(updatedSchedule)
-                    .isSent(false)
-                    .sendDate(updatedSchedule.getStartDate().minusHours(1L))
-                    .notificationType(NotificationType.BEFORE_START_SCHEDULE)
-                    .build();
-
-            notificationPendingRepository.save(notificationPending);
-        }
-
-        // check end notification
-        if(!existingSchedule.getEndNotification() && updatedSchedule.getEndNotification()){
-            NotificationPending notificationPending = NotificationPending.builder()
-                    .schedule(updatedSchedule)
-                    .isSent(false)
-                    .sendDate(updatedSchedule.getEndDate().minusDays(1L))
-                    .notificationType(NotificationType.BEFORE_END_SCHEDULE)
-                    .build();
-
-            notificationPendingRepository.save(notificationPending);
-
-        }else if(existingSchedule.getEndNotification() && !updatedSchedule.getEndNotification()){
-            Optional<NotificationPending> foundNotificationPending = notificationPendingRepository
-                    .findByScheduleIdAndNotificationTypeAndIsSentFalse(existingSchedule.getId(), NotificationType.BEFORE_END_SCHEDULE);
-
-            foundNotificationPending.ifPresent(notificationPendingRepository::delete);
-
-        }else if(!existingSchedule.getEndDate().isEqual(updatedSchedule.getEndDate()) && updatedSchedule.getEndNotification()){
-            Optional<NotificationPending> foundNotificationPending = notificationPendingRepository
-                    .findByScheduleIdAndNotificationTypeAndIsSentFalse(existingSchedule.getId(), NotificationType.BEFORE_END_SCHEDULE);
-
-            foundNotificationPending.ifPresent(notificationPendingRepository::delete);
-
-            NotificationPending notificationPending = NotificationPending.builder()
-                    .schedule(updatedSchedule)
-                    .isSent(false)
-                    .sendDate(updatedSchedule.getEndDate().minusDays(1L))
-                    .notificationType(NotificationType.BEFORE_END_SCHEDULE)
-                    .build();
-
-            notificationPendingRepository.save(notificationPending);
-        }
-
-    }
+//    public void saveScheduleToPending(Schedule schedule) {
+//
+//        if(schedule.getStartNotification()){
+//            NotificationPending notificationPending = NotificationPending.builder()
+//                    .schedule(schedule)
+//                    .isSent(false)
+//                    .sendDate(schedule.getStartDate().minusHours(1L))
+//                    .notificationType(NotificationType.BEFORE_START_SCHEDULE)
+//                    .build();
+//
+//            notificationPendingRepository.save(notificationPending);
+//        }
+//
+//        if(schedule.getEndNotification()){
+//            NotificationPending notificationPending = NotificationPending.builder()
+//                    .schedule(schedule)
+//                    .isSent(false)
+//                    .sendDate(schedule.getEndDate().minusDays(1L))
+//                    .notificationType(NotificationType.BEFORE_END_SCHEDULE)
+//                    .build();
+//
+//            notificationPendingRepository.save(notificationPending);
+//        }
+//    }
+//
+//    public void updateScheduleToPending(Schedule existingSchedule, Schedule updatedSchedule) {
+//
+//        // check start notification
+//        if(!existingSchedule.getStartNotification() && updatedSchedule.getStartNotification()){
+//            NotificationPending notificationPending = NotificationPending.builder()
+//                    .schedule(updatedSchedule)
+//                    .isSent(false)
+//                    .sendDate(updatedSchedule.getStartDate().minusHours(1L))
+//                    .notificationType(NotificationType.BEFORE_START_SCHEDULE)
+//                    .build();
+//
+//            notificationPendingRepository.save(notificationPending);
+//
+//        }else if(existingSchedule.getStartNotification() && !updatedSchedule.getStartNotification()){
+//            Optional<NotificationPending> foundNotificationPending = notificationPendingRepository
+//                    .findByScheduleIdAndNotificationTypeAndIsSentFalse(existingSchedule.getId(), NotificationType.BEFORE_START_SCHEDULE);
+//
+//            foundNotificationPending.ifPresent(notificationPendingRepository::delete);
+//
+//        }else if(!existingSchedule.getStartDate().isEqual(updatedSchedule.getStartDate()) && updatedSchedule.getStartNotification()){
+//            Optional<NotificationPending> foundNotificationPending = notificationPendingRepository
+//                    .findByScheduleIdAndNotificationTypeAndIsSentFalse(existingSchedule.getId(), NotificationType.BEFORE_START_SCHEDULE);
+//
+//            foundNotificationPending.ifPresent(notificationPendingRepository::delete);
+//
+//            NotificationPending notificationPending = NotificationPending.builder()
+//                    .schedule(updatedSchedule)
+//                    .isSent(false)
+//                    .sendDate(updatedSchedule.getStartDate().minusHours(1L))
+//                    .notificationType(NotificationType.BEFORE_START_SCHEDULE)
+//                    .build();
+//
+//            notificationPendingRepository.save(notificationPending);
+//        }
+//
+//        // check end notification
+//        if(!existingSchedule.getEndNotification() && updatedSchedule.getEndNotification()){
+//            NotificationPending notificationPending = NotificationPending.builder()
+//                    .schedule(updatedSchedule)
+//                    .isSent(false)
+//                    .sendDate(updatedSchedule.getEndDate().minusDays(1L))
+//                    .notificationType(NotificationType.BEFORE_END_SCHEDULE)
+//                    .build();
+//
+//            notificationPendingRepository.save(notificationPending);
+//
+//        }else if(existingSchedule.getEndNotification() && !updatedSchedule.getEndNotification()){
+//            Optional<NotificationPending> foundNotificationPending = notificationPendingRepository
+//                    .findByScheduleIdAndNotificationTypeAndIsSentFalse(existingSchedule.getId(), NotificationType.BEFORE_END_SCHEDULE);
+//
+//            foundNotificationPending.ifPresent(notificationPendingRepository::delete);
+//
+//        }else if(!existingSchedule.getEndDate().isEqual(updatedSchedule.getEndDate()) && updatedSchedule.getEndNotification()){
+//            Optional<NotificationPending> foundNotificationPending = notificationPendingRepository
+//                    .findByScheduleIdAndNotificationTypeAndIsSentFalse(existingSchedule.getId(), NotificationType.BEFORE_END_SCHEDULE);
+//
+//            foundNotificationPending.ifPresent(notificationPendingRepository::delete);
+//
+//            NotificationPending notificationPending = NotificationPending.builder()
+//                    .schedule(updatedSchedule)
+//                    .isSent(false)
+//                    .sendDate(updatedSchedule.getEndDate().minusDays(1L))
+//                    .notificationType(NotificationType.BEFORE_END_SCHEDULE)
+//                    .build();
+//
+//            notificationPendingRepository.save(notificationPending);
+//        }
+//
+//    }
 
     @Scheduled(cron = "0 0/1 * * * *")
     public void SendAndSaveNotification() throws MessagingException {

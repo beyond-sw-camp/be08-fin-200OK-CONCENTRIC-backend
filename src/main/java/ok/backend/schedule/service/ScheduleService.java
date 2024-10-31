@@ -9,9 +9,11 @@ import ok.backend.member.domain.entity.Member;
 import ok.backend.notification.service.NotificationPendingService;
 import ok.backend.notification.service.NotificationService;
 import ok.backend.schedule.domain.entity.Schedule;
+import ok.backend.schedule.domain.entity.SubSchedule;
 import ok.backend.schedule.domain.enums.Status;
 import ok.backend.schedule.domain.enums.Type;
 import ok.backend.schedule.domain.repository.ScheduleRepository;
+import ok.backend.schedule.domain.repository.SubScheduleRepository;
 import ok.backend.schedule.dto.req.ScheduleRequestDto;
 import ok.backend.schedule.dto.res.ScheduleResponseDto;
 import ok.backend.member.service.MemberService;
@@ -34,10 +36,10 @@ public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final NotificationService notificationService;
     private final MemberService memberService;
-    private final SubScheduleService subScheduleService;
     private final SecurityUserDetailService securityUserDetailService;
     private final NotificationPendingService notificationPendingService;
     private final TeamService teamService;
+    private final SubScheduleRepository subScheduleRepository;
 
     // 일정 생성
     public ScheduleResponseDto createSchedule(ScheduleRequestDto scheduleRequestDto) {
@@ -65,6 +67,11 @@ public class ScheduleService {
                 throw new CustomException(ErrorCode.TEAM_NOT_FOUND);
             }
         }
+
+        if (schedule.getStatus().equals(Status.COMPLETED)) {
+            schedule.updateScheduleProgress(100);
+        } else schedule.updateScheduleProgress(0);
+
         scheduleRepository.save(schedule);
 
 //        notificationPendingService.saveScheduleToPending(schedule);
@@ -73,10 +80,10 @@ public class ScheduleService {
     }
 
     // 일정 수정
-    public ScheduleResponseDto updateSchedule(ScheduleRequestDto scheduleRequestDto) {
+    public ScheduleResponseDto updateSchedule(Long scheduleId, ScheduleRequestDto scheduleRequestDto) {
         Member member = memberService.findMemberById(securityUserDetailService.getLoggedInMember().getId());
 
-        Schedule schedule = scheduleRepository.findById(member.getId())
+        Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
 
         if (!schedule.getMember().getId().equals(member.getId())) {
@@ -150,47 +157,36 @@ public class ScheduleService {
         }
         schedule.updateScheduleStatus(status);
         scheduleRepository.save(schedule);
+        calculateProgress(schedule.getId());
     }
 
-    // 진도율 계산
+    // 진행도 계산
     public void calculateProgress(Long scheduleId) {
         Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
+        List<SubSchedule> subSchedules = subScheduleRepository.findByScheduleId(scheduleId);
 
-        List<SubScheduleResponseDto> subSchedules = subScheduleService.getSubSchedulesByScheduleId(scheduleId);
-
-        // 일정이 INACTIVE 상태인 경우 상태를 변경하지 않고 그대로 유지
-        if (schedule.getStatus() == Status.INACTIVE) {
-            return;
-        }
-
-        if (subSchedules.isEmpty()) {
-            // 하위 일정이 없고 일정이 완료 상태라면 진행률 100%, 그렇지 않으면 0%
-            schedule = schedule.toBuilder()
-                    .progress(schedule.getStatus() == Status.COMPLETED ? 100 : 0)
-                    .status(schedule.getStatus() == Status.COMPLETED ? Status.COMPLETED : Status.ACTIVE)
-                    .build();
+        if (schedule.getStatus().equals(Status.COMPLETED)) {
+            schedule.updateScheduleProgress(100);
+            scheduleRepository.save(schedule);
+        } else if (subSchedules.isEmpty()) {
+            schedule.updateScheduleProgress(
+                    (schedule.getStatus().equals(Status.COMPLETED) ? 100 : 0)
+            );
+            scheduleRepository.save(schedule);
         } else {
-            // 완료된 하위 일정의 비율 계산
-            long completedCount = subSchedules.stream()
-                    .filter(subSchedule -> subSchedule.getStatus() == Status.COMPLETED)
+            int count = (int) subSchedules.stream()
+                    .filter(subSchedule -> subSchedule.getStatus().equals(Status.COMPLETED))
                     .count();
-            int progress = (int) ((double) completedCount / subSchedules.size() * 100);
+            System.out.println(count);
 
-            // 모든 하위 일정이 완료되었을 경우 상위 일정의 상태를 COMPLETED로 변경
-            Status newStatus = (completedCount == subSchedules.size()) ? Status.COMPLETED : Status.ACTIVE;
-
-            // 기존에 COMPLETED였으나 하위 일정이 추가되면 ACTIVE로 변경
-            if (schedule.getStatus() == Status.COMPLETED && newStatus == Status.ACTIVE) {
-                newStatus = Status.ACTIVE;
+            int progress = count * 100 / subSchedules.size();
+            schedule.updateScheduleProgress(progress);
+            System.out.println(progress);
+            if (progress == 100) {
+                schedule.updateScheduleStatus(Status.COMPLETED);
             }
-
-            schedule = schedule.toBuilder()
-                    .progress(progress)
-                    .status(newStatus)
-                    .build();
+            scheduleRepository.save(schedule);
         }
-
-        scheduleRepository.save(schedule);
     }
 }

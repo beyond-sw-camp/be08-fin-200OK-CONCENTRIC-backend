@@ -38,7 +38,7 @@ public class Schedule {
     @Column
     private String description;
 
-    // 상태 ( ACTIVE(진행 중), INACTIVE(중지), COMPLETED(완료) )
+    // 상태 ( ACTIVE(진행 중), COMPLETED(완료) )
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status;
@@ -58,7 +58,7 @@ public class Schedule {
 
     // 수정일
     @UpdateTimestamp
-    @Column(name = "update_at", nullable = false)
+    @Column(name = "update_at")
     private LocalDateTime updateAt;
 
     // 중요도 (0~5)
@@ -89,7 +89,6 @@ public class Schedule {
     // 팀ID
     @Column(name = "team_id")
     private Long teamId;
-
 
     public void updateSchedule(ScheduleRequestDto scheduleRequestDto) {
         this.title = scheduleRequestDto.getTitle();

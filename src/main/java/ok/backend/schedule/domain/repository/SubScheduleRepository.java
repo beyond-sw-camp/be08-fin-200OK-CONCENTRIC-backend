@@ -6,6 +6,4 @@ import java.util.List;
 
 public interface SubScheduleRepository extends JpaRepository<SubSchedule, Long> {
     List<SubSchedule> findByScheduleId(Long scheduleId);
-
-    List<SubSchedule> findByScheduleIdIn(List<Long> scheduleIds);
 }
