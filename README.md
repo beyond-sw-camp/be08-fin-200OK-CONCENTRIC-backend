@@ -206,8 +206,15 @@
       </li>
     </ul> 
 </details>
+      
+<details>
   <summary>📑 통합 테스트 결과서</summary>
-</details>
+    <ul>
+      <li>
+        <a href="https://docs.google.com/spreadsheets/d/1I9NTIEf78iupBykQbElSe1u6AqR_ePbRZP8Z9JJtxlo/edit?gid=1581448548#gid=1581448548">통합 테스트 결과서</a>
+      </li>
+    </ul> 
+</details>      
     </blockquote>
 </details>
 
