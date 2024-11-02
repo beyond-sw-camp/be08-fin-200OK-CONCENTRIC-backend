@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ok.backend.schedule.domain.enums.Status;
 import ok.backend.schedule.dto.req.ScheduleRequestDto;
+import ok.backend.schedule.dto.res.ScheduleListResponseDto;
 import ok.backend.schedule.dto.res.ScheduleResponseDto;
 import ok.backend.schedule.service.ScheduleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +57,7 @@ public class ScheduleController {
 
     @GetMapping("/list/{scheduleId}")
     @Operation(summary = "일정 상세 조회")
-    public ResponseEntity<ScheduleResponseDto> findScheduleById(@PathVariable Long scheduleId) {
+    public ResponseEntity<ScheduleListResponseDto> findScheduleById(@PathVariable Long scheduleId) {
         return ResponseEntity.ok(scheduleService.findScheduleById(scheduleId));
     }
 
