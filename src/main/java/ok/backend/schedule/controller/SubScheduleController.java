@@ -17,7 +17,7 @@ import java.util.List;
 @Tag(name = "SubSchedule", description = "하위 일정 관리")
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/v1/api/subSchedule")
+@RequestMapping("/v1/api/subtask")
 public class SubScheduleController {
 
     private final SubScheduleService subScheduleService;

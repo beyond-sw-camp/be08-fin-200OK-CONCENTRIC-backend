@@ -57,8 +57,8 @@ public class SubScheduleService {
                 .status(subScheduleRequestDto.getStatus())
                 .build();
 
-        scheduleService.calculateProgress(subSchedule.getSchedule().getId());
         subScheduleRepository.save(subSchedule);
+        scheduleService.calculateProgress(subSchedule.getSchedule().getId());
         return new SubScheduleResponseDto(subSchedule);
     }
 
@@ -108,8 +108,8 @@ public class SubScheduleService {
             throw new CustomException(ErrorCode.NOT_ACCESS_SCHEDULE);
         }
 
-        scheduleService.calculateProgress(subSchedule.getSchedule().getId());
         subScheduleRepository.delete(subSchedule);
+        scheduleService.calculateProgress(subSchedule.getSchedule().getId());
     }
 
     // 상위 일정에 따른 하위 일정 조회

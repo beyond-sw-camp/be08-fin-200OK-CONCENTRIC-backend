@@ -156,8 +156,8 @@ public class ScheduleService {
             throw new CustomException(ErrorCode.NOT_ACCESS_SCHEDULE);
         }
         schedule.updateScheduleStatus(status);
-        scheduleRepository.save(schedule);
         calculateProgress(schedule.getId());
+        scheduleRepository.save(schedule);
     }
 
     // 진행도 계산
@@ -166,15 +166,29 @@ public class ScheduleService {
                 .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
         List<SubSchedule> subSchedules = subScheduleRepository.findByScheduleId(scheduleId);
 
-        if (schedule.getStatus().equals(Status.COMPLETED)) {
-            schedule.updateScheduleProgress(100);
-            scheduleRepository.save(schedule);
-        } else if (subSchedules.isEmpty()) {
-            schedule.updateScheduleProgress(
-                    (schedule.getStatus().equals(Status.COMPLETED) ? 100 : 0)
-            );
-            scheduleRepository.save(schedule);
-        } else {
+//        if (schedule.getStatus().equals(Status.COMPLETED)) {
+//            schedule.updateScheduleProgress(100);
+//            scheduleRepository.save(schedule);
+//        } else if (subSchedules.isEmpty()) {
+//            schedule.updateScheduleProgress(
+//                    (schedule.getStatus().equals(Status.COMPLETED) ? 100 : 0)
+//            );
+//            scheduleRepository.save(schedule);
+//        } else {
+//            int count = (int) subSchedules.stream()
+//                    .filter(subSchedule -> subSchedule.getStatus().equals(Status.COMPLETED))
+//                    .count();
+//            System.out.println(count);
+//
+//            int progress = count * 100 / subSchedules.size();
+//            schedule.updateScheduleProgress(progress);
+//            System.out.println(progress);
+//            if (progress == 100) {
+//                schedule.updateScheduleStatus(Status.COMPLETED);
+//            }
+//            scheduleRepository.save(schedule);
+//        }
+        if (!subSchedules.isEmpty()) {
             int count = (int) subSchedules.stream()
                     .filter(subSchedule -> subSchedule.getStatus().equals(Status.COMPLETED))
                     .count();
@@ -183,9 +197,17 @@ public class ScheduleService {
             int progress = count * 100 / subSchedules.size();
             schedule.updateScheduleProgress(progress);
             System.out.println(progress);
+
             if (progress == 100) {
                 schedule.updateScheduleStatus(Status.COMPLETED);
+            } else {
+                schedule.updateScheduleStatus(Status.ACTIVE);
             }
+            scheduleRepository.save(schedule);
+        } else {
+            schedule.updateScheduleProgress(
+                    (schedule.getStatus().equals(Status.COMPLETED) ? 100 : 0)
+            );
             scheduleRepository.save(schedule);
         }
     }
