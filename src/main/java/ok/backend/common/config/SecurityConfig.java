@@ -46,7 +46,7 @@ public class SecurityConfig {
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                         CorsConfiguration config = new CorsConfiguration();
                         config.setAllowCredentials(true);
-                        config.setAllowedOrigins(List.of("http://200concentric.com"));
+                        config.setAllowedOrigins(List.of("https://200concentric.com"));
                         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
                         config.setAllowedHeaders(List.of("*"));
                         config.setExposedHeaders(List.of("*"));
