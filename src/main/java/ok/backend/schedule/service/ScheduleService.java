@@ -15,9 +15,11 @@ import ok.backend.schedule.domain.enums.Type;
 import ok.backend.schedule.domain.repository.ScheduleRepository;
 import ok.backend.schedule.domain.repository.SubScheduleRepository;
 import ok.backend.schedule.dto.req.ScheduleRequestDto;
+import ok.backend.schedule.dto.res.ScheduleListResponseDto;
 import ok.backend.schedule.dto.res.ScheduleResponseDto;
 import ok.backend.member.service.MemberService;
 import ok.backend.schedule.dto.res.SubScheduleResponseDto;
+import ok.backend.team.domain.entity.Team;
 import ok.backend.team.domain.entity.TeamList;
 import ok.backend.team.service.TeamService;
 import org.springframework.stereotype.Service;
@@ -128,10 +130,15 @@ public class ScheduleService {
     }
 
     // 일정 상세 조회
-    public ScheduleResponseDto findScheduleById(Long scheduleId) {
+    public ScheduleListResponseDto findScheduleById(Long scheduleId) {
         Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(()
                 -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
-        return new ScheduleResponseDto(schedule);
+        if (schedule.getType().equals(Type.TEAM)) {
+            Team team = teamService.findById(schedule.getTeamId());
+            return new ScheduleListResponseDto(schedule, team.getName());
+        } else {
+            return new ScheduleListResponseDto(schedule, null);
+        }
     }
 
     // 일정 삭제
