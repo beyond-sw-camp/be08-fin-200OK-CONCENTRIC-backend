@@ -160,7 +160,7 @@
   <summary>📑 배포 및 운영 전략</summary>
     <ul>
       <li>
-        <a href="https://github.com/beyond-sw-camp/be08-fin-200OK-CONCENTRIC-backend/blob/d76acbece62b3c095df76c79d2af518248b2473b/.github/cicd/README.md">CI/CD 계획서</a>
+        <a href="https://github.com/beyond-sw-camp/be08-fin-200OK-CONCENTRIC-backend/tree/7eedbed488cc6f6885d4998d4f2c3a62b5d7dbde/.github/cicd">CI/CD 계획서</a>
       </li>
     </ul> 
 </details>
@@ -187,7 +187,7 @@
       <li>
         <a href="https://docs.google.com/spreadsheets/d/1I9NTIEf78iupBykQbElSe1u6AqR_ePbRZP8Z9JJtxlo/edit?gid=1081403099#gid=1081403099">UI/UX 테스트 명세서</a>
         <br>
-        <a href="https://github.com/beyond-sw-camp/be08-fin-200OK-CONCENTRIC-backend/tree/4999820ef6db9603938d1facc9a678cb39cdf232/.github/uiux">UI/UX 테스트 결과</a>
+        <a href="https://github.com/beyond-sw-camp/be08-fin-200OK-CONCENTRIC-backend/tree/7eedbed488cc6f6885d4998d4f2c3a62b5d7dbde/.github/uiux">UI/UX 테스트 결과</a>
       </li>
     </ul> 
 </details>
@@ -202,7 +202,7 @@
   <summary>📑 CI/CD 계획서</summary>
     <ul>
       <li>
-        <a href="https://github.com/beyond-sw-camp/be08-fin-200OK-CONCENTRIC-backend/blob/d76acbece62b3c095df76c79d2af518248b2473b/.github/cicd/README.md">CI/CD 계획서</a>
+        <a href="https://github.com/beyond-sw-camp/be08-fin-200OK-CONCENTRIC-backend/tree/7eedbed488cc6f6885d4998d4f2c3a62b5d7dbde/.github/cicd">CI/CD 계획서</a>
       </li>
     </ul> 
 </details>
