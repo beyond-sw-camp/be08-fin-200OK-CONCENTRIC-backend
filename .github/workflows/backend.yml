@@ -96,6 +96,15 @@ jobs:
         run: |
           sed -i "s|image:.*|image: \{\{$ECR_REPOSITORY\}\}:$IMAGE_TAG|g" k8s/backend-deployment.yaml
           cat k8s/backend-deployment.yaml  # 변경 내용 확인
+          
+      - name: Set up SSH for git push
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
       - name: Commit & Push changes
         env:
           GIT_USER: "henhen7"
@@ -106,6 +115,7 @@ jobs:
           git add k8s/backend-deployment.yaml
           git commit -m "Update Image Version to $IMAGE_TAG"
           git push
+          
       - name: Check if deployment.yaml changed
         id: check_backend_deployment_change
         run: |
@@ -115,6 +125,7 @@ jobs:
           else
             echo "backend_deployment_changed=false" >> $GITHUB_ENV
           fi
+          
       - name: Trigger Argo CD Sync
         if: env.backend_deployment_changed == 'true'
         env:
