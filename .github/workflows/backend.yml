@@ -7,7 +7,7 @@ on:
     # paths:
     #   - 'backend/**'
     paths-ignore:
-      - 'k8s/backend/backend-deployment.yaml'
+      - 'k8s/backend-deployment.yaml'
 
 jobs:
   build-backend:
@@ -24,17 +24,16 @@ jobs:
           distribution: 'temurin'
 
       - name: Create application.yml directory
-        run: mkdir -p ./backend/src/main/resources
+        run: mkdir -p ./src/main/resources
 
       - name: Copy config file
         env:
           APPLICATION_YML_BASE64: ${{ secrets.APPLICATION_YML_BASE64 }}
         run: |
-          echo "$APPLICATION_YML_BASE64" | base64 -d > ./backend/src/main/resources/application.yml
+          echo "$APPLICATION_YML_BASE64" | base64 -d > ./src/main/resources/application.yml
 
       - name: Build Backend
         run: |
-          cd ./backend
           chmod +x gradlew
           ./gradlew build
           ls ./build
@@ -42,8 +41,8 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: backend-jar
-          path: ./backend/build/libs/*.jar
+          name: be08-fin-200OK-CONCENTRIC-backend-0.0.1-SNAPSHOT
+          path: ./build/libs/*.jar
 
   docker-build-push:
     runs-on: ubuntu-latest
@@ -57,7 +56,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: backend-jar
-          path: ./backend/build/libs
+          path: ./build/libs
 
       - name: Log in to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
@@ -67,8 +66,7 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
-          cd ./backend
-          IMAGE_TAG="1.${{ github.run_number }}-be"
+          IMAGE_TAG="1.${{ github.run_number }}"
           ECR_URI="${{ secrets.ECR_REPOSITORY }}:${IMAGE_TAG}"
           docker build -t $ECR_URI .
           docker push $ECR_URI
@@ -85,11 +83,11 @@ jobs:
 
       - name: Update deployment.yaml
         env:
-          IMAGE_TAG: "1.${{ github.run_number }}-be"
+          IMAGE_TAG: "1.${{ github.run_number }}"
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
         run: |
-          sed -i "s|image:.*|image: $ECR_REPOSITORY:$IMAGE_TAG|g" k8s/backend/backend-deployment.yaml
-          cat k8s/backend/backend-deployment.yaml  # 변경 내용 확인
+          sed -i "s|image:.*|image: $ECR_REPOSITORY:$IMAGE_TAG|g" k8s/backend-deployment.yaml
+          cat k8s/backend-deployment.yaml  # 변경 내용 확인
 
       - name: Commit & Push changes
         env:
@@ -98,7 +96,7 @@ jobs:
         run: |
           git config user.name "$GIT_USER"
           git config user.email "$GIT_EMAIL"
-          git add k8s/backend/backend-deployment.yaml
+          git add k8s/backend-deployment.yaml
           git commit -m "Update Image Version to $IMAGE_TAG"
           git push
 
@@ -106,7 +104,7 @@ jobs:
         id: check_backend_deployment_change
         run: |
           # 변경 사항이 있는지 확인
-          if git diff --name-only HEAD~1 | grep -q "k8s/backend/backend-deployment.yaml"; then
+          if git diff --name-only HEAD~1 | grep -q "k8s/backend-deployment.yaml"; then
             echo "backend_deployment_changed=true" >> $GITHUB_ENV
           else
             echo "backend_deployment_changed=false" >> $GITHUB_ENV
