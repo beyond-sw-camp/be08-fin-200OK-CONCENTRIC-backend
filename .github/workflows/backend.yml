@@ -31,7 +31,6 @@ jobs:
           APPLICATION_YML_BASE64: ${{ secrets.APPLICATION_YML_BASE64 }}
         run: |
           echo "$APPLICATION_YML_BASE64" | base64 -d > ./src/main/resources/application.yml
-
       - name: Build Backend
         run: |
           chmod +x gradlew
@@ -58,8 +57,17 @@ jobs:
           name: be08-fin-200OK-CONCENTRIC-backend-0.0.1-SNAPSHOT
           path: ./build/libs
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          
       - name: Log in to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
+        with:
+          region: ${{ secrets.AWS_REGION }}
 
       - name: Build and push Docker image
         env:
@@ -70,7 +78,7 @@ jobs:
           ECR_URI="${{ secrets.ECR_REPOSITORY }}:${IMAGE_TAG}"
           docker build -t $ECR_URI .
           docker push $ECR_URI
-
+          
   update-deployment-file:
     runs-on: ubuntu-latest
     environment: actions
@@ -86,9 +94,8 @@ jobs:
           IMAGE_TAG: "1.${{ github.run_number }}"
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
         run: |
-          sed -i "s|image:.*|image: $ECR_REPOSITORY:$IMAGE_TAG|g" k8s/backend-deployment.yaml
+          sed -i "s|image:.*|image: \{\{$ECR_REPOSITORY\}\}:$IMAGE_TAG|g" k8s/backend-deployment.yaml
           cat k8s/backend-deployment.yaml  # 변경 내용 확인
-
       - name: Commit & Push changes
         env:
           GIT_USER: "eatho"
@@ -99,7 +106,6 @@ jobs:
           git add k8s/backend-deployment.yaml
           git commit -m "Update Image Version to $IMAGE_TAG"
           git push
-
       - name: Check if deployment.yaml changed
         id: check_backend_deployment_change
         run: |
@@ -109,7 +115,6 @@ jobs:
           else
             echo "backend_deployment_changed=false" >> $GITHUB_ENV
           fi
-
       - name: Trigger Argo CD Sync
         if: env.backend_deployment_changed == 'true'
         env:
@@ -121,7 +126,6 @@ jobs:
             -H "Authorization: Bearer $ARGOCD_TOKEN" \
             -H "Content-Type: application/json" \
             -d '{}'
-
   notify-discord:
     runs-on: ubuntu-latest
     needs: [build-backend, docker-build-push, update-deployment-file]
