@@ -154,7 +154,6 @@ public class EmailService {
 
     public Boolean verifyEmailCode(EmailVerifyRequestDto emailVerifyRequestDto) {
         Email found = emailRepository.findByEmail(emailVerifyRequestDto.getEmail()).orElse(null);
-        log.info("code found by email: " + found.getVerificationCode());
         if (found == null) {
             return false;
         }

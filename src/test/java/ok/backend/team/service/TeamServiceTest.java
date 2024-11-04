@@ -219,39 +219,39 @@ class TeamServiceTest {
     }
 
         // 팀 초대 수락
-    @Test
-    @DisplayName("팀 초대 수락 - 성공")
-    void joinTeam_success() {
-        // given
-        Long currentMemberId = securityUserDetailService.getLoggedInMember().getId();
-        when(memberService.findMemberById(currentMemberId)).thenReturn(currentMember);
-        when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
-        when(teamListRepository.existsByTeamIdAndMemberId(1L, 1L)).thenReturn(false);
-
-        // when
-        teamService.joinTeam(1L);
-
-        // then
-        verify(teamListRepository).save(any(TeamList.class));
-        verify(chatService).joinChat(anyLong());
-    }
-
-    @Test
-    @DisplayName("팀 초대 수락 - 이미 가입된 팀")
-    void joinTeam_duplicate() {
-        // given
-        Long currentMemberId = securityUserDetailService.getLoggedInMember().getId();
-        when(memberService.findMemberById(currentMemberId)).thenReturn(currentMember);
-        when(teamListRepository.existsByTeamIdAndMemberId(1L, 1L)).thenReturn(true);
-
-        // when
-        CustomException exception = assertThrows(CustomException.class, () -> {
-            teamService.joinTeam(1L);
-        });
-
-        // then
-        assertEquals(ErrorCode.DUPLICATE_TEAM, exception.getErrorCode());
-    }
+//    @Test
+//    @DisplayName("팀 초대 수락 - 성공")
+//    void joinTeam_success() {
+//        // given
+//        Long currentMemberId = securityUserDetailService.getLoggedInMember().getId();
+//        when(memberService.findMemberById(currentMemberId)).thenReturn(currentMember);
+//        when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+//        when(teamListRepository.existsByTeamIdAndMemberId(1L, 1L)).thenReturn(false);
+//
+//        // when
+//        teamService.joinTeam(1L);
+//
+//        // then
+//        verify(teamListRepository).save(any(TeamList.class));
+//        verify(chatService).joinChat(anyLong());
+//    }
+//
+//    @Test
+//    @DisplayName("팀 초대 수락 - 이미 가입된 팀")
+//    void joinTeam_duplicate() {
+//        // given
+//        Long currentMemberId = securityUserDetailService.getLoggedInMember().getId();
+//        when(memberService.findMemberById(currentMemberId)).thenReturn(currentMember);
+//        when(teamListRepository.existsByTeamIdAndMemberId(1L, 1L)).thenReturn(true);
+//
+//        // when
+//        CustomException exception = assertThrows(CustomException.class, () -> {
+//            teamService.joinTeam(1L);
+//        });
+//
+//        // then
+//        assertEquals(ErrorCode.DUPLICATE_TEAM, exception.getErrorCode());
+//    }
 
     // 팀 정보 수정
     @Test

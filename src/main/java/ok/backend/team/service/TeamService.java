@@ -6,10 +6,12 @@ import ok.backend.chat.service.ChatService;
 import ok.backend.common.exception.CustomException;
 import ok.backend.common.exception.ErrorCode;
 import ok.backend.common.security.util.SecurityUserDetailService;
+import ok.backend.member.domain.entity.Invite;
 import ok.backend.member.domain.entity.Member;
 import ok.backend.member.dto.MemberProfileResponseDto;
 import ok.backend.member.dto.MemberResponseDto;
 import ok.backend.member.dto.MemberUpdateRequestDto;
+import ok.backend.member.service.InviteService;
 import ok.backend.member.service.MemberService;
 import ok.backend.storage.service.AwsFileService;
 import ok.backend.storage.service.StorageFileService;
@@ -45,10 +47,11 @@ public class TeamService {
     private final ChatService chatService;
     private final StorageFileService storageFileService;
     private final AwsFileService awsFileService;
+    private final InviteService inviteService;
 
     public TeamService(TeamRepository teamRepository, TeamListRepository teamListRepository, SecurityUserDetailService securityUserDetailService,
                        MemberService memberService, StorageService storageService, @Lazy ChatService chatService,
-                       StorageFileService storageFileService, AwsFileService awsFileService) {
+                       StorageFileService storageFileService, AwsFileService awsFileService, InviteService inviteService) {
         this.teamRepository = teamRepository;
         this.teamListRepository = teamListRepository;
         this.securityUserDetailService = securityUserDetailService;
@@ -57,6 +60,7 @@ public class TeamService {
         this.chatService = chatService;
         this.storageFileService = storageFileService;
         this.awsFileService = awsFileService;
+        this.inviteService = inviteService;
     }
 
     // 팀 목록 조회 (로그인한 사람것만 조회가능)
@@ -156,7 +160,7 @@ public class TeamService {
     }
 
     // 팀 가입
-    public void joinTeam(Long teamId) {
+    public void joinTeam(String key, Long teamId, String email) {
         Long currentMemberId = securityUserDetailService.getLoggedInMember().getId();
         Member member = memberService.findMemberById(currentMemberId);
 
@@ -165,6 +169,11 @@ public class TeamService {
         boolean isMemberOfTeam = teamListRepository.existsByTeamIdAndMemberId(team.getId(), member.getId());
         if (isMemberOfTeam) {
             throw new CustomException(DUPLICATE_TEAM);
+        }
+
+        Invite invite = inviteService.findById(key);
+        if(!invite.getEmail().equals(email)){
+            throw new CustomException(INVITE_NOT_FOUND);
         }
 
         TeamList teamList = TeamList.builder()

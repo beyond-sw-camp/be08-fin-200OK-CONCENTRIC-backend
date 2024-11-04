@@ -88,18 +88,18 @@ public class TeamController {
     }
 
     // 팀 초대 URL 생성 및 이메일 전송
-    @PostMapping("/{id}/invite")
+    @PostMapping("/invite")
     @Operation(summary = "팀 초대 이메일 전송 API")
-    public ResponseEntity<String> inviteMember(@PathVariable Long id, @RequestParam String inviteeEmail) throws MessagingException {
-        teamSendingService.sendInviteEmail(id, inviteeEmail);
+    public ResponseEntity<String> inviteMember(@RequestParam Long teamId, @RequestParam Long receiverId) throws MessagingException {
+        teamSendingService.sendInviteEmail(teamId, receiverId);
         return ResponseEntity.ok("초대 이메일이 성공적으로 전송되었습니다.");
     }
 
     // 팀 참여
-    @PostMapping("/invite")
+    @PostMapping("/invite/accept")
     @Operation(summary = "팀 초대 수락 API")
-    public ResponseEntity<String> joinTeam(@RequestParam Long teamId) {
-        teamService.joinTeam(teamId);
+    public ResponseEntity<String> joinTeam(@RequestParam String key, @RequestParam Long teamId, @RequestParam String email) throws MessagingException {
+        teamService.joinTeam(key, teamId, email);
         return ResponseEntity.ok("팀에 성공적으로 참여하였습니다.");
     }
 

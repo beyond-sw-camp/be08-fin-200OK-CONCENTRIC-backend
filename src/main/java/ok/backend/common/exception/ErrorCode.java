@@ -39,6 +39,7 @@ public enum ErrorCode {
     TEAM_NOT_FOUND(HttpStatus.NOT_FOUND, "TEAM_002", "그룹을 찾을 수 없습니다."),
     DUPLICATE_TEAM(HttpStatus.CONFLICT, "TEAM_003", "이미 가입된 그룹입니다."),
     NOT_ACCESS_TEAM(HttpStatus.FORBIDDEN, "TEAM_004", "권한이 없는 사용자입니다."),
+    INVITE_NOT_FOUND(HttpStatus.NOT_FOUND, "TEMM_005", "초대 링크가 유효하지 않습니다."),
 
     // 일정
     SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "SCHEDULE_001", "일정을 찾을 수 없습니다."),
