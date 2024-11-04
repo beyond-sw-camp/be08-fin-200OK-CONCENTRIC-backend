@@ -144,9 +144,7 @@ jobs:
           IMAGE_TAG: "1.${{ github.run_number }}"
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
         run: |
-          ssh -o "StrictHostKeyChecking=no" -i ~/ec2-private-key.pem ec2-user@ec2-43-203-211-122.ap-northeast-2.compute.amazonaws.com << 'EOF'
           echo ${{ secrets.ECR_REPOSITORY }}:${IMAGE_TAG}
-          EOF \
 
   notify-discord:
     runs-on: ubuntu-latest
