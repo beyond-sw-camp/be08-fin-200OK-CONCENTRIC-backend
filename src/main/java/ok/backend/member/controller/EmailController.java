@@ -22,7 +22,6 @@ public class EmailController {
     @Operation(summary = "이메일로 인증 코드를 발송하는 API")
     @PostMapping("/send")
     public ResponseEntity<String> sendEmail(@RequestParam String toEmail) throws MessagingException {
-        log.info("Sending email to " + toEmail);
         emailService.sendVerificationEmail(toEmail);
 
         return ResponseEntity.ok("인증 코드가 발송되었습니다.");
@@ -31,7 +30,6 @@ public class EmailController {
     @Operation(summary = "이메일과 인증코드를 확인하는 API")
     @PostMapping("/verify")
     public ResponseEntity<String> verify(@RequestBody EmailVerifyRequestDto emailVerifyRequestDto){
-        log.info("Verifying email to " + emailVerifyRequestDto.getEmail());
         boolean isVerified = emailService.verifyEmailCode(emailVerifyRequestDto);
 
         String result = isVerified ? "success" : "fail";
@@ -41,7 +39,6 @@ public class EmailController {
     @Operation(summary = "초기화된 비밀번호를 전송하는 API")
     @PostMapping("/send/reset")
     public ResponseEntity<String> sendPasswordResetEmail(@RequestParam String email) throws MessagingException {
-        log.info("Sending password reset email to " + email);
         emailService.sendPasswordEmail(email);
 
         return ResponseEntity.ok("초기화된 비밀번호가 발송되었습니다.");
