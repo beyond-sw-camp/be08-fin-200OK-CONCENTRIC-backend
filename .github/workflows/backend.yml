@@ -126,17 +126,28 @@ jobs:
             echo "backend_deployment_changed=false" >> $GITHUB_ENV
           fi
           
-      - name: Trigger Argo CD Sync
-        if: env.backend_deployment_changed == 'true'
-        env:
-          ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
-          ARGOCD_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
-          APP_NAME: "backend-application"
+  deploy-backend:
+    runs-on: ubuntu-latest
+    environment: actions
+    needs: update-deployment-file
+    steps:
+      - name: Checkout code from GitHub
+        uses: actions/checkout@v3
+
+      - name: Decode and save EC2 private key
         run: |
-          curl -X POST "$ARGOCD_SERVER/api/v1/applications/$APP_NAME/sync" \
-            -H "Authorization: Bearer $ARGOCD_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d '{}'
+          echo "${{ secrets.EC2_PRIVATE_KEY_BASE64 }}" | base64 -d > ~/ec2-private- key.pem
+          chmod 600 ~/ec2-private-key.pem
+
+      - name: Deploy using kubectl
+        env:
+          IMAGE_TAG: "1.${{ github.run_number }}"
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+        run: |
+          ssh -o "StrictHostKeyChecking=no" -i ~/ec2-private-key.pem ec2-user@ec2-43-203-211-122.ap-northeast-2.compute.amazonaws.com << 'EOF'
+          kubectl set image deployment backend-deployment backend-container=${{ secrets.ECR_REPOSITORY }}:${IMAGE_TAG} -n default
+          EOF
+
   notify-discord:
     runs-on: ubuntu-latest
     needs: [build-backend, docker-build-push, update-deployment-file]
