@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  namespace: concentric
+  name: backend-deployment
+
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+  revisionHistoryLimit: 1
+  minReadySeconds: 10
+  selector:
+    matchLabels:
+      type: backend
+  template:
+    metadata:
+      labels:
+        type: backend
+    spec:
+      containers:
+        - name: backend
+          image: ${{ secrets.ECR_REPOSITORY }}
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "300m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          ports:
+          - containerPort: 8080
+      terminationGracePeriodSeconds: 5
