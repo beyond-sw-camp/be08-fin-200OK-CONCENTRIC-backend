@@ -55,7 +55,7 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v3
         with:
-          name: backend-jar
+          name: be08-fin-200OK-CONCENTRIC-backend-0.0.1-SNAPSHOT
           path: ./build/libs
 
       - name: Log in to Amazon ECR
