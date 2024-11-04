@@ -5,14 +5,14 @@ on:
     branches:
       - main
     # paths:
-    #   - 'backend/**'
+    #   - '/**'
     paths-ignore:
       - 'k8s/backend-deployment.yaml'
 
 jobs:
   build-backend:
     runs-on: ubuntu-latest
-    environment: backend_git_actions
+    environment: actions
     steps:
       - name: Checkout code from GitHub
         uses: actions/checkout@v3
@@ -46,7 +46,7 @@ jobs:
 
   docker-build-push:
     runs-on: ubuntu-latest
-    environment: backend_git_actions
+    environment: actions
     needs: build-backend
     steps:
       - name: Checkout code from GitHub
@@ -73,7 +73,7 @@ jobs:
 
   update-deployment-file:
     runs-on: ubuntu-latest
-    environment: backend_git_actions
+    environment: actions
     needs: docker-build-push
     steps:
       - name: Checkout code from GitHub
