@@ -97,13 +97,13 @@ jobs:
           sed -i "s|image:.*|image: \{\{$ECR_REPOSITORY\}\}:$IMAGE_TAG|g" k8s/backend-deployment.yaml
           cat k8s/backend-deployment.yaml  # 변경 내용 확인
           
-        - name: Set up SSH for git push
-          run: |
-            mkdir -p ~/.ssh
-            echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_ed25519
-            chmod 600 ~/.ssh/id_ed25519
-            ssh-keyscan github.com >> ~/.ssh/known_hosts
-            chmod 644 ~/.ssh/known_hosts
+      - name: Set up SSH for git push
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
 
       - name: Commit & Push changes
         env:
