@@ -98,7 +98,7 @@ jobs:
           cat k8s/backend-deployment.yaml  # 변경 내용 확인
       - name: Commit & Push changes
         env:
-          GIT_USER: "eatho"
+          GIT_USER: "henhen7"
           GIT_EMAIL: "eatho@naver.com"
         run: |
           git config user.name "$GIT_USER"
