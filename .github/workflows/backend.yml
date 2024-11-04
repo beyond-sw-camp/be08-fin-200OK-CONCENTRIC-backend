@@ -145,7 +145,7 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
         run: |
           ssh -o "StrictHostKeyChecking=no" -i ~/ec2-private-key.pem ec2-user@ec2-43-203-211-122.ap-northeast-2.compute.amazonaws.com << 'EOF'
-          kubectl set image deployment backend-deployment backend-container=${{ secrets.ECR_REPOSITORY }}:${IMAGE_TAG} -n concentric
+          kubectl set image deployment backend-deployment backend=${{ secrets.ECR_REPOSITORY }}:${IMAGE_TAG} -n concentric
           EOF
 
   notify-discord:
