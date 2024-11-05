@@ -138,13 +138,14 @@ jobs:
         run: |
           echo "${{ secrets.EC2_PRIVATE_KEY_BASE64 }}" | base64 -d > ~/ec2-private-key.pem
           chmod 600 ~/ec2-private-key.pem
+          ls ~/
 
       - name: Deploy
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.REMOTE_IP }}
           username: ${{ secrets.REMOTE_SSH_ID }}
-          key_path: ~/ec2-private-key.pem
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
           port: ${{ secrets.REMOTE_SSH_PORT }}
           script: |
             export ECR_REPOSITORY="${{ secrets.ECR_REPOSITORY }}"
