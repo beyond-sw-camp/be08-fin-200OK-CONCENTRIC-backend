@@ -1,0 +1,38 @@
+name: Opend Issue Notification # 1
+on: # 2
+  issues:
+    types:
+      - opened 
+
+jobs: 
+  create-issue:
+    name: Discord notification 
+    runs-on: ubuntu-latest 
+    environment: actions
+    steps:
+      - name: Send Issue
+        uses: Ilshidur/action-discord@0.3.2 # 3
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }} # 4
+          DISCORD_USERNAME: WAPP_BOT # 5
+          DISCORD_AVATAR: https://github.com/pknu-wap/WAPP/blob/main/image/icon.png?raw=true # 6
+          DISCORD_EMBEDS: |  # 7
+            [
+                { 
+                  "title": "왔어요 왔어~ 새로운 이슈가 왔어요~🥳\n${{ github.event.issue.title }}",
+                  "color": 10478271,
+                  "description": "${{ github.event.issue.html_url }}",
+                  "fields": [
+                    {
+                      "name": "Issue Number",
+                      "value": "#${{ github.event.issue.number }}",
+                      "inline": true
+                    },
+                    {
+                      "name": "Author",
+                      "value": "${{ github.event.issue.user.login }}",
+                      "inline": true
+                    }
+                  ]
+                }
+              ]
