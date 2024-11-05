@@ -5,8 +5,7 @@
 <div align="center">
 <img src="https://img.shields.io/badge/linux-FCC624?style=for-the-badge&logo=linux&logoColor=black" style="border-radius: 5px;">
 <img src="https://img.shields.io/badge/kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white" style="border-radius: 5px;">
-<img src="https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" style="border-radius: 5px;">
-<img src="https://img.shields.io/badge/argo-EF7B4D?style=for-the-badge&logo=argo&logoColor=white" style="border-radius: 5px;"></br>
+<img src="https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" style="border-radius: 5px;"></br>
 <img src="https://img.shields.io/badge/githubactions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white" style="border-radius: 5px;">
 <img src="https://img.shields.io/badge/git-F05032?style=for-the-badge&logo=git&logoColor=white" style="border-radius: 5px;">
 <img src="https://img.shields.io/badge/github-181717?style=for-the-badge&logo=github&logoColor=white" style="border-radius: 5px;">
@@ -26,7 +25,7 @@
 - OS : Linux
 - Container : Docker
 - Orchestration : Amazon EKS(Kubernetes)
-- CI/CD : Jenkins, Argo cd
+- CI/CD : Github Actions
 - Monitoring : 
 - Notification : Discord
 <br><br>
@@ -47,34 +46,35 @@
 - Docker image 생성 및 Amazon ECR에 업로드하여 일관된 배포 환경 제공
 
 #### 2. AWS Route53 설정
-- Amazon Route 53을 통한 도메인 네임 관리 및 트래픽 라우팅 설정
-- 도메인 등록 및 호스팅 영역 생성 후, 적절한 레코드 설정으로 Amazon EKS의 서비스에 연결
+- Amazon Route 53을 통한 도메인 등록 및 트래픽 라우팅 설정
 - Route 53의 헬스 체크 기능을 활용하여 비정상적인 엔드포인트 감지 및 자동 트래픽 전환 기능 제공
+- HTTPS 보안 연결 설정: Amazon Certificate Manager(ACM)를 통한 인증서 생성 및 관리
+- 인증서를 EKS의 Ingress 리소스와 연동하여 클러스터에 HTTPS 트래픽 제공
 
-#### 3. Argo CD: Kubernetes 롤링 업데이트 배포
-- GitOps 방식을 활용하여 sync를 통해 변경된 Kubernetes Manifest를 Amazon EKS 클러스터에 동기화
-- Ingress를 사용하여 IP로 Pod에 연결하고, 모든 Pod는 readinessProbe와 livenessProbe를 사용하여 연결 전 healthcheck를 통해 서비스 연결 상태를 관리
+#### 3. 무중단 배포: Kubernetes 롤링 업데이트 배포
+- 사용 중인 인스턴스 내에서 새 버전을 점진적으로 교체하여 순차적으로 재배포
+- 서비스 운영 간 중단 없이 기능 제공
+- 추가 인프라 구성 없이 배포 가능
 
 #### 4. 기대 효과
 - Rolling Update는 서비스의 중단 없이 Pod를 하나씩 업데이트해 지속적 서비스 제공
 - 문제 발생 시 이전 버전으로 빠르게 롤백할 수 있어 서비스 가용성 유지
-- Argo CD는 지속적으로 애플리케이션 상태를 모니터링하여, 상태 불일치 시 자동 조정
 - Rolling Update는 한 번에 하나의 Pod만 업데이트하여 효율적인 리소스 사용량 관리 가능
-- Argo CD와 Kubernetes의 자동 확장 기능을 통해 수요에 따라 자원을 동적으로 할당 가능
+- Kubernetes의 자동 확장 기능을 통해 수요에 따라 자원을 동적으로 할당 가능
 
 <br>
 
 ### ✔️ 애플리케이션 아키텍처 및 서비스 운영 전략
 #### 1. Backend
-- Amazon EKS에서 Deployment 사용하여 최소 2개, 최대 4개의 Auto Scaling Pod로 운영
+- Amazon EKS에서 Deployment 사용하여 최소 3개, 최대 4개의 Auto Scaling Pod로 운영
 - Rolling Update 방식을 통한 무중단 배포 수행
 - 채팅 메시지를 Kafka Broker에 전달, 각 서버가 consume하여 Websocket 세션이 노드에 따라 상이할 때 발생 가능한 채팅 데이터 누락 위험을 방지하고 데이터 일관성 유지
 - Ingress를 통해 호스트 기반으로 명령 처리
 
 #### 2. Frontend
-- Amazon EKS에서 Deployment 사용하여 최소 2개, 최대 4개의 Auto Scaling Pod로 운영
+- Amazon EKS에서 Deployment 사용하여 최소 3개, 최대 4개의 Auto Scaling Pod로 운영
 - Rolling Update 방식을 통한 무중단 배포 수행
-- WebSocket 연결 지원을 위해 ws://로 헤더 변경 가능
+- WebSocket 연결 지원을 위해 wss://로 헤더 변경 가능
 - Ingress를 통해 호스트 기반으로 명령 처리
 
 #### 3. S3 버킷을 통한 이미지 처리
@@ -84,7 +84,7 @@
 
 <br>
 
-## ✨GitHub Options 워크플로우(배포 시나리오)
+## ✨GitHub Actions 워크플로우(배포 시나리오)
 ### Backend
 #### 1.	🔗 git push
 - 각 브랜치에서 작업 후 PR을 요청, main 브랜치에 push
@@ -96,15 +96,15 @@
 - 빌드된 jar 파일을 GitHub Actions의 아티팩트 저장소에 업로드
 #### 3.	🎁 Docker Build ~ Push
 - 업로드된 jar 파일을 가져와 Dockerfile을 기반으로 docker build 진행, 새로운 도커 이미지 생성
-- 생성된 도커 이미지를 Amazon ECR에 업로드
+- 생성된 도커 이미지를 Amazon ECR에 푸시
 #### 4.	🖌️ Modify and Apply K8S Deployment
 - image 업로드 완료 후 deploy.yaml 파일을 최신 Docker Image 버전으로 수정하여 Git commit
 - workflow의 순환참조 방지를 위해 deploy.yaml 파일 paths-ignore
-#### 5.	🗓️ Trigger Argo CD Sync
-- Manifest 업데이트에 의해 Argo CD에서 Sync 트리거
-- 변경된 backend Manifest를 Amazon EKS 클러스터에 동기화
+#### 5.	🗓️ Deploy Backend
+- EC2 인스턴스에 SSH 원격 접속을 수행
+- kubecel set image 명령어를 통해 기존의 Kubernetes Deployment의 컨테이너 이미지 업데이트
 #### 6.	🛎️ Send Discord Webhook
-- 배포 성공 또는 실패 시 Discord Webhook으로 알림 전송
+- 배포 성공 시 Discord Webhook으로 알림 전송
 
 <br>
 
@@ -114,17 +114,18 @@
 #### 2.	💊 Install Dependencies
 - package.json을 기반으로 npm install 수행
 #### 3.	🔧 Project Test ~ Build
-- npm run build: dist 폴더 생성
+- npm run build를 통해 프로젝트 빌드 진행
+- 생성된 dist 폴더를 Github Actions의 아티팩트 저장소에 업로드
 #### 4.	🗄️ Modify and Apply K8S Deployment
-- Dockerfile을 기반으로 docker build 진행, 새로운 도커 이미지 생성
-- 생성된 도커 이미지를 Amazon ECR에 업로드
+- 업로드된 dist 폴더를 가져와 Dockerfile을 기반으로 docker build 진행, 새로운 도커 이미지 생성
+- 생성된 도커 이미지를 Amazon ECR에 푸시
 #### 5.	📘 Docker Image Push
 - image 업로드 완료 후 deploy.yaml 파일을 최신 Docker Image 버전으로 수정하여 Git commit
 - workflow의 순환참조 방지를 위해 deploy.yaml 파일 paths-ignore
 #### 6.	✏️ Send Artifacts ~ Modify and Apply Deployment
 - Kubernetes master node에 Manifest 파일 배포
-#### 7.	📥 Trigger Argo CD Sync
-- Manifest 업데이트에 의해 Argo CD에서 Sync 트리거
-- 변경된 backend Manifest를 Amazon EKS 클러스터에 동기화
+#### 7.	📥 Deploy Frontend
+- EC2 인스턴스에 SSH 원격 접속을 수행
+- kubecel set image 명령어를 통해 기존의 Kubernetes Deployment의 컨테이너 이미지 업데이트
 #### 8.	🖇️ Send Discord Webhook
 - 배포 성공 또는 실패 시 Discord Webhook으로 알림 전송
