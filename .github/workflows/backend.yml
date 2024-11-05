@@ -164,8 +164,7 @@ jobs:
                     {
                       "title": "**🔗Build Notification**",
                       "description": "**Status**: Success\n**Build Number**: '${GITHUB_RUN_NUMBER}'",
-                      "color": 3066993,  
-                      },
+                      "color": 3066993,
                       "timestamp": "'$(date --iso-8601=seconds)'"
                     }
                   ]
