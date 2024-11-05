@@ -47,6 +47,7 @@ public class SecurityConfig {
                         CorsConfiguration config = new CorsConfiguration();
                         config.setAllowCredentials(true);
                         config.setAllowedOrigins(List.of("https://200concentric.com"));
+//                        config.setAllowedOrigins(List.of("https://200concentric.com", "http://localhost:3000")); // local test
                         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
                         config.setAllowedHeaders(List.of("*"));
                         config.setExposedHeaders(List.of("*"));
@@ -65,6 +66,7 @@ public class SecurityConfig {
                         .requestMatchers("swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
                         .requestMatchers("v1/api/member/login", "v1/api/member/register").permitAll()
                         .requestMatchers("v1/api/email/**").permitAll()
+                        .requestMatchers("v1/api/team/invite/accept", "accept-invite").permitAll()
                         .requestMatchers("ws/**").permitAll()
                         .anyRequest().authenticated())
 

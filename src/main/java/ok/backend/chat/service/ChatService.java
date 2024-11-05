@@ -138,8 +138,7 @@ public class ChatService {
     }
 
     // 단체 채팅방 참여(팀 서비스)
-    public void joinChat(Long teamId) {
-        Member member = memberService.findMemberById(securityUserDetailService.getLoggedInMember().getId());
+    public void joinChat(Long teamId, Member member) {
         ChatRoom chatRoom = chatRoomRepository.findByTeamId(teamId).orElseThrow(()
                 -> new CustomException(CHAT_NOT_FOUND));
         ChatRoomList chatRoomList = ChatRoomList.createChatRoomList(member, chatRoom);

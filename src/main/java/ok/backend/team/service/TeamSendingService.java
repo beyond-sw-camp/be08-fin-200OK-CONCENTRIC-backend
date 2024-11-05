@@ -38,11 +38,11 @@ public class TeamSendingService {
                 .email(email)
                 .build();
         inviteService.saveInvite(invite);
-        return "http://localhost:8080/v1/api/invite/accept/" + "key=" + uuid + "&" + "teamId=" + teamId + "&" + "email=" + email;
+        return "http://localhost:3000/team-invite?" + "key=" + uuid + "&teamId=" + teamId + "&email=" + email;
     }
 
     // 초대 이메일 전송
-    public void sendInviteEmail(Long teamId, Long receiverId) throws MessagingException {
+    public void sendInviteEmail(Long teamId, String email) throws MessagingException {
         Long currentMemberId = securityUserDetailService.getLoggedInMember().getId();
 
         boolean isMember = teamListRepository.existsByTeamIdAndMemberId(teamId, currentMemberId);
@@ -50,7 +50,7 @@ public class TeamSendingService {
             throw new CustomException(ErrorCode.NOT_ACCESS_TEAM);
         }
 
-        Member receiver = memberService.findMemberById(receiverId);
+        Member receiver = memberService.findMemberByEmail(email);
 
         String inviteUrl = generateInviteUrl(teamId, receiver.getEmail());
         emailService.sendInviteEmail(receiver.getEmail(), inviteUrl);
