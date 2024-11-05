@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: $ECR_REPOSITORY:1.30
+          image: $ECR_REPOSITORY:1.31
           resources:
             requests:
               memory: "512Mi"
