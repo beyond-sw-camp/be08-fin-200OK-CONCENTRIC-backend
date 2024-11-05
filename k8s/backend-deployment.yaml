@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: 506746029679.dkr.ecr.ap-northeast-2.amazonaws.com/concentric/backend:1.26
+          image: $ECR_REPOSITORY:$IMAGE_TAG
           resources:
             requests:
               memory: "512Mi"
