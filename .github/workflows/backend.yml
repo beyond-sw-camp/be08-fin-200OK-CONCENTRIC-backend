@@ -139,18 +139,34 @@ jobs:
           echo "${{ secrets.EC2_PRIVATE_KEY_BASE64 }}" | base64 -d > ~/ec2-private-key.pem
           chmod 600 ~/ec2-private-key.pem
 
-      - name: Deploy using kubectl
-        env:
-          IMAGE_TAG: "1.${{ github.run_number }}"
-          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
-        run: |
-          ssh -o "StrictHostKeyChecking=no" -i ~/ec2-private-key.pem ec2-user@ec2-43-203-211-122.ap-northeast-2.compute.amazonaws.com << 'EOF'
-          export ECR_REPOSITORY="${ECR_REPOSITORY}"
-          export IMAGE_TAG="${IMAGE_TAG}"
-          echo "ECR_REPOSITORY: ${ECR_REPOSITORY}"
-          echo "IMAGE_TAG: ${IMAGE_TAG}"
-          kubectl set image deployment backend-deployment backend=$ECR_REPOSITORY:$IMAGE_TAG -n concentric
-          EOF
+#      - name: Deploy using kubectl
+#        env:
+#          IMAGE_TAG: "1.${{ github.run_number }}"
+#          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+#        run: |
+#          ssh -o "StrictHostKeyChecking=no" -i ~/ec2-private-key.pem ec2-user@ec2-43-203-211-122.ap-northeast-2.compute.amazonaws.com << 'EOF'
+#          export ECR_REPOSITORY="${ECR_REPOSITORY}"
+#          export IMAGE_TAG="${IMAGE_TAG}"
+#          echo "ECR_REPOSITORY: ${ECR_REPOSITORY}"
+#          echo "IMAGE_TAG: ${IMAGE_TAG}"
+#          kubectl set image deployment backend-deployment backend=$ECR_REPOSITORY:$IMAGE_TAG -n concentric
+#          EOF
+          
+      - name: Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.REMOTE_IP }}
+          username: ${{ secrets.REMOTE_SSH_ID }}
+          key: ${{ secrets.EC2_PRIVATE_KEY_BASE64 }}
+          port: ${{ secrets.REMOTE_SSH_PORT }}
+          script: |
+            export ECR_REPOSITORY="${{ secrets.ECR_REPOSITORY }}"
+            export IMAGE_TAG="1.${{ github.run_number }}"
+      
+            echo "ECR_REPOSITORY: $ECR_REPOSITORY"
+            echo "IMAGE_TAG: $IMAGE_TAG"
+      
+            kubectl set image deployment backend-deployment backend=$ECR_REPOSITORY:$IMAGE_TAG -n concentric
 
   notify-discord:
     runs-on: ubuntu-latest
