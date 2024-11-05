@@ -94,7 +94,7 @@ jobs:
           IMAGE_TAG: "1.${{ github.run_number }}"
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
         run: |
-          sed -i "s|image:.*|image: {{$ECR_REPOSITORY}}:$IMAGE_TAG|g" k8s/backend-deployment.yaml
+          sed -i "s|image:.*|image: $ECR_REPOSITORY:$IMAGE_TAG|g" k8s/backend-deployment.yaml
           cat k8s/backend-deployment.yaml  # 변경 내용 확인
           
       - name: Set up SSH for git push
@@ -151,13 +151,12 @@ jobs:
 #          echo "IMAGE_TAG: ${IMAGE_TAG}"
 #          kubectl set image deployment backend-deployment backend=$ECR_REPOSITORY:$IMAGE_TAG -n concentric
 #          EOF
-          
       - name: Deploy
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.REMOTE_IP }}
           username: ${{ secrets.REMOTE_SSH_ID }}
-          key: ${{ secrets.EC2_PRIVATE_KEY_BASE64 }}
+          key: ~/ec2-private-key.pem
           port: ${{ secrets.REMOTE_SSH_PORT }}
           script: |
             export ECR_REPOSITORY="${{ secrets.ECR_REPOSITORY }}"
@@ -165,7 +164,7 @@ jobs:
       
             echo "ECR_REPOSITORY: $ECR_REPOSITORY"
             echo "IMAGE_TAG: $IMAGE_TAG"
-      
+            
             kubectl set image deployment backend-deployment backend=$ECR_REPOSITORY:$IMAGE_TAG -n concentric
 
   notify-discord:
