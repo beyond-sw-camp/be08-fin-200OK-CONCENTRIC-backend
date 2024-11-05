@@ -6,7 +6,7 @@ metadata:
   name: backend-deployment
 
 spec:
-  replicas: 2
+  replicas: 3
   strategy:
     type: RollingUpdate
   revisionHistoryLimit: 1
