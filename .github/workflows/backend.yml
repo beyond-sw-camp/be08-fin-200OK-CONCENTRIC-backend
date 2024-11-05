@@ -92,9 +92,8 @@ jobs:
       - name: Update deployment.yaml
         env:
           IMAGE_TAG: "1.${{ github.run_number }}"
-          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
         run: |
-          sed -i "s|image:.*|image: \$ECR_REPOSITORY:\$IMAGE_TAG|g" k8s/backend-deployment.yaml
+          sed -i "s|image:.*|image: \$ECR_REPOSITORY:$IMAGE_TAG|g" k8s/backend-deployment.yaml
           
       - name: Set up SSH for git push
         run: |
