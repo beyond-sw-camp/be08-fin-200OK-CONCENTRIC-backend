@@ -8,6 +8,7 @@ jobs:
   create-issue:
     name: Discord notification 
     runs-on: ubuntu-latest 
+    environment: actions
     steps:
       - name: Send Issue
         uses: Ilshidur/action-discord@0.3.2 # 3
