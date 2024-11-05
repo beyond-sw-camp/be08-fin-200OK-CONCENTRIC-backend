@@ -7,10 +7,7 @@ import lombok.RequiredArgsConstructor;
 import ok.backend.member.dto.MemberProfileResponseDto;
 import ok.backend.member.dto.MemberResponseDto;
 import ok.backend.member.dto.MemberUpdateRequestDto;
-import ok.backend.team.dto.TeamMemberResponseDto;
-import ok.backend.team.dto.TeamRequestDto;
-import ok.backend.team.dto.TeamResponseDto;
-import ok.backend.team.dto.TeamUpdateRequestDto;
+import ok.backend.team.dto.*;
 import ok.backend.team.service.TeamSendingService;
 import ok.backend.team.service.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,16 +87,16 @@ public class TeamController {
     // 팀 초대 URL 생성 및 이메일 전송
     @PostMapping("/invite")
     @Operation(summary = "팀 초대 이메일 전송 API")
-    public ResponseEntity<String> inviteMember(@RequestParam Long teamId, @RequestParam Long receiverId) throws MessagingException {
-        teamSendingService.sendInviteEmail(teamId, receiverId);
+    public ResponseEntity<String> inviteMember(@RequestParam Long teamId, @RequestParam String email) throws MessagingException {
+        teamSendingService.sendInviteEmail(teamId, email);
         return ResponseEntity.ok("초대 이메일이 성공적으로 전송되었습니다.");
     }
 
     // 팀 참여
     @PostMapping("/invite/accept")
     @Operation(summary = "팀 초대 수락 API")
-    public ResponseEntity<String> joinTeam(@RequestParam String key, @RequestParam Long teamId, @RequestParam String email) throws MessagingException {
-        teamService.joinTeam(key, teamId, email);
+    public ResponseEntity<String> joinTeam(@RequestBody TeamInviteAcceptRequestDto requestDto) {
+        teamService.joinTeam(requestDto);
         return ResponseEntity.ok("팀에 성공적으로 참여하였습니다.");
     }
 

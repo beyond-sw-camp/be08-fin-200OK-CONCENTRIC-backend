@@ -20,10 +20,7 @@ import ok.backend.team.domain.entity.Team;
 import ok.backend.team.domain.entity.TeamList;
 import ok.backend.team.domain.repository.TeamListRepository;
 import ok.backend.team.domain.repository.TeamRepository;
-import ok.backend.team.dto.TeamMemberResponseDto;
-import ok.backend.team.dto.TeamRequestDto;
-import ok.backend.team.dto.TeamResponseDto;
-import ok.backend.team.dto.TeamUpdateRequestDto;
+import ok.backend.team.dto.*;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -160,21 +157,22 @@ public class TeamService {
     }
 
     // 팀 가입
-    public void joinTeam(String key, Long teamId, String email) {
-        Long currentMemberId = securityUserDetailService.getLoggedInMember().getId();
-        Member member = memberService.findMemberById(currentMemberId);
+    public void joinTeam(TeamInviteAcceptRequestDto requestDto) {
 
-        Team team = teamRepository.findById(teamId).orElseThrow(() -> new CustomException(TEAM_NOT_FOUND));
+        Invite invite = inviteService.findById(requestDto.getKey());
+        if(!invite.getEmail().equals(requestDto.getEmail())){
+            throw new CustomException(INVITE_NOT_FOUND);
+        }
+
+        Team team = teamRepository.findById(requestDto.getTeamId()).orElseThrow(() -> new CustomException(TEAM_NOT_FOUND));
+
+        Member member = memberService.findMemberByEmail(requestDto.getEmail());
 
         boolean isMemberOfTeam = teamListRepository.existsByTeamIdAndMemberId(team.getId(), member.getId());
         if (isMemberOfTeam) {
             throw new CustomException(DUPLICATE_TEAM);
         }
 
-        Invite invite = inviteService.findById(key);
-        if(!invite.getEmail().equals(email)){
-            throw new CustomException(INVITE_NOT_FOUND);
-        }
 
         TeamList teamList = TeamList.builder()
                 .team(team)
@@ -182,7 +180,7 @@ public class TeamService {
                 .build();
 
         teamListRepository.save(teamList);
-        chatService.joinChat(teamId);
+        chatService.joinChat(requestDto.getTeamId(), member);
     }
 
     // 팀 나가기 (팀 리스트에서 삭제됨)
@@ -204,6 +202,7 @@ public class TeamService {
 
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new CustomException(TEAM_NOT_FOUND));
+
 
         if (!currentMemberId.equals(team.getCreatorId())) {
             throw new CustomException(NOT_ACCESS_TEAM);
