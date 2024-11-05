@@ -94,8 +94,7 @@ jobs:
           IMAGE_TAG: "1.${{ github.run_number }}"
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
         run: |
-          sed -i "s|image:.*|image: $ECR_REPOSITORY:$IMAGE_TAG|g" k8s/backend-deployment.yaml
-          cat k8s/backend-deployment.yaml  # 변경 내용 확인
+          sed -i "s|image:.*|image: \$ECR_REPOSITORY:\$IMAGE_TAG|g" k8s/backend-deployment.yaml
           
       - name: Set up SSH for git push
         run: |
@@ -109,6 +108,7 @@ jobs:
         env:
           GIT_USER: "henhen7"
           GIT_EMAIL: "eatho@naver.com"
+          IMAGE_TAG: "1.${{ github.run_number }}"
         run: |
           git config user.name "$GIT_USER"
           git config user.email "$GIT_EMAIL"
@@ -133,12 +133,6 @@ jobs:
     steps:
       - name: Checkout code from GitHub
         uses: actions/checkout@v3
-
-      - name: Decode and save EC2 private key
-        run: |
-          echo "${{ secrets.EC2_PRIVATE_KEY_BASE64 }}" | base64 -d > ~/ec2-private-key.pem
-          chmod 600 ~/ec2-private-key.pem
-          ls ~/
 
       - name: Deploy
         uses: appleboy/ssh-action@master
@@ -167,5 +161,5 @@ jobs:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: |
           curl -H "Content-Type: application/json" \
-            -d '{"content":"**CI/CD Pipeline Success**\n'\
-                  'Build Number: '${{ github.run_number }}\'}' \
+            -d "{\"content\":\"**CI/CD Pipeline Success**\nBuild Number: ${GITHUB_RUN_NUMBER}\"}" \
+            ${{ secrets.DISCORD_WEBHOOK }}
