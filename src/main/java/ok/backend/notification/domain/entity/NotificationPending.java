@@ -41,4 +41,12 @@ public class NotificationPending {
     public void updateStatus(){
         this.isSent = true;
     }
+
+    public void updateSchedule(Schedule schedule){
+        this.schedule = schedule;
+    }
+
+    public void updateSendDate(LocalDateTime sendDate){
+        this.sendDate = sendDate;
+    }
 }

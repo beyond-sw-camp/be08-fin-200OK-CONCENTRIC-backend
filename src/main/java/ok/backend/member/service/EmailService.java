@@ -5,10 +5,13 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ok.backend.member.domain.entity.Email;
+import ok.backend.member.domain.entity.Member;
 import ok.backend.member.domain.repository.EmailRepository;
 import ok.backend.member.dto.EmailVerifyRequestDto;
 import ok.backend.notification.domain.entity.NotificationPending;
 import ok.backend.notification.domain.enums.NotificationType;
+import ok.backend.schedule.domain.entity.Schedule;
+import ok.backend.schedule.domain.entity.SubSchedule;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -184,15 +187,23 @@ public class EmailService {
     public void sendNotificationEmail(NotificationPending notificationPending) throws MessagingException {
         MimeMessage message = javaMailSender.createMimeMessage();
         message.addRecipients(MimeMessage.RecipientType.TO, notificationPending.getSchedule().getMember().getEmail());
-        if(notificationPending.getNotificationType() == NotificationType.BEFORE_START_SCHEDULE){
+        if(notificationPending.getNotificationType().equals(NotificationType.BEFORE_START_SCHEDULE)){
             message.setSubject("일정이 곧 시작됩니다");
-        }else{
+        }else if(notificationPending.getNotificationType().equals(NotificationType.PRIVATE)){
             message.setSubject("일정이 곧 종료됩니다.");
         }
         message.setFrom(senderEmail);
         message.setText("알림이다!");
 
         javaMailSender.send(message);
+    }
+
+    public void sendNotificationEmailFromSchedule(Schedule schedule, Member member) throws MessagingException {
+
+    }
+
+    public void sendNotificationEmailFromSubSchedule(SubSchedule subSchedule, Member member) throws MessagingException {
+
     }
 
     public void sendInviteEmail(String recipientEmail, String inviteUrl) throws MessagingException {
