@@ -2,6 +2,7 @@ package ok.backend.schedule.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.MalformedURLException;
 import java.util.List;
 
 @Tag(name = "Schedule", description = "일정 관리")
@@ -32,13 +34,13 @@ public class ScheduleController {
 
     @PutMapping("/update")
     @Operation(summary = "일정 수정")
-    public ResponseEntity<ScheduleResponseDto> updateSchedule(@RequestParam Long scheduleId, @RequestBody @Valid ScheduleRequestDto scheduleRequestDto) {
+    public ResponseEntity<ScheduleResponseDto> updateSchedule(@RequestParam Long scheduleId, @RequestBody @Valid ScheduleRequestDto scheduleRequestDto) throws MalformedURLException, MessagingException {
         return ResponseEntity.ok(scheduleService.updateSchedule(scheduleId, scheduleRequestDto));
     }
 
     @PutMapping("/update/status")
     @Operation(summary = "일정 상태 업데이트")
-    public ResponseEntity<Void> updateSchedule(@RequestParam Long scheduleId, @RequestParam Status status) {
+    public ResponseEntity<Void> updateSchedule(@RequestParam Long scheduleId, @RequestParam Status status) throws MalformedURLException, MessagingException {
         scheduleService.updateScheduleStatus(scheduleId, status);
         return ResponseEntity.noContent().build();
     }
@@ -64,7 +66,7 @@ public class ScheduleController {
     @DeleteMapping("/delete")
     @Operation(summary = "일정 삭제")
     public ResponseEntity<Void> deleteSchedule(@RequestParam Long scheduleId) {
-        scheduleService.deleteSchdule(scheduleId);
+        scheduleService.deleteSchedule(scheduleId);
         return ResponseEntity.noContent().build();
     }
 }

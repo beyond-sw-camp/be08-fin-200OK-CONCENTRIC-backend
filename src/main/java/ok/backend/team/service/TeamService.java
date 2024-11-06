@@ -260,6 +260,10 @@ public class TeamService {
         return memberService.getMemberProfilesByMemberList(memberList);
     }
 
+    public List<Member> getTeamMembersList(Long teamId) throws MalformedURLException {
+        return teamRepository.getTeamMembers(teamId);
+    }
+
     public TeamResponseDto convertToDto(Team team) {
         String imageUrl = null;
 

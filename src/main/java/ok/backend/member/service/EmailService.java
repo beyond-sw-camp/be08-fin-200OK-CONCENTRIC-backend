@@ -5,10 +5,13 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ok.backend.member.domain.entity.Email;
+import ok.backend.member.domain.entity.Member;
 import ok.backend.member.domain.repository.EmailRepository;
 import ok.backend.member.dto.EmailVerifyRequestDto;
 import ok.backend.notification.domain.entity.NotificationPending;
 import ok.backend.notification.domain.enums.NotificationType;
+import ok.backend.schedule.domain.entity.Schedule;
+import ok.backend.schedule.domain.entity.SubSchedule;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -193,6 +196,14 @@ public class EmailService {
         message.setText("알림이다!");
 
         javaMailSender.send(message);
+    }
+
+    public void sendNotificationEmailFromSchedule(Schedule schedule, Member member) throws MessagingException {
+
+    }
+
+    public void sendNotificationEmailFromSubSchedule(SubSchedule subSchedule, Member member) throws MessagingException {
+
     }
 
     public void sendInviteEmail(String recipientEmail, String inviteUrl) throws MessagingException {

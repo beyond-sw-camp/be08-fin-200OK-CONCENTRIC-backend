@@ -1,13 +1,16 @@
 package ok.backend.schedule.service;
 
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ok.backend.common.exception.CustomException;
 import ok.backend.common.exception.ErrorCode;
 import ok.backend.member.domain.entity.Member;
+import ok.backend.notification.service.NotificationService;
 import ok.backend.schedule.domain.entity.Schedule;
 import ok.backend.schedule.domain.entity.SubSchedule;
 import ok.backend.schedule.domain.enums.Status;
+import ok.backend.schedule.domain.enums.Type;
 import ok.backend.schedule.domain.repository.ScheduleRepository;
 import ok.backend.schedule.domain.repository.SubScheduleRepository;
 import ok.backend.schedule.dto.req.SubScheduleRequestDto;
@@ -17,6 +20,7 @@ import ok.backend.member.service.MemberService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,6 +36,7 @@ public class SubScheduleService {
     private final MemberService memberService;
     private final SecurityUserDetailService securityUserDetailService;
     private final ScheduleRepository scheduleRepository;
+    private final NotificationService notificationService;
 
 //    public List<SubSchedule> getSubSchedulesByScheduleEntity(Long scheduleId) {
 //        var schedule = scheduleService.getScheduleEntityById(scheduleId); // 상위 일정 확인
@@ -63,7 +68,7 @@ public class SubScheduleService {
     }
 
     // 하위 일정 수정
-    public SubScheduleResponseDto updateSubSchedule(Long subScheduleId, SubScheduleRequestDto subScheduleRequestDto) {
+    public SubScheduleResponseDto updateSubSchedule(Long subScheduleId, SubScheduleRequestDto subScheduleRequestDto) throws MalformedURLException, MessagingException {
         Member member = memberService.findMemberById(securityUserDetailService.getLoggedInMember().getId());
 
         SubSchedule subSchedule = subScheduleRepository.findById(subScheduleId)
@@ -77,11 +82,16 @@ public class SubScheduleService {
         SubSchedule updatedSubSchedule = subScheduleRepository.save(subSchedule);
 
         scheduleService.calculateProgress(updatedSubSchedule.getSchedule().getId());
+
+        if(subSchedule.getSchedule().getType().equals(Type.TEAM) && subSchedule.getSchedule().getStatus().equals(Status.COMPLETED)) {
+            notificationService.saveNotificationFromSubSchedule(subSchedule);
+        }
+
         return new SubScheduleResponseDto(updatedSubSchedule);
     }
 
     // 하위 일정 상태 업데이트
-    public void updateSubScheduleStatus(Long subScheduleId, Status status) {
+    public void updateSubScheduleStatus(Long subScheduleId, Status status) throws MalformedURLException, MessagingException {
         Member member = memberService.findMemberById(securityUserDetailService.getLoggedInMember().getId());
 
         SubSchedule subSchedule = subScheduleRepository.findById(subScheduleId)
@@ -95,6 +105,10 @@ public class SubScheduleService {
         SubSchedule updatedSubSchedule = subScheduleRepository.save(subSchedule);
 
         scheduleService.calculateProgress(updatedSubSchedule.getSchedule().getId());
+
+        if(subSchedule.getSchedule().getType().equals(Type.TEAM) && subSchedule.getSchedule().getStatus().equals(Status.COMPLETED)) {
+            notificationService.saveNotificationFromSubSchedule(subSchedule);
+        }
     }
 
     // 하위 일정 삭제

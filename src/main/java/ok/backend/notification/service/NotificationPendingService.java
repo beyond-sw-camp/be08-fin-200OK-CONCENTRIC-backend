@@ -13,6 +13,7 @@ import ok.backend.schedule.domain.enums.Type;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.net.MalformedURLException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -95,11 +96,23 @@ public class NotificationPendingService {
                 notificationPendingRepository.save(notificationPending);
             }
         }
+    }
 
+    public void deleteScheduleInPending(Schedule schedule) {
+        if(schedule.getType().equals(Type.PRIVATE)) {
+            Optional<NotificationPending> foundNotificationPending = notificationPendingRepository
+                    .findByScheduleIdAndNotificationTypeAndIsSentFalse(schedule.getId(), NotificationType.PRIVATE);
+
+            foundNotificationPending.ifPresent(notificationPendingRepository::delete);
+        } else if(schedule.getType().equals(Type.TEAM)) {
+            Optional<NotificationPending> foundNotificationPending = notificationPendingRepository
+                    .findByScheduleIdAndNotificationTypeAndIsSentFalse(schedule.getId(), NotificationType.BEFORE_START_SCHEDULE);
+            foundNotificationPending.ifPresent(notificationPendingRepository::delete);
+        }
     }
 
     @Scheduled(cron = "0 0/1 * * * *")
-    public void SendAndSaveNotification() throws MessagingException {
+    public void SendAndSaveNotification() throws MessagingException, MalformedURLException {
 
         List<NotificationPending> notificationPendingList =
                 notificationPendingRepository.findAllBySendDateLessThanEqualAndIsSentFalseOrderBySendDateAsc(LocalDateTime.now());

@@ -1,5 +1,6 @@
 package ok.backend.schedule.service;
 
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ok.backend.common.exception.CustomException;
@@ -25,6 +26,7 @@ import ok.backend.team.service.TeamService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -82,7 +84,7 @@ public class ScheduleService {
     }
 
     // 일정 수정
-    public ScheduleResponseDto updateSchedule(Long scheduleId, ScheduleRequestDto scheduleRequestDto) {
+    public ScheduleResponseDto updateSchedule(Long scheduleId, ScheduleRequestDto scheduleRequestDto) throws MalformedURLException, MessagingException {
         Member member = memberService.findMemberById(securityUserDetailService.getLoggedInMember().getId());
 
         Schedule schedule = scheduleRepository.findById(scheduleId)
@@ -98,7 +100,11 @@ public class ScheduleService {
         Schedule updatedSchedule = scheduleRepository.save(schedule);
         calculateProgress(updatedSchedule.getId());
 
-        notificationPendingService.updateScheduleToPending(schedule, updatedSchedule);
+        if(schedule.getType().equals(Type.TEAM) && updatedSchedule.getStatus().equals(Status.COMPLETED)) {
+            notificationService.saveNotificationFromSchedule(schedule);
+        } else {
+            notificationPendingService.updateScheduleToPending(schedule, updatedSchedule);
+        }
 
         return new ScheduleResponseDto(updatedSchedule);
     }
@@ -143,7 +149,7 @@ public class ScheduleService {
     }
 
     // 일정 삭제
-    public void deleteSchdule(Long scheduleId) {
+    public void deleteSchedule(Long scheduleId) {
         Member member = memberService.findMemberById(securityUserDetailService.getLoggedInMember().getId());
         Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
@@ -152,10 +158,11 @@ public class ScheduleService {
             throw new CustomException(ErrorCode.NOT_ACCESS_SCHEDULE);
         }
         scheduleRepository.delete(schedule);
+        notificationPendingService.deleteScheduleInPending(schedule);
     }
 
     // 상태 업데이트
-    public void updateScheduleStatus(Long scheduleId, Status status) {
+    public void updateScheduleStatus(Long scheduleId, Status status) throws MalformedURLException, MessagingException {
         Member member = memberService.findMemberById(securityUserDetailService.getLoggedInMember().getId());
         Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
@@ -166,6 +173,9 @@ public class ScheduleService {
         schedule.updateScheduleStatus(status);
         calculateProgress(schedule.getId());
         scheduleRepository.save(schedule);
+        if(schedule.getType().equals(Type.TEAM) && status.equals(Status.COMPLETED)) {
+            notificationService.saveNotificationFromSchedule(schedule);
+        }
     }
 
     // 진행도 계산
