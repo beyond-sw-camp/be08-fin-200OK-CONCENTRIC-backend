@@ -8,8 +8,12 @@ import ok.backend.common.security.util.SecurityUserDetailService;
 import ok.backend.member.domain.entity.Member;
 import ok.backend.notification.domain.entity.Notification;
 import ok.backend.notification.domain.entity.NotificationPending;
+import ok.backend.notification.domain.enums.NotificationType;
 import ok.backend.notification.domain.repository.NotificationRepository;
 import ok.backend.notification.dto.NotificationResponseDto;
+import ok.backend.schedule.domain.entity.Schedule;
+import ok.backend.team.domain.entity.Team;
+import ok.backend.team.service.TeamService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,14 +28,40 @@ public class NotificationService {
 
     private final SecurityUserDetailService securityUserDetailService;
 
-    public void saveNotification(NotificationPending notificationPending) {
-        Notification notification = Notification.builder()
-                .receiver(notificationPending.getSchedule().getMember())
-                .message(notificationPending.getSchedule().getTitle() + " 알림이에요")
-                .isRead(false)
-                .build();
+    private final TeamService teamService;
 
-        notificationRepository.save(notification);
+    public void saveNotificationFromPending(NotificationPending notificationPending) {
+
+        if(notificationPending.getNotificationType().equals(NotificationType.PRIVATE)) {
+            Notification notification = Notification.builder()
+                    .receiver(notificationPending.getSchedule().getMember())
+                    .message(notificationPending.getSchedule().getTitle() + " 일정이 곧 시작됩니다")
+                    .notificationType(NotificationType.PRIVATE)
+                    .image(notificationPending.getSchedule().getMember().getImageUrl())
+                    .isRead(false)
+                    .build();
+
+            notificationRepository.save(notification);
+
+        }else if(notificationPending.getNotificationType().equals(NotificationType.BEFORE_START_SCHEDULE)){
+
+            Team team = teamService.findById(notificationPending.getSchedule().getTeamId());
+
+            Notification notification = Notification.builder()
+                    .receiver(notificationPending.getSchedule().getMember())
+                    .message(team.getName() + " 의 " + notificationPending.getSchedule().getTitle() + " 일정이 곧 시작됩니다")
+                    .notificationType(NotificationType.BEFORE_START_SCHEDULE)
+                    .image(notificationPending.getSchedule().getMember().getImageUrl())
+                    .isRead(false)
+                    .build();
+
+            notificationRepository.save(notification);
+
+        }
+    }
+
+    public void saveNotification() {
+
     }
 
     public List<NotificationResponseDto> getAllNotifications() {

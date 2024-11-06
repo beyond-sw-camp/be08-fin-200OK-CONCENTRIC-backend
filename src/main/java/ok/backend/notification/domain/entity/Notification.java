@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import ok.backend.member.domain.entity.Member;
+import ok.backend.notification.domain.enums.NotificationType;
+import org.checkerframework.checker.units.qual.C;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -34,6 +36,12 @@ public class Notification {
 
     @Column(name = "is_read", nullable = false)
     private Boolean isRead;
+
+    @Column(name = "type", nullable = false)
+    private NotificationType notificationType;
+
+    @Column(name = "image")
+    private String image;
 
     public void updateRead(){
         this.isRead = !this.isRead;

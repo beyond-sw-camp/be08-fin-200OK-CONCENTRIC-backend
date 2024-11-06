@@ -76,7 +76,7 @@ public class ScheduleService {
 
         scheduleRepository.save(schedule);
 
-//        notificationPendingService.saveScheduleToPending(schedule);
+        notificationPendingService.saveScheduleToPending(schedule);
 
         return new ScheduleResponseDto(schedule);
     }
@@ -97,7 +97,8 @@ public class ScheduleService {
 
         Schedule updatedSchedule = scheduleRepository.save(schedule);
         calculateProgress(updatedSchedule.getId());
-//        notificationPendingService.updateScheduleToPending(schedule, updatedSchedule);
+
+        notificationPendingService.updateScheduleToPending(schedule, updatedSchedule);
 
         return new ScheduleResponseDto(updatedSchedule);
     }

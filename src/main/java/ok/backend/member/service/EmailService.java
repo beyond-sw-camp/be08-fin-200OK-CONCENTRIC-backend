@@ -184,9 +184,9 @@ public class EmailService {
     public void sendNotificationEmail(NotificationPending notificationPending) throws MessagingException {
         MimeMessage message = javaMailSender.createMimeMessage();
         message.addRecipients(MimeMessage.RecipientType.TO, notificationPending.getSchedule().getMember().getEmail());
-        if(notificationPending.getNotificationType() == NotificationType.BEFORE_START_SCHEDULE){
+        if(notificationPending.getNotificationType().equals(NotificationType.BEFORE_START_SCHEDULE)){
             message.setSubject("일정이 곧 시작됩니다");
-        }else{
+        }else if(notificationPending.getNotificationType().equals(NotificationType.PRIVATE)){
             message.setSubject("일정이 곧 종료됩니다.");
         }
         message.setFrom(senderEmail);
