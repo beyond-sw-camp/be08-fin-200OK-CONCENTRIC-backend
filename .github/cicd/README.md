@@ -1,4 +1,4 @@
-![200ok_architecture](https://github.com/user-attachments/assets/b861e750-4d76-4668-bb33-46d9569e5886)# 📓 CI/CD 배포 및 운영 전략
+# 📓 CI/CD 배포 및 운영 전략
 
 ## 📌 기술 스택
 
