@@ -64,6 +64,12 @@
 
 <br>
 
+## 📖 시스템 아키텍처
+![200ok_architecture](https://github.com/user-attachments/assets/ae49c0a3-15f4-4f92-ae4e-0c9c3e996692)
+
+
+<br>
+
 ### ✔️ 애플리케이션 아키텍처 및 서비스 운영 전략
 #### 1. Backend
 - Amazon EKS에서 Deployment 사용하여 최소 3개, 최대 4개의 Auto Scaling Pod로 운영
