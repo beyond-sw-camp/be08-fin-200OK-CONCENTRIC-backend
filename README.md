@@ -1,5 +1,4 @@
-# be08-fin-2team
-![image]()
+# ⚡️200OK . CONCENTRIC⚡️
 
 ## 👨‍👩‍👧‍👦 팀원
 ### TEAM 200ok
@@ -144,8 +143,8 @@
 <details>
   <summary>📑 시스템 아키텍처</summary>
   
-  ![fin_architecture_1st](https://github.com/user-attachments/assets/fa939cdd-d118-4b72-a3c1-1d11a31f58c6)
-  
+  ![200ok_architecture](https://github.com/user-attachments/assets/1381a4ac-f160-4ed9-a4de-70c633d07b74)
+
 </details>
 
 <details>
@@ -160,7 +159,7 @@
   <summary>📑 배포 및 운영 전략</summary>
     <ul>
       <li>
-        <a href="https://github.com/beyond-sw-camp/be08-fin-200OK-CONCENTRIC-backend/tree/7eedbed488cc6f6885d4998d4f2c3a62b5d7dbde/.github/cicd">CI/CD 계획서</a>
+        <a href="https://github.com/beyond-sw-camp/be08-fin-200OK-CONCENTRIC-backend/tree/233878aaf5771b17c6cc734ba857d097ef5823eb/.github/cicd">CI/CD 계획서</a>
       </li>
     </ul> 
 </details>
@@ -202,7 +201,7 @@
   <summary>📑 CI/CD 계획서</summary>
     <ul>
       <li>
-        <a href="https://github.com/beyond-sw-camp/be08-fin-200OK-CONCENTRIC-backend/tree/7eedbed488cc6f6885d4998d4f2c3a62b5d7dbde/.github/cicd">CI/CD 계획서</a>
+        <a href="https://github.com/beyond-sw-camp/be08-fin-200OK-CONCENTRIC-backend/tree/233878aaf5771b17c6cc734ba857d097ef5823eb/.github/cicd">CI/CD 계획서</a>
       </li>
     </ul> 
 </details>
