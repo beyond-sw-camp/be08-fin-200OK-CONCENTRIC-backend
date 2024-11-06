@@ -83,8 +83,12 @@ public class SubScheduleService {
 
         scheduleService.calculateProgress(updatedSubSchedule.getSchedule().getId());
 
-        if(subSchedule.getSchedule().getType().equals(Type.TEAM) && subSchedule.getSchedule().getStatus().equals(Status.COMPLETED)) {
+        if(subSchedule.getSchedule().getType().equals(Type.TEAM)) {
             notificationService.saveNotificationFromSubSchedule(subSchedule);
+        }
+
+        if(subSchedule.getSchedule().getType().equals(Type.TEAM) && subSchedule.getSchedule().getStatus().equals(Status.COMPLETED)) {
+            notificationService.saveNotificationFromSchedule(subSchedule.getSchedule());
         }
 
         return new SubScheduleResponseDto(updatedSubSchedule);
@@ -106,8 +110,12 @@ public class SubScheduleService {
 
         scheduleService.calculateProgress(updatedSubSchedule.getSchedule().getId());
 
-        if(subSchedule.getSchedule().getType().equals(Type.TEAM) && subSchedule.getSchedule().getStatus().equals(Status.COMPLETED)) {
+        if(subSchedule.getSchedule().getType().equals(Type.TEAM)) {
             notificationService.saveNotificationFromSubSchedule(subSchedule);
+        }
+
+        if(subSchedule.getSchedule().getType().equals(Type.TEAM) && subSchedule.getSchedule().getStatus().equals(Status.COMPLETED)) {
+            notificationService.saveNotificationFromSchedule(subSchedule.getSchedule());
         }
     }
 

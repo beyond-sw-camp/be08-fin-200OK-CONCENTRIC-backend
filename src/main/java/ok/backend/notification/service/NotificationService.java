@@ -15,6 +15,7 @@ import ok.backend.notification.domain.repository.NotificationRepository;
 import ok.backend.notification.dto.NotificationResponseDto;
 import ok.backend.schedule.domain.entity.Schedule;
 import ok.backend.schedule.domain.entity.SubSchedule;
+import ok.backend.storage.service.AwsFileService;
 import ok.backend.team.domain.entity.Team;
 import ok.backend.team.service.TeamService;
 import org.springframework.stereotype.Service;
@@ -33,16 +34,25 @@ public class NotificationService {
     private final SecurityUserDetailService securityUserDetailService;
 
     private final TeamService teamService;
+
     private final EmailService emailService;
+
+    private final AwsFileService awsFileService;
 
     public void saveNotificationFromPending(NotificationPending notificationPending) throws MalformedURLException {
 
         if(notificationPending.getNotificationType().equals(NotificationType.PRIVATE)) {
+            Member member = notificationPending.getSchedule().getMember();
+            String image = null;
+            if(member.getImageUrl() != null) {
+                image = awsFileService.getUrl(member.getImageUrl());
+            }
+
             Notification notification = Notification.builder()
-                    .receiver(notificationPending.getSchedule().getMember())
+                    .receiver(member)
                     .message(notificationPending.getSchedule().getTitle() + " 일정이 곧 시작됩니다")
                     .notificationType(NotificationType.PRIVATE)
-                    .image(notificationPending.getSchedule().getMember().getImageUrl())
+                    .image(image)
                     .isRead(false)
                     .build();
 
@@ -53,12 +63,17 @@ public class NotificationService {
             Team team = teamService.findById(notificationPending.getSchedule().getTeamId());
             List<Member> members = teamService.getTeamMembersList(team.getId());
 
+            String image = null;
+            if(team.getImageUrl() != null) {
+                image = awsFileService.getUrl(team.getImageUrl());
+            }
+
             for (Member member : members) {
                 Notification notification = Notification.builder()
                         .receiver(member)
                         .message(team.getName() + " 의 " + notificationPending.getSchedule().getTitle() + " 일정이 곧 시작됩니다")
                         .notificationType(NotificationType.BEFORE_START_SCHEDULE)
-                        .image(team.getImageUrl())
+                        .image(image)
                         .isRead(false)
                         .build();
 
@@ -72,12 +87,17 @@ public class NotificationService {
         Team team = teamService.findById(schedule.getTeamId());
         List<Member> members = teamService.getTeamMembersList(team.getId());
 
+        String image = null;
+        if(team.getImageUrl() != null) {
+            image = awsFileService.getUrl(team.getImageUrl());
+        }
+
         for (Member member : members) {
             Notification notification = Notification.builder()
                     .receiver(member)
                     .message(team.getName() + " 의 " + schedule.getTitle() + " 일정이 완료되었습니다")
                     .notificationType(NotificationType.SCHEDULE)
-                    .image(team.getImageUrl())
+                    .image(image)
                     .isRead(false)
                     .build();
 
@@ -93,12 +113,17 @@ public class NotificationService {
         Team team = teamService.findById(subSchedule.getSchedule().getTeamId());
         List<Member> members = teamService.getTeamMembersList(team.getId());
 
+        String image = null;
+        if(team.getImageUrl() != null) {
+            image = awsFileService.getUrl(team.getImageUrl());
+        }
+
         for (Member member : members) {
             Notification notification = Notification.builder()
                     .receiver(member)
                     .message(team.getName() + " : " + currentMember.getNickname() + "님이 " + subSchedule.getSchedule().getTitle() + " 일정의 " + subSchedule.getTitle() + "를 완료하였습니다.")
                     .notificationType(NotificationType.SCHEDULE)
-                    .image(team.getImageUrl())
+                    .image(image)
                     .isRead(false)
                     .build();
 
