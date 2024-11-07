@@ -211,7 +211,7 @@ public class ChatServiceTest {
         ArgumentCaptor<ChatRoomList> chatRoomListCaptor = ArgumentCaptor.forClass(ChatRoomList.class);
 
         // when
-        chatService.joinChat(1L);
+        chatService.joinChat(1L, existedMember);
 
         // then
         verify(chatRoomListRepository, times(1)).save(chatRoomListCaptor.capture());
@@ -227,7 +227,7 @@ public class ChatServiceTest {
 
         // when
         CustomException exception = assertThrows(CustomException.class, () -> {
-            chatService.joinChat(1L);
+            chatService.joinChat(1L, existedMember);
         });
 
         // then
