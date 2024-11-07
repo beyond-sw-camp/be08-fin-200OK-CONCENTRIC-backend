@@ -1,14 +1,17 @@
 # ⚡️200OK . CONCENTRIC⚡️
 
 ## 👨‍👩‍👧‍👦 팀원
+<div align="center">
+  
 ### TEAM 200ok
-|<img src="https://github.com/user-attachments/assets/80f306b6-c063-4384-a090-275ca2aae1d7" width="150" height="190"/>|<img src="https://github.com/user-attachments/assets/e6a1a5fa-50d0-4478-ab84-a9b9ce229044" width="150" height="190"/>|<img src="https://github.com/user-attachments/assets/253fa4f8-2e33-4613-bc46-e5da7ae2b139" width="150" height="190"/>|<img src="https://github.com/user-attachments/assets/62b7f197-2584-428f-8418-33bd90867093" width="150" height="190"/>|<img src="https://github.com/user-attachments/assets/9b7b3b12-158b-45b4-aaec-f3364e723ae8" width="150" height="190"/>|
-|:-:|:-:|:-:|:-:|:-:|
-|박성준 (팀장)<br><a href="https://github.com/sjpark-08"><img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=GitHub&logoColor=white"/></a>|김도하<br><a href="https://github.com/esueng"><img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=GitHub&logoColor=white"/></a>|서현지<br><a href=https://github.com/henhen7><img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=GitHub&logoColor=white"/></a>|전현규<br><a href="https://github.com/ideapple"><img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=GitHub&logoColor=white"/></a>|조혜인<br><a href="https://github.com/byHyen"><img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=GitHub&logoColor=white"/></a>|
-
+|<img src="https://github.com/user-attachments/assets/80f306b6-c063-4384-a090-275ca2aae1d7" width="150" height="190"/>|<img src="https://github.com/user-attachments/assets/e6a1a5fa-50d0-4478-ab84-a9b9ce229044" width="150" height="190"/>|<img src="https://github.com/user-attachments/assets/253fa4f8-2e33-4613-bc46-e5da7ae2b139" width="150" height="190"/>|<img src="https://github.com/user-attachments/assets/9b7b3b12-158b-45b4-aaec-f3364e723ae8" width="150" height="190"/>|
+|:-:|:-:|:-:|:-:|
+|박성준 (팀장)<br><a href="https://github.com/sjpark-08"><img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=GitHub&logoColor=white"/></a>|김도하<br><a href="https://github.com/esueng"><img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=GitHub&logoColor=white"/></a>|서현지<br><a href=https://github.com/henhen7><img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=GitHub&logoColor=white"/></a>|조혜인<br><a href="https://github.com/byHyen"><img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=GitHub&logoColor=white"/></a>|
+</div>
 <br><br>
 
 ## ⚙ 기술스택
+<div align="center">
 <p><strong>⚙ Frontend <br></strong>
   <img src="https://img.shields.io/badge/html5-E34F26?style=for-the-badge&logo=html5&logoColor=white"> 
   <img src="https://img.shields.io/badge/css-1572B6?style=for-the-badge&logo=css3&logoColor=white"> 
@@ -38,11 +41,15 @@
 </p>
 
 <p><strong>⚙ CI/CD <br></strong>
-  <img src="https://img.shields.io/badge/ngrok-1F1E37.svg?style=for-the-badge&logo=ngrok&logoColor=white">
+  <img src="https://img.shields.io/badge/linux-FCC624?style=for-the-badge&logo=linux&logoColor=black" style="border-radius: 5px;">
+  <img src="https://img.shields.io/badge/kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white" style="border-radius: 5px;">
+  <img src="https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" style="border-radius: 5px;"></br>
   <img src="https://img.shields.io/badge/nginx-%23009639.svg?style=for-the-badge&logo=nginx&logoColor=white">
-  <img src="https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white">
-  <img src="https://img.shields.io/badge/jenkins-D24939.svg?style=for-the-badge&logo=jenkins&logoColor=white"> 
-  <img src="https://img.shields.io/badge/kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white">
+  <img src="https://img.shields.io/badge/githubactions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white" style="border-radius: 5px;">
+  <img src="https://img.shields.io/badge/git-F05032?style=for-the-badge&logo=git&logoColor=white" style="border-radius: 5px;">
+  <img src="https://img.shields.io/badge/amazoneks-FF9900?style=for-the-badge&logo=amazoneks&logoColor=white" style="border-radius: 5px;">
+  <img src="https://img.shields.io/badge/amazonec2-2088FF?style=for-the-badge&logo=amazonec2&logoColor=white" style="border-radius: 5px;">
+  <img src="https://img.shields.io/badge/amazonroute53-8C4FFF?style=for-the-badge&logo=amazonroute53&logoColor=white" style="border-radius: 5px;">
   
 </p>
 
@@ -56,6 +63,7 @@
   <img src="https://img.shields.io/badge/intellijidea-000000.svg?style=for-the-badge&logo=intellijidea&logoColor=white"> 
 
 </p>
+</div>
 
 <br><br>
 
@@ -63,12 +71,12 @@
 
 ### :zap: 한화시스템 BEYOND SW캠프 8기 final 프로젝트: CONCENTRIC :zap:
 
-#### 개요
+#### - 개요
 - COVID-19 팬데믹 이후 재택근무 및 하이브리드 근무 보편화로 인한 협업 툴 수요가 증대됨
 - 기업규모별 협업 툴 사용 현황에 따르면, 대기업에서 활용률이 가장 높으며, 중소기업 및 스타트업 기업에서도 다양하게 활용되는 것으로 확인됨
 - 시공간에 구애받지 않는 협업, 업무 최적화 툴에 대한 높은 수요 전망
 
-#### 목표
+#### - 목표
 - 웹 기반 사내 프로젝트 및 개인 단체 프로젝트 관리 프로그램 개발을 통한 일정 관리의 효율성을 제고하고자 함
 - 개인 혹은 팀 단위 프로젝트와 업무 절차의 혼선 방지 및 관리 지원
 - WBS, 캘린더, 리스트 형식의 관리 방법 제공을 통한 가독성 증대
