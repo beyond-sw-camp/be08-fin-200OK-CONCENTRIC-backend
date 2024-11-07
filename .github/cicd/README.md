@@ -23,7 +23,6 @@
 - Worker Node: 2 (Frontend 1, Backend 1)
 <br><br>
 - OS : Linux
-- Container : Docker
 - Orchestration : Amazon EKS(Kubernetes)
 - CI/CD : Github Actions
 - Monitoring : 
