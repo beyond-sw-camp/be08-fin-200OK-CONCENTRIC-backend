@@ -153,16 +153,15 @@ jobs:
     runs-on: ubuntu-latest
     environment: actions
     needs: [build-backend, docker-build-push, update-deployment-file, deploy-backend]
-    if: always()
+    if: success()
     steps:
       - name: Send notification to Discord
-        if: success()
         run: |
           curl -H "Content-Type: application/json" \
             -d '{
                   "embeds": [
                     {
-                      "title": "**🔗Build Notification**",
+                      "title": "**🔗Backend Build**",
                       "description": "**Status**: Success\n**Build Number**: '${GITHUB_RUN_NUMBER}'",
                       "color": 3066993,
                       "timestamp": "'$(date --iso-8601=seconds)'"
