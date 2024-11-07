@@ -116,7 +116,7 @@ public class ScheduleService {
         // 가입한 팀 일정 조회
         List<TeamList> teamList = teamService.findByMemberId(member.getId());
         for (TeamList team : teamList) {
-            List<Schedule> teamSchedules = scheduleRepository.findByTeamId(team.getId());
+            List<Schedule> teamSchedules = scheduleRepository.findByTeamId(team.getTeam().getId());
             allSchedules.addAll(teamSchedules);
         }
 
