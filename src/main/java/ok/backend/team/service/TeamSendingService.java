@@ -38,7 +38,7 @@ public class TeamSendingService {
                 .email(email)
                 .build();
         inviteService.saveInvite(invite);
-        return "http://localhost:3000/team-invite?" + "key=" + uuid + "&teamId=" + teamId + "&email=" + email;
+        return "https://200concentric.com/team-invite?" + "key=" + uuid + "&teamId=" + teamId + "&email=" + email;
     }
 
     // 초대 이메일 전송
