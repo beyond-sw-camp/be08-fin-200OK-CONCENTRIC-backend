@@ -59,71 +59,28 @@ public class EmailService {
                 "    <meta charset=\"UTF-8\">\n" +
                 "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
                 "    <title>인증 코드</title>\n" +
-                "    <style>\n" +
-                "        body {\n" +
-                "            font-family: Arial, sans-serif;\n" +
-                "            margin: 0;\n" +
-                "            padding: 0;\n" +
-                "        }\n" +
-                "        .container {\n" +
-                "            max-width: 600px;\n" +
-                "            margin: 0 auto;\n" +
-                "            background: #ffffff;\n" +
-                "            border-radius: 8px;\n" +
-                "            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);\n" +
-                "        }\n" +
-                "        .header {\n" +
-                "            font-size: 30px;\n" +
-                "            color: white;\n" +
-                "            padding: 20px;\n" +
-                "            text-align: center;\n" +
-                "            border-radius: 8px 8px 0 0;\n" +
-                "            background: linear-gradient(to right, #8A9BF9, #86EDDA);\n" +
-                "        }\n" +
-                "        .content {\n" +
-                "            padding: 20px;\n" +
-                "            line-height: 1.6;\n" +
-                "        }\n" +
-                "        .code {\n" +
-                "            font-size: 20px; /* 폰트 크기를 줄였습니다. */\n" +
-//                "            font-weight: bold;\n" +
-                "            color: #000000;\n" +
-                "            text-align: center;\n" +
-                "            padding: 10px;\n" +
-                "            background-color: #F5F5F5;\n" +
-                "            border-radius: 5px;\n" +
-                "            margin: 20px 0;\n" +
-                "        }\n" +
-                "        .footer {\n" +
-                "            text-align: center;\n" +
-                "            padding: 10px;\n" +
-                "            font-size: 12px;\n" +
-                "            color: #888;\n" +
-                "            border-top: 1px solid #e0e0e0;\n" +
-                "        }\n" +
-                "    </style>\n" +
                 "</head>\n" +
-                "<body>\n" +
-                "\n" +
-                "<div class=\"container\">\n" +
-                "    <div class=\"header\">\n" +
+                "<body style=\"font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f9f9f9;\">\n" +
+                "<div style=\"max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 8px; border: 1px solid #e0e0e0; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);\">\n" +
+                "    <div style=\"font-size: 30px; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; background: linear-gradient(to right, #8A9BF9, #86EDDA);\">\n" +
                 "        CONCENTRIC\n" +
                 "    </div>\n" +
-                "    <div class=\"content\">\n" +
+                "    <div style=\"padding: 30px; line-height: 1.6; color: #333333;\">\n" +
                 "        <p>안녕하세요!</p>\n" +
                 "        <p>가입해 주셔서 감사합니다. 다음 인증 코드를 사용하여 등록을 완료하세요:</p>\n" +
-                "        <div class=\"code\">123456</div>\n" +
+                "        <div style=\"font-size: 20px; color: #000000; text-align: center; padding: 10px; background-color: #F5F5F5; border-radius: 5px; margin: 20px 0;\">\n" +
+                "            " + authCode + "\n" +
+                "        </div>\n" +
                 "        <p>이 코드는 10분 후에 만료됩니다.</p>\n" +
                 "        <p>이 요청을 하지 않으셨다면 이 이메일을 무시하시기 바랍니다.</p>\n" +
                 "    </div>\n" +
-                "    <div class=\"footer\">\n" +
+                "    <div style=\"text-align: center; padding: 10px; font-size: 12px; color: #888888; border-top: 1px solid #e0e0e0;\">\n" +
                 "        <p>저희와 함께해 주셔서 감사합니다!</p>\n" +
-                "        <p>회사 이름 | <a href=\"#\">개인정보 처리방침</a></p>\n" +
+                "        <p>CONCENTRIC | <a href=\"#\" style=\"color: #8A9BF9; text-decoration: none;\">개인정보 처리방침</a></p>\n" +
                 "    </div>\n" +
                 "</div>\n" +
-                "\n" +
                 "</body>\n" +
-                "</html>\n";
+                "</html>";
 
 
         htmlContent = htmlContent.replace("123456",authCode);
@@ -172,7 +129,37 @@ public class EmailService {
         message.addRecipients(MimeMessage.RecipientType.TO, email);
         message.setSubject("안녕하세요. 초기화된 비밀번호입니다.");
         message.setFrom(senderEmail);
-        message.setText("새로운 비밀번호 : " + code, "utf-8", "html");
+
+        String htmlContent = "<!DOCTYPE html>\n" +
+                "<html lang=\"ko\">\n" +
+                "<head>\n" +
+                "    <meta charset=\"UTF-8\">\n" +
+                "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
+                "    <title>초기화된 비밀번호</title>\n" +
+                "</head>\n" +
+                "<body style=\"font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f9f9f9;\">\n" +
+                "<div style=\"max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 8px; border: 1px solid #e0e0e0; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);\">\n" +
+                "    <div style=\"font-size: 30px; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; background: linear-gradient(to right, #8A9BF9, #86EDDA);\">\n" +
+                "        CONCENTRIC\n" +
+                "    </div>\n" +
+                "    <div style=\"padding: 30px; line-height: 1.6; color: #333333;\">\n" +
+                "        <p>안녕하세요!</p>\n" +
+                "        <p>요청하신 초기화된 비밀번호는 아래와 같습니다:</p>\n" +
+                "        <div style=\"font-size: 20px; color: #000000; text-align: center; padding: 10px; background-color: #F5F5F5; border-radius: 5px; margin: 20px 0;\">\n" +
+                "            " + code + "\n" +
+                "        </div>\n" +
+                "        <p>로그인 후 비밀번호를 변경하는 것을 권장드립니다.</p>\n" +
+                "        <p>이 요청을 하지 않으셨다면 이 이메일을 무시하시기 바랍니다.</p>\n" +
+                "    </div>\n" +
+                "    <div style=\"text-align: center; padding: 10px; font-size: 12px; color: #888888; border-top: 1px solid #e0e0e0;\">\n" +
+                "        <p>저희와 함께해 주셔서 감사합니다!</p>\n" +
+                "        <p>CONCENTRIC | <a href=\"#\" style=\"color: #8A9BF9; text-decoration: none;\">개인정보 처리방침</a></p>\n" +
+                "    </div>\n" +
+                "</div>\n" +
+                "</body>\n" +
+                "</html>";
+
+        message.setContent(htmlContent, "text/html; charset=utf-8");
 
         return message;
     }
@@ -187,13 +174,48 @@ public class EmailService {
     public void sendNotificationEmail(NotificationPending notificationPending) throws MessagingException {
         MimeMessage message = javaMailSender.createMimeMessage();
         message.addRecipients(MimeMessage.RecipientType.TO, notificationPending.getSchedule().getMember().getEmail());
+
+        String subject;
+        String notificationMessage;
+
         if(notificationPending.getNotificationType().equals(NotificationType.BEFORE_START_SCHEDULE)){
-            message.setSubject("일정이 곧 시작됩니다");
-        }else if(notificationPending.getNotificationType().equals(NotificationType.PRIVATE)){
-            message.setSubject("일정이 곧 종료됩니다.");
+            subject = "일정이 곧 시작됩니다!";
+            notificationMessage = "곧 시작할 예정인 일정이 있으니 준비해 주세요!";
+        }else {
+            subject = "일정이 곧 종료됩니다!";
+            notificationMessage = "곧 종료될 일정이 있으니 마무리 준비를 해 주세요!";
+
         }
+        message.setSubject(subject);
         message.setFrom(senderEmail);
-        message.setText("알림이다!");
+
+        String htmlContent = "<!DOCTYPE html>\n" +
+                "<html lang=\"ko\">\n" +
+                "<head>\n" +
+                "    <meta charset=\"UTF-8\">\n" +
+                "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
+                "    <title>일정 알림</title>\n" +
+                "</head>\n" +
+                "<body style=\"font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f9f9f9;\">\n" +
+                "<div style=\"max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 8px; border: 1px solid #e0e0e0; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);\">\n" +
+                "    <div style=\"font-size: 30px; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; background: linear-gradient(to right, #8A9BF9, #86EDDA);\">\n" +
+                "        CONCENTRIC 일정 알림\n" +
+                "    </div>\n" +
+                "    <div style=\"padding: 30px; line-height: 1.6; color: #333333;\">\n" +
+                "        <p>안녕하세요!</p>\n" +
+                "        <p>" + notificationMessage + "</p>\n" +
+                "        <p>일정 시간에 맞춰 준비하시기 바랍니다.</p>\n" +
+                "        <p>이 알림을 받지 않으셔야 한다면, 설정에서 알림을 비활성화해 주세요.</p>\n" +
+                "    </div>\n" +
+                "    <div style=\"text-align: center; padding: 10px; font-size: 12px; color: #888888; border-top: 1px solid #e0e0e0;\">\n" +
+                "        <p>저희와 함께해 주셔서 감사합니다!</p>\n" +
+                "        <p>CONCENTRIC | <a href=\"#\" style=\"color: #8A9BF9; text-decoration: none;\">개인정보 처리방침</a></p>\n" +
+                "    </div>\n" +
+                "</div>\n" +
+                "</body>\n" +
+                "</html>";
+
+        message.setContent(htmlContent, "text/html; charset=utf-8");
 
         javaMailSender.send(message);
     }
@@ -213,78 +235,32 @@ public class EmailService {
         message.setSubject("당신을 그룹에 초대합니다.");
         message.setFrom(senderEmail);
 
-        // HTML 콘텐츠 생성
         String htmlContent = "<!DOCTYPE html>\n" +
                 "<html lang=\"ko\">\n" +
                 "<head>\n" +
                 "    <meta charset=\"UTF-8\">\n" +
                 "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
                 "    <title>CONCENTRIC</title>\n" +
-                "    <style>\n" +
-                "        body {\n" +
-                "            font-family: Arial, sans-serif;\n" +
-                "            margin: 0;\n" +
-                "            padding: 0;\n" +
-                "        }\n" +
-                "        .container {\n" +
-                "            max-width: 600px;\n" +
-                "            margin: 0 auto;\n" +
-                "            background: #ffffff;\n" +
-                "            border-radius: 8px;\n" +
-                "            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);\n" +
-                "        }\n" +
-                "        .header {\n" +
-                "            font-size: 30px;\n" +
-                "            color: white;\n" +
-                "            padding: 20px;\n" +
-                "            text-align: center;\n" +
-                "            border-radius: 8px 8px 0 0;\n" +
-                "            background: linear-gradient(to right, #8A9BF9, #86EDDA);\n" +
-                "        }\n" +
-                "        .content {\n" +
-                "            padding: 20px;\n" +
-                "            line-height: 1.6;\n" +
-                "        }\n" +
-                "        .invite-link {\n" +
-                "            font-size: 20px;\n" +
-                "            color: #000000;\n" +
-                "            text-align: center;\n" +
-                "            padding: 10px;\n" +
-                "            background-color: #F5F5F5;\n" +
-                "            border-radius: 5px;\n" +
-                "            margin: 20px 0;\n" +
-                "            display: inline-block;\n" +
-                "            text-decoration: none;\n" +
-                "            border: 1px solid #8A9BF9;\n" +
-                "        }\n" +
-                "        .footer {\n" +
-                "            text-align: center;\n" +
-                "            padding: 10px;\n" +
-                "            font-size: 12px;\n" +
-                "            color: #888;\n" +
-                "            border-top: 1px solid #e0e0e0;\n" +
-                "        }\n" +
-                "    </style>\n" +
                 "</head>\n" +
-                "<body>\n" +
-                "<div class=\"container\">\n" +
-                "    <div class=\"header\">\n" +
+                "<body style=\"font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f9f9f9;\">\n" +
+                "<div style=\"max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 8px; border: 1px solid #e0e0e0; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);\">\n" +
+                "    <div style=\"font-size: 30px; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; background: linear-gradient(to right, #8A9BF9, #86EDDA);\">\n" +
                 "        CONCENTRIC\n" +
                 "    </div>\n" +
-                "    <div class=\"content\">\n" +
+                "    <div style=\"padding: 30px; line-height: 1.6; color: #333333;\">\n" +
                 "        <p>안녕하세요!</p>\n" +
                 "        <p>당신은 새로운 그룹에 초대되었습니다.</p>\n" +
                 "        <p>아래 링크를 클릭하여 그룹에 참여하세요:</p>\n" +
-                "        <a href=\"" + inviteUrl + "\" class=\"invite-link\">그룹 참여하기</a>\n" +
+                "        <a href=\"" + inviteUrl + "\" style=\"font-size: 20px; color: #0052CC; text-align: center; padding: 10px; background-color: #F5F5F5; border-radius: 5px; text-decoration: none; display: inline-block; margin: 20px 0; border: 1px solid #8A9BF9;\">그룹 참여하기</a>\n" +
                 "        <p>이 요청을 하지 않으셨다면 이 이메일을 무시하시기 바랍니다.</p>\n" +
                 "    </div>\n" +
-                "    <div class=\"footer\">\n" +
+                "    <div style=\"text-align: center; padding: 10px; font-size: 12px; color: #888888; border-top: 1px solid #e0e0e0;\">\n" +
                 "        <p>저희와 함께해 주셔서 감사합니다!</p>\n" +
-                "        <p>회사 이름 | <a href=\"#\">개인정보 처리방침</a></p>\n" +
+                "        <p>CONCENTRIC | <a href=\"#\" style=\"color: #8A9BF9; text-decoration: none;\">개인정보 처리방침</a></p>\n" +
                 "    </div>\n" +
                 "</div>\n" +
                 "</body>\n" +
-                "</html>\n";
+                "</html>";
 
         // HTML 메시지로 설정
         message.setContent(htmlContent, "text/html; charset=UTF-8");
