@@ -230,6 +230,9 @@
     <blockquote>
 <details>
   <summary>📑 발표 자료</summary>
+  
+[be08-fin-200ok-concentric-ppt.pdf](https://github.com/user-attachments/files/17668106/be08-fin-200ok-concentric-ppt.pdf)
+        
 </details>
     </blockquote>
 </details>
